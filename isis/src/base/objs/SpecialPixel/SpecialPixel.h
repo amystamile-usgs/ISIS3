@@ -383,7 +383,7 @@ namespace Isis {
    *
    * @return string The name of the pixel type
    */
-  inline QString PixelToString(double d) {
+  inline QString PixelToString(double d, double precision=8) {
     if(Isis::IsSpecial(d)) {
       if(Isis::IsNullPixel(d)) return "Null";
       if(Isis::IsLrsPixel(d)) return "Lrs";
@@ -394,7 +394,7 @@ namespace Isis {
     }
 
     QString result;
-    return result.setNum(d, 'g', 8);
+    return result.setNum(d, 'g', precision);
   }
 
 
