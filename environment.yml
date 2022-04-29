@@ -45,6 +45,7 @@ dependencies:
   - ninja==1.7.2
   - nn
   - opencv>=4.5.2
+  - openjpeg>=2.4.0
   - openssl>=1.1.1k
   - pcl >= 1.10.0
   - protobuf

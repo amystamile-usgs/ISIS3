@@ -19,6 +19,7 @@ using namespace std;
 #if ENABLEJP2K
 using namespace kdu_core;
 using namespace kdu_supp;
+
 #endif
 
 namespace Isis {
@@ -55,34 +56,46 @@ namespace Isis {
     if(JP2_Source == NULL) {
 
       // Open the JP2 file stream
-      JP2_Stream = new jp2_family_src();
-      JP2_Stream->open(p_jp2File.toLatin1().data());
+      JP2_Stream = opj_stream_default_create(p_jp2File.toLatin1().data(), 1);
+
+      p_decompressor = opj_create_decompress(OPJ_CODEC_JP2);
 
       // Open the JP2 source
-      JP2_Source = new jp2_source();
-      if(!JP2_Source->open(JP2_Stream)) {
-        QString msg = "Unable to open the decoder because the source file ";
-        msg += "does not have valid JP2 format content [" + p_jp2File + "]";
-        throw IException(IException::User, msg, _FILEINFO_);
-      }
+      // JP2_Source = new jp2_source();
+      // if(!JP2_Source->open(JP2_Stream)) {
+      //   QString msg = "Unable to open the decoder because the source file ";
+      //   msg += "does not have valid JP2 format content [" + p_jp2File + "]";
+      //   throw IException(IException::User, msg, _FILEINFO_);
+      // }
 
-      // Initialize the JP2 header boxes up to the first codestream box
-      JP2_Source->read_header();
+      opj_read_header(JP2_Stream, p_decompressor, &p_image);
 
-      // Open the JP2 codestream
-      JPEG2000_Codestream = new kdu_codestream();
-      JPEG2000_Codestream->create(JP2_Source);
+
+      // // Initialize the JP2 header boxes up to the first codestream box
+      // // Open the JP2 codestream
+      // JPEG2000_Codestream = new kdu_codestream();
+      // JPEG2000_Codestream->create(JP2_Source);
+
 
       // Get the image characteristics
       // Number of components (bands)
-      p_numBands = JPEG2000_Codestream->get_num_components(true);
+      p_numBands = p_image.numcomps;
 
-      // Image dimensions (sample offset, line offset, number of samples,
-      // number of lines) at full resolution
-      JPEG2000_Codestream->get_dims(0, p_imageDims, true); //dims.pos.x, dims.size.x
+
+      // // Image dimensions (sample offset, line offset, number of samples,
+      // // number of lines) at full resolution
+      // JPEG2000_Codestream->get_bandN(0, p_bandOne, true); //bandN.pos.x, bandN.size.x
+
+      if (p_numBands < 1){
+        QString msg = "Source file ";
+        msg += "[" + p_jp2File + "] empty.";
+        throw IException(IException::User, msg, _FILEINFO_);
+      }
+
+      p_bandOne = p_image.comps[0];
 
       // Pixel data structure
-      p_pixelBits = JPEG2000_Codestream->get_bit_depth(0, true);
+      p_pixelBits = p_bandOne.bpp;
       p_pixelBytes = (p_pixelBits >> 3) + ((p_pixelBits % 8) ? 1 : 0);
       if(p_pixelBytes == 3) p_pixelBytes = 4;
       if(p_pixelBits > 16 || p_pixelBytes > 2) {
@@ -90,20 +103,20 @@ namespace Isis {
         msg += "[" + p_jp2File + "]";
         throw IException(IException::User, msg, _FILEINFO_);
       }
-      p_signedData = JPEG2000_Codestream->get_signed(0, true);
+      p_signedData = p_bandOne.sgnd;
 
       // Check all bands in the JP2 file to make sure they all have the same
       // dimensions, bit depth, and signedness
-      kdu_dims dims;
-      unsigned int pixel_bits;
-      bool signed_data;
+      obj_image_comp bandN;
+      OPJ_UINT32 int pixelBits;
+      OPJ_UINT32 signedData;
       for(unsigned int band = 1; band < p_numBands; ++band) {
-        JPEG2000_Codestream->get_dims(band, dims, true);
-        pixel_bits = JPEG2000_Codestream->get_bit_depth(band, true);
-        signed_data = JPEG2000_Codestream->get_signed(band, true);
-        if(dims.size.x != p_imageDims.size.x || dims.size.y != p_imageDims.size.y ||
-            dims.pos.x != p_imageDims.pos.x || dims.pos.y != p_imageDims.pos.y ||
-            pixel_bits != p_pixelBits || signed_data != p_signedData) {
+        bandN = p_image.comps[0];
+        pixelBits = bandN.bpp;
+        signedData = bandN.sgnd;
+        if(bandN.w != p_bandOne.w || bandN.h != p_bandOne.h ||
+            bandN.x0 != p_bandOne.x0 || bandN.y0 != p_bandOne.y0 ||
+            pixelBits != p_pixelBits || signedData != p_signedData) {
           std::string msg = "The source file does not have bands with matching ";
           msg += "characteristics";
           throw IException(IException::User, msg, _FILEINFO_);
@@ -112,27 +125,26 @@ namespace Isis {
 
       // Get the total available resolution levels and set the effective
       // resolution and image region
-      p_highestResLevel = JPEG2000_Codestream->get_min_dwt_levels() + 1;
       SetResolutionAndRegion();
 
       // Initialize the JP2 decoder
       // Initialize the codestream stripe decompressor
-      p_decompressor.start(*JPEG2000_Codestream);
+      opj_decode(p_decompressor, JP2_Stream, p_image);
 
       // Determine optimum stripe heights for accessing data - the
       // optimum stripe heights are ignored. We are instead reading
       // the file a line at a time.
-      p_stripeHeights = new int[p_numBands];
-      p_maxStripeHeights = new int[p_numBands];
-      p_precisions = new int[p_numBands];
-      p_isSigned = new bool[p_numBands];
-      p_decompressor.get_recommended_stripe_heights(MIN_STRIPE_HEIGHT,
-          MAX_STRIPE_HEIGHT, p_stripeHeights, p_maxStripeHeights);
-      for(unsigned int i = 0; i < p_numBands; i++) {
-        p_precisions[i] = p_pixelBits;
-        p_stripeHeights[i] = 1;
-        p_isSigned[i] = p_signedData;
-      }
+      // p_stripeHeights = new int[p_numBands];
+      // p_maxStripeHeights = new int[p_numBands];
+      // p_precisions = new int[p_numBands];
+      // p_isSigned = new bool[p_numBands];
+      // p_decompressor.get_recommended_stripe_heights(MIN_STRIPE_HEIGHT,
+      //     MAX_STRIPE_HEIGHT, p_stripeHeights, p_maxStripeHeights);
+      // for(unsigned int i = 0; i < p_numBands; i++) {
+      //   p_precisions[i] = p_pixelBits;
+      //   p_stripeHeights[i] = 1;
+      //   p_isSigned[i] = p_signedData;
+      // }
     }
 #endif
   }
@@ -146,12 +158,13 @@ namespace Isis {
 #if ENABLEJP2K
     // Determine size of image at requested resolution and reset requested image
     // area if it falls outside of image boundaries
-    JPEG2000_Codestream->apply_input_restrictions(0, 0, p_resolutionLevel - 1, 0, NULL,
-        KDU_WANT_OUTPUT_COMPONENTS);
+    // JPEG2000_Codestream->apply_input_restrictions(0, 0, p_resolutionLevel - 1, 0, NULL,
+    //     KDU_WANT_OUTPUT_COMPONENTS);
 
-    JPEG2000_Codestream->get_dims(0, p_imageDims, true);
-    p_numSamples = p_imageDims.size.x;
-    p_numLines = p_imageDims.size.y;
+    // JPEG2000_Codestream->get_bandN(0, p_bandOne, true);
+    p_bandOne = p_image.comps[0];
+    p_numSamples = p_bandOne.w;
+    p_numLines = p_bandOne.h;
 #endif
   }
 

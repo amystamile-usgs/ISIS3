@@ -8,6 +8,7 @@ find files of those names at the top level of this repository. **/
 /* SPDX-License-Identifier: CC0-1.0 */
 
 #include <string>
+#include "openjpeg.h"
 
 #if ENABLEJP2K
 #include "jp2.h"
@@ -16,6 +17,7 @@ find files of those names at the top level of this repository. **/
 
 #define MIN_STRIPE_HEIGHT 256
 #define MAX_STRIPE_HEIGHT 8192
+
 
 namespace Isis {
   class JP2Error;
@@ -130,15 +132,13 @@ namespace Isis {
       QString p_jp2File;          //!<Input file name
       unsigned int p_numSamples;      //!<Number of samples in JP2 file
       unsigned int p_numLines;        //!<Number of lines in JP2 file
-      unsigned int p_numBands;        //!<Number of bands in JP2 file
+      OPJ_UINT32 p_numBands;        //!<Number of bands in JP2 file
       unsigned int p_pixelBytes;      //!<Number of bytes per pixel in JP2 file.
-      bool p_signedData;              //!<Set to true if data in JP2 file is signed.
+      OPJ_UINT32 p_signedData;              //!<Set to true if data in JP2 file is signed.
 
 #if ENABLEJP2K
       unsigned int p_resolutionLevel; //!<Resolution level that file will be decompressed
       //!<at. Always full resolution.
-      unsigned int p_highestResLevel; //!<Total number of available resolution levels in
-      //!<JP2 file.
       int *p_maxStripeHeights;        //!<Determines the maximum number of lines that can
       //!<be read at a time from the JP2 file.
       int *p_precisions;              //!<Determines the bit precision of each band in
@@ -148,16 +148,16 @@ namespace Isis {
       int *p_stripeHeights;           //!<Determines how many lines are read at a time
       //!<from the JP2 file.
 
-      unsigned int p_pixelBits;       //!<Number of bits per pixel in JP2 file.
+      OPJ_UINT32 p_pixelBits;       //!<Number of bits per pixel in JP2 file.
       bool p_readStripes;             //!<Number of lines read per call to Read methods
 
 
-      kdu_core::kdu_dims p_imageDims;           //!<Image dimensions of JP2 file
-      kdu_supp::jp2_family_src *JP2_Stream;     //!<JP2 file input stream
-      kdu_supp::jp2_source *JP2_Source;         //!<JP2 content source
-      kdu_core::kdu_codestream *JPEG2000_Codestream;    //!<Allow access to JP2 file codestream.
-      kdu_supp::kdu_stripe_decompressor p_decompressor; //!<High level interface to decompression of
-      //!<JP2 file.
+      opj_image_t *p_image;                         //!<Image of JP2 file
+      opj_image_comp_t *p_bandOne;
+      opj_stream_t *JP2_Stream;                         //!<JP2 file input stream
+      opj_codestream_index_t *JPEG2000_Codestream;    //!<Allow access to JP2 file codestream.
+      opj_codec_t *p_decompressor;                      //!<High level interface to decompression of !<JP2 file.
+
 #endif
       JP2Error *Kakadu_Error;         //!<JP2 Error handling facility
 
