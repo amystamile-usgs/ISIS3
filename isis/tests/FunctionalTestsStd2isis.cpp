@@ -202,25 +202,25 @@ TEST_F(TempTestingFiles, FunctionalTestStd2isisJp2) {
   Pvl *outLabel = outCube.label();
 
   PvlGroup dimensions = outLabel->findGroup("Dimensions", Pvl::Traverse);
-  ASSERT_EQ((int)dimensions["Samples"], 126);
-  ASSERT_EQ((int)dimensions["Lines"], 126);
-  ASSERT_EQ((int)dimensions["Bands"], 3);
+  EXPECT_EQ((int)dimensions["Samples"], 126);
+  EXPECT_EQ((int)dimensions["Lines"], 126);
+  EXPECT_EQ((int)dimensions["Bands"], 3);
 
   PvlGroup pixels = outLabel->findGroup("Pixels", Pvl::Traverse);
-  ASSERT_EQ(pixels["Type"][0].toStdString(), "Real");
-  ASSERT_EQ(pixels["ByteOrder"][0].toStdString(), "Lsb");
-  ASSERT_EQ((double)pixels["Base"], 0.0);
-  ASSERT_EQ((double)pixels["Multiplier"], 1.0);
+  EXPECT_EQ(pixels["Type"][0].toStdString(), "Real");
+  EXPECT_EQ(pixels["ByteOrder"][0].toStdString(), "Lsb");
+  EXPECT_EQ((double)pixels["Base"], 0.0);
+  EXPECT_EQ((double)pixels["Multiplier"], 1.0);
 
   PvlGroup bandbin = outLabel->findGroup("BandBin", Pvl::Traverse);
-  ASSERT_EQ(bandbin["Name"][0].toStdString(), "Red");
-  ASSERT_EQ(bandbin["Name"][1].toStdString(), "Green");
-  ASSERT_EQ(bandbin["Name"][2].toStdString(), "Blue");
+  EXPECT_EQ(bandbin["Name"][0].toStdString(), "Red");
+  EXPECT_EQ(bandbin["Name"][1].toStdString(), "Green");
+  EXPECT_EQ(bandbin["Name"][2].toStdString(), "Blue");
 
   std::unique_ptr<Histogram> hist (outCube.histogram());
 
-  ASSERT_NEAR(hist->Average(), 113.12452758881331, .00001);
-  ASSERT_EQ(hist->Sum(), 1795965);
-  ASSERT_EQ(hist->ValidPixels(), 15876);
-  ASSERT_NEAR(hist->StandardDeviation(), 97.354405991298336, .0001);
+  EXPECT_NEAR(hist->Average(), 113.12452758881331, .00001);
+  EXPECT_EQ(hist->Sum(), 1795965);
+  EXPECT_EQ(hist->ValidPixels(), 15876);
+  EXPECT_NEAR(hist->StandardDeviation(), 97.354405991298336, .0001);
 }

@@ -294,7 +294,7 @@ find_package(Geos    3.5.0     REQUIRED)
 find_package(Armadillo         REQUIRED)
 find_package(Threads)
 find_package(inja              REQUIRED)
-find_package(OpenJPEG          REQUIRED)
+find_package(OPENJPEG          REQUIRED)
 
 
 
@@ -322,7 +322,6 @@ foreach (_variableName ${_variableNames})
     list(APPEND ALLINCDIRS "${${_variableName}}")
   elseif (_variableName MATCHES ".+_INCLUDE_DIRS$")
     list(APPEND ALLINCDIRS "${${_variableName}}")
-    message("${${_variableName}}")
   endif()
 endforeach()
 

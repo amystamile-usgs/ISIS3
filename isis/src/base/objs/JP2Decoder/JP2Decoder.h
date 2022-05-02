@@ -149,13 +149,12 @@ namespace Isis {
       //!<from the JP2 file.
 
       OPJ_UINT32 p_pixelBits;       //!<Number of bits per pixel in JP2 file.
-      bool p_readStripes;             //!<Number of lines read per call to Read methods
+      // bool p_readStripes;             //!<Number of lines read per call to Read methods
 
 
       opj_image_t *p_image;                         //!<Image of JP2 file
       opj_image_comp_t *p_bandOne;
       opj_stream_t *JP2_Stream;                         //!<JP2 file input stream
-      opj_codestream_index_t *JPEG2000_Codestream;    //!<Allow access to JP2 file codestream.
       opj_codec_t *p_decompressor;                      //!<High level interface to decompression of !<JP2 file.
 
 #endif

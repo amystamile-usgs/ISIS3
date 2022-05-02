@@ -43,7 +43,7 @@ namespace Isis {
       else {
         throw IException(IException::User,
             "The file [" + filename().expanded() +
-            "] contains unsupported data type",
+            "] contains unsupported data type: " + toString(pixelBytes),
             _FILEINFO_);
       }
 
@@ -56,7 +56,7 @@ namespace Isis {
     catch (IException &e) {
       throw IException(IException::Programmer,
           "The file [" + inputName.expanded() +
-          "] cannot be opened as a JPEG 2000 file",
+          "] cannot be opened as a JPEG 2000 file.",
           _FILEINFO_);
     }
   }
@@ -244,4 +244,3 @@ namespace Isis {
     return value;
   }
 };
-

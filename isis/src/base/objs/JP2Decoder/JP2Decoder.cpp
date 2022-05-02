@@ -13,6 +13,7 @@ find files of those names at the top level of this repository. **/
 #include "IString.h"
 #include "JP2Decoder.h"
 #include "JP2Error.h"
+#include "openjpeg.h"
 
 using namespace std;
 
@@ -35,7 +36,7 @@ namespace Isis {
 #if ENABLEJP2K
     p_jp2File = jp2file;
     p_resolutionLevel = 1;
-    JP2_Source = NULL;
+    // JP2_Source = NULL;
 
     // Register the Kakadu error handler
     Kakadu_Error = new JP2Error;
@@ -53,10 +54,10 @@ namespace Isis {
   void JP2Decoder::OpenFile() {
 #if ENABLEJP2K
     // Make sure file isn't already open
-    if(JP2_Source == NULL) {
+    // if(JP2_Source == NULL) {
 
       // Open the JP2 file stream
-      JP2_Stream = opj_stream_default_create(p_jp2File.toLatin1().data(), 1);
+      JP2_Stream = opj_stream_create_default_file_stream(p_jp2File.toLatin1().data(), 1);
 
       p_decompressor = opj_create_decompress(OPJ_CODEC_JP2);
 
@@ -79,8 +80,8 @@ namespace Isis {
 
       // Get the image characteristics
       // Number of components (bands)
-      p_numBands = p_image.numcomps;
-
+      p_numBands = p_image->numcomps;
+      std::cout << "numBands: " << p_numBands << '\n';
 
       // // Image dimensions (sample offset, line offset, number of samples,
       // // number of lines) at full resolution
@@ -92,10 +93,10 @@ namespace Isis {
         throw IException(IException::User, msg, _FILEINFO_);
       }
 
-      p_bandOne = p_image.comps[0];
+      p_bandOne = &p_image->comps[0];
 
       // Pixel data structure
-      p_pixelBits = p_bandOne.bpp;
+      p_pixelBits = p_bandOne->prec;
       p_pixelBytes = (p_pixelBits >> 3) + ((p_pixelBits % 8) ? 1 : 0);
       if(p_pixelBytes == 3) p_pixelBytes = 4;
       if(p_pixelBits > 16 || p_pixelBytes > 2) {
@@ -103,19 +104,19 @@ namespace Isis {
         msg += "[" + p_jp2File + "]";
         throw IException(IException::User, msg, _FILEINFO_);
       }
-      p_signedData = p_bandOne.sgnd;
+      p_signedData = p_bandOne->sgnd;
 
       // Check all bands in the JP2 file to make sure they all have the same
       // dimensions, bit depth, and signedness
-      obj_image_comp bandN;
-      OPJ_UINT32 int pixelBits;
+      opj_image_comp bandN;
+      OPJ_UINT32 pixelBits;
       OPJ_UINT32 signedData;
       for(unsigned int band = 1; band < p_numBands; ++band) {
-        bandN = p_image.comps[0];
-        pixelBits = bandN.bpp;
+        bandN = p_image->comps[band];
+        pixelBits = bandN.prec;
         signedData = bandN.sgnd;
-        if(bandN.w != p_bandOne.w || bandN.h != p_bandOne.h ||
-            bandN.x0 != p_bandOne.x0 || bandN.y0 != p_bandOne.y0 ||
+        if(bandN.w != p_bandOne->w || bandN.h != p_bandOne->h ||
+            bandN.x0 != p_bandOne->x0 || bandN.y0 != p_bandOne->y0 ||
             pixelBits != p_pixelBits || signedData != p_signedData) {
           std::string msg = "The source file does not have bands with matching ";
           msg += "characteristics";
@@ -129,8 +130,9 @@ namespace Isis {
 
       // Initialize the JP2 decoder
       // Initialize the codestream stripe decompressor
+      std::cout << "Before" << '\n';
       opj_decode(p_decompressor, JP2_Stream, p_image);
-
+      std::cout << "After" << '\n';
       // Determine optimum stripe heights for accessing data - the
       // optimum stripe heights are ignored. We are instead reading
       // the file a line at a time.
@@ -145,7 +147,7 @@ namespace Isis {
       //   p_stripeHeights[i] = 1;
       //   p_isSigned[i] = p_signedData;
       // }
-    }
+    // }
 #endif
   }
 
@@ -162,9 +164,9 @@ namespace Isis {
     //     KDU_WANT_OUTPUT_COMPONENTS);
 
     // JPEG2000_Codestream->get_bandN(0, p_bandOne, true);
-    p_bandOne = p_image.comps[0];
-    p_numSamples = p_bandOne.w;
-    p_numLines = p_bandOne.h;
+    p_bandOne = &p_image->comps[0];
+    p_numSamples = p_bandOne->w;
+    p_numLines = p_bandOne->h;
 #endif
   }
 
@@ -179,10 +181,10 @@ namespace Isis {
    *
    */
   void JP2Decoder::Read(unsigned char **inbuf) {
-#if ENABLEJP2K
-    p_readStripes = p_decompressor.pull_stripe(inbuf, p_stripeHeights, NULL, NULL,
-                    p_precisions);
-#endif
+// #if ENABLEJP2K
+//     p_readStripes = p_decompressor.pull_stripe(inbuf, p_stripeHeights, NULL, NULL,
+//                     p_precisions);
+// #endif
   }
 
   /**
@@ -196,10 +198,10 @@ namespace Isis {
    *
    */
   void JP2Decoder::Read(short int **inbuf) {
-#if ENABLEJP2K
-    p_readStripes = p_decompressor.pull_stripe(inbuf, p_stripeHeights, NULL, NULL,
-                    p_precisions, p_isSigned);
-#endif
+// #if ENABLEJP2K
+//     p_readStripes = p_decompressor.pull_stripe(inbuf, p_stripeHeights, NULL, NULL,
+//                     p_precisions, p_isSigned);
+// #endif
   }
 
   /**
@@ -212,24 +214,27 @@ namespace Isis {
     // "You should be sure to call this function or finish before destroying the kdu_codestream
     // inteface that was passed to start."
     // i.e. Make sure to finish the decompressor before destroying the kdu_codestream.
-    p_decompressor.finish();
-    if(JPEG2000_Codestream) {
-      JPEG2000_Codestream->destroy();
-    }
-    JPEG2000_Codestream = NULL;
-    if(JP2_Source) {
-      JP2_Source->close();
-      delete JP2_Source;
-    }
-    JP2_Source = NULL;
-    if(JP2_Stream) {
-      JP2_Stream->close();
-      delete JP2_Stream;
-    }
+    // p_decompressor.finish();
+    opj_end_decompress(p_decompressor,  JP2_Stream);
+    // if(JPEG2000_Codestream) {
+    //   JPEG2000_Codestream->destroy();
+    // }
+    opj_stream_destroy(JP2_Stream);
     JP2_Stream = NULL;
-    if(Kakadu_Error) {
-      delete Kakadu_Error;
-    }
+    // JPEG2000_Codestream = NULL;
+    // if(JP2_Source) {
+    //   JP2_Source->close();
+    //   delete JP2_Source;
+    // }
+    // JP2_Source = NULL;
+    // if(JP2_Stream) {
+    //   JP2_Stream->close();
+    //   delete JP2_Stream;
+    // }
+
+    // if(Kakadu_Error) {
+    //   delete Kakadu_Error;
+    // }
     delete [] p_stripeHeights;
     delete [] p_maxStripeHeights;
     delete [] p_precisions;
