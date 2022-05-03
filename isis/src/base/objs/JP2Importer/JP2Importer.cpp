@@ -121,9 +121,9 @@ namespace Isis {
     // a line at a time with a ProcessByBrick
     if (band == 1) {
       if (m_pixelType == Isis::UnsignedByte)
-        m_decoder->Read((unsigned char **) m_buffer);
+        m_decoder->Read((unsigned char **) m_buffer, line);
       else
-        m_decoder->Read((short int **) m_buffer);
+        m_decoder->Read((short int **) m_buffer, line);
     }
   }
 

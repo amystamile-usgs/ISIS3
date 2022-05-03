@@ -2163,10 +2163,10 @@ namespace Isis {
     // Loop for each line
     for(int line = 0; line < p_nl; line++) {
       if (p_pixelType == Isis::UnsignedByte) {
-        JP2_decoder->Read((unsigned char **)in);
+        JP2_decoder->Read((unsigned char **)in, line);
       }
       else {
-        JP2_decoder->Read((short int **)in);
+        JP2_decoder->Read((short int **)in, line);
       }
       // Loop for each band
       for(int band = 0; band < p_nb; band++) {

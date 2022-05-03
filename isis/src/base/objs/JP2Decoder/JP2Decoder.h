@@ -121,10 +121,10 @@ namespace Isis {
       }
 
       // Read byte data from the JP2 file
-      void Read(unsigned char **inbuf);
+      void Read(unsigned char **inbuf, int line);
 
       // Read 16-bit data from the JP2 file
-      void Read(short int **inbuf);
+      void Read(short int **inbuf, int line);
 
       static bool IsJP2(QString filename);
 
@@ -156,6 +156,7 @@ namespace Isis {
       opj_image_comp_t *p_bandOne;
       opj_stream_t *JP2_Stream;                         //!<JP2 file input stream
       opj_codec_t *p_decompressor;                      //!<High level interface to decompression of !<JP2 file.
+      OPJ_UINT32 p_strip_height;
 
 #endif
       JP2Error *Kakadu_Error;         //!<JP2 Error handling facility
