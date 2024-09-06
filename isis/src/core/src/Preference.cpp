@@ -9,7 +9,6 @@ find files of those names at the top level of this repository. **/
 #include <iostream>
 #include <iomanip>
 
-#include <QDir>
 #include <QThreadPool>
 
 #include "Preference.h"
@@ -62,11 +61,11 @@ namespace Isis {
     if (hasGroup("Performance")) {
       PvlGroup &performance = findGroup("Performance");
       if (performance.hasKeyword("GlobalThreads")) {
-        IString threadsPreference = performance["GlobalThreads"][0];
+        std::string threadsPreference = IString::DownCase(performance["GlobalThreads"][0]);
 
-        if (threadsPreference.DownCase() != "optimized") {
+        if (threadsPreference != "optimized") {
           // We need a no-iException conversion here
-          int threads = threadsPreference.ToQt().toInt();
+          int threads = std::stoi(threadsPreference);
 
           if (threads > 0) {
             QThreadPool::globalInstance()->setMaxThreadCount(threads);
@@ -91,9 +90,8 @@ namespace Isis {
       // Make sure the user has a .Isis directory
       Isis::FileName setup("$HOME/.Isis");
       if(!setup.fileExists()) {
-        QDir dir;
-        QString dirName(IString(setup.expanded()).ToQt());
-        dir.mkdir(dirName);
+        std::string dirName(setup.expanded());
+        std::filesystem::create_directories(dirName);
       }
 
       // If its a unitTest then load with the unitTest preference file
