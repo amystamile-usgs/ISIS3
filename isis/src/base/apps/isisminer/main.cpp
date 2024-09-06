@@ -71,7 +71,7 @@ void IsisMain() {
       // Split values from keyword name
       QStringList keyval = parm.split(":", Qt::SkipEmptyParts);
       if ( keyval.size() != 2 ) {
-        QString mess = "Ill-formed PARAMETERS (" + parm + ") - use form @key:val";
+        std::string mess = "Ill-formed PARAMETERS (" + parm + ") - use form @key:val";
         throw IException(IException::User, mess, _FILEINFO_);
       }
 
