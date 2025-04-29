@@ -41,11 +41,11 @@ jobs:
           sed -i "s|/isisData/kakadu|kakadu/kakadu_7_9|g" build.sh
 
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then 
-            # conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label RC
+            conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label RC --no-anaconda-upload
           elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then 
-            # conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label LTS
+            conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label LTS --no-anaconda-upload
           else 
-            # conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label LTS --label main
+            conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label LTS --label main --no-anaconda-upload
           fi
 
           BUILT_PACKAGE=$(ls $HOME/miniconda3/conda-bld/linux-64 | grep "isis-${ISIS_VERSION}-.*\.conda")
