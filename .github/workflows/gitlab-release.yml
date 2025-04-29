@@ -38,7 +38,7 @@ jobs:
           cd recipe
           echo $ENCRYPTION_KEY | openssl enc -aes-256-cbc -d -in kakadu/kakadu_7_9.zip.enc -out kakadu/kakadu_7_9.zip -pbkdf2 -iter 10000 -pass stdin
           mkdir -p $HOME/isisData/kakadu
-          unzip kakadu/kakadu_7_9.zip -d $HOME/isisData/kakadu
+          unzip kakadu/kakadu_7_9.zip -d $HOME/isisData/kakadu -x "*/__MACOSX/*" -j
           ls $HOME/isisData/kakadu
           sed -i "s|/isisData/kakadu|$HOME/isisData/kakadu|g" build.sh
 
