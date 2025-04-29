@@ -38,7 +38,7 @@ jobs:
           cd recipe
           echo $ENCRYPTION_KEY | openssl enc -aes-256-cbc -d -in kakadu/kakadu_7_9.zip.enc -out kakadu/kakadu_7_9.zip -pbkdf2 -iter 10000 -pass stdin
           unzip kakadu/kakadu_7_9.zip -d kakadu -x "__MACOSX/*"
-          sed -i "s|/isisData/kakadu|../kakadu/kakadu_7_9|g" build.sh
+          sed -i "s|/isisData/kakadu|../recipe/kakadu/kakadu_7_9|g" build.sh
 
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then 
             conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label RC --no-anaconda-upload
