@@ -12,7 +12,11 @@ on:
       - '*.*.*_RC*'
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-13, macos-14]  # Ubuntu, macOS x86_64, macOS arm64
+        # os: [ubuntu-latest, macos-13]
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
@@ -38,25 +42,31 @@ jobs:
           cd recipe
           echo $ENCRYPTION_KEY | openssl enc -aes-256-cbc -d -in kakadu/kakadu_7_9.zip.enc -out kakadu/kakadu_7_9.zip -pbkdf2 -iter 10000 -pass stdin
           unzip -j kakadu/kakadu_7_9.zip -d /tmp/kakadu_7_9 -x "__MACOSX/*"
-          sed -i "s|/isisData/kakadu|/tmp/kakadu_7_9|g" build.sh
-          ls /tmp/kakadu_7_9
-
-          if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then 
-            conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label RC --no-anaconda-upload
-          elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then 
-            conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label LTS --no-anaconda-upload
-          else 
-            conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label LTS --label main --no-anaconda-upload
+          if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s|/isisData/kakadu|/tmp/kakadu_7_9|g" build.sh
+          else
+            sed -i "s|/isisData/kakadu|/tmp/kakadu_7_9|g" build.sh
           fi
 
-          BUILT_PACKAGE=$(ls $HOME/miniconda3/conda-bld/linux-64 | grep "isis-${ISIS_VERSION}-.*\.conda")
-          echo "::set-output name=built_package::${BUILT_PACKAGE}"
+          if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then 
+            conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label RC
+          elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then 
+            conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label LTS
+          else 
+            conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label LTS --label main
+          fi
+
+          BUILT_DIR=$(conda info --base)/conda-bld
+          echo $BUILT_DIR
+          # BUILT_PACKAGE=$(find "$BUILT_DIR" -name "isis-${ISIS_VERSION}-*.conda" | head -n1)
+          BUILT_PACKAGE=$(find "$BUILT_DIR" -name "isis-dev-*.conda" | head -n1)
+          echo $BUILT_PACKAGE
   test:
     runs-on: ubuntu-latest
     needs: build
 
     steps:
-      - name: Set up Mambaforge
+      - name: Run Tests
         uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-variant: Miniforge3
