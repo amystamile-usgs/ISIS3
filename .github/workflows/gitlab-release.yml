@@ -32,33 +32,34 @@ jobs:
         env:
           ISIS_VERSION: ${{ github.event.release.tag_name || github.ref_name }}
         run: |
-          mamba install conda-build anaconda-client
-          git fetch origin
-          if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then 
-            git checkout $ISIS_VERSION
-          else 
-            git checkout refs/tags/$ISIS_VERSION
-          fi
-          cd recipe
-          echo $ENCRYPTION_KEY | openssl enc -aes-256-cbc -d -in kakadu/kakadu_7_9.zip.enc -out kakadu/kakadu_7_9.zip -pbkdf2 -iter 10000 -pass stdin
-          unzip -j kakadu/kakadu_7_9.zip -d /tmp/kakadu_7_9 -x "__MACOSX/*"
-          if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s|/isisData/kakadu|/tmp/kakadu_7_9|g" build.sh
-          else
-            sed -i "s|/isisData/kakadu|/tmp/kakadu_7_9|g" build.sh
-          fi
+          # mamba install conda-build anaconda-client
+          # git fetch origin
+          # if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then 
+          #   git checkout $ISIS_VERSION
+          # else 
+          #   git checkout refs/tags/$ISIS_VERSION
+          # fi
+          # cd recipe
+          # echo $ENCRYPTION_KEY | openssl enc -aes-256-cbc -d -in kakadu/kakadu_7_9.zip.enc -out kakadu/kakadu_7_9.zip -pbkdf2 -iter 10000 -pass stdin
+          # unzip -j kakadu/kakadu_7_9.zip -d /tmp/kakadu_7_9 -x "__MACOSX/*"
+          # if [[ "$OSTYPE" == "darwin"* ]]; then
+          #   sed -i '' "s|/isisData/kakadu|/tmp/kakadu_7_9|g" build.sh
+          # else
+          #   sed -i "s|/isisData/kakadu|/tmp/kakadu_7_9|g" build.sh
+          # fi
 
-          if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then 
-            conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label RC
-          elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then 
-            conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label LTS
-          else 
-            conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label LTS --label main
-          fi
+          # if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then 
+          #   conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label RC
+          # elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then 
+          #   conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label LTS
+          # else 
+          #   conda build . -c conda-forge -c usgs-astrogeology --override-channels --user usgs-astrogeology --label LTS --label main
+          # fi
 
           BUILT_DIR=$(conda info --base)/conda-bld
           # BUILT_PACKAGE=$(find "$BUILT_DIR" -name "isis-${ISIS_VERSION}-*.conda" | head -n1)
-          BUILT_PACKAGE=$(find "$BUILT_DIR" -name "isis-dev-*.conda" | head -n1)
+          # BUILT_PACKAGE=$(find "$BUILT_DIR" -name "isis-dev-*.conda" | head -n1)
+          BUILT_PACKAGE="isis-9.0.0-0.conda"
           echo "$BUILT_PACKAGE" > built_package.txt
 
       - name: Upload artifact
