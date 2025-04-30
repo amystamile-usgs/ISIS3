@@ -26,6 +26,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-variant: Miniforge3
+          auto-activate-base: true
           auto-update-conda: true
           use-mamba: true
 
@@ -60,7 +61,7 @@ jobs:
           BUILT_DIR=$(conda info --base)/conda-bld
           # BUILT_PACKAGE=$(find "$BUILT_DIR" -name "isis-${ISIS_VERSION}-*.conda" | head -n1)
           # BUILT_PACKAGE=$(find "$BUILT_DIR" -name "isis-dev-*.conda" | head -n1)
-          BUILT_PACKAGE="isis-9.0.0_RC2-0.conda"
+          BUILT_PACKAGE="isis-9.0.0-0.conda"
           echo "$BUILT_PACKAGE" > built_package.txt
 
       - name: Upload artifact
@@ -80,11 +81,13 @@ jobs:
       ISIS_VERSION: ${{ github.event.release.tag_name || github.ref_name }}
       
     steps:
-      - name: Set up Miniconda
+      - name: Set up Miniforge
         uses: conda-incubator/setup-miniconda@v3
         with:
+          miniforge-variant: Miniforge3
+          auto-activate-base: true
           auto-update-conda: true
-          use-mamba: false
+          use-mamba: true
 
       - name: Create conda environment and install dependencies
         run: |
