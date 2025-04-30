@@ -92,7 +92,7 @@ jobs:
       - name: Create conda environment and install dependencies
         run: |
           export ISISROOT=$CONDA_PREFIX
-
+          conda install mamba=1.5.4
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
             conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
           elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then
