@@ -85,6 +85,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-activate-base: true
+          python-version: "3.11"
           auto-update-conda: true
           use-mamba: false
 
