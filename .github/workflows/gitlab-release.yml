@@ -83,7 +83,7 @@ jobs:
       - name: Set up Mambaforge
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniforge-variant: Miniconda3
+          miniforge-variant: Miniforge3
           auto-update-conda: true
           use-mamba: false
 
