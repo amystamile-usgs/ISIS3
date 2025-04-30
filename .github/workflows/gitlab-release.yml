@@ -87,8 +87,6 @@ jobs:
 
       - name: Create conda environment and install dependencies
         run: |
-          mamba create -n install_test -y
-          source activate install_test
           export ISISROOT=$CONDA_PREFIX
 
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
