@@ -85,6 +85,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-variant: Miniforge3
+          mamba-version: "1.5.4"
           auto-activate-base: true
           auto-update-conda: true
           use-mamba: true
@@ -92,7 +93,7 @@ jobs:
       - name: Create conda environment and install dependencies
         run: |
           export ISISROOT=$CONDA_PREFIX
-          conda install mamba=1.5.4
+
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
             conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
           elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then
