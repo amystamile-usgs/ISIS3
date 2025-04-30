@@ -87,6 +87,7 @@ jobs:
           auto-update-conda: true
           activate-environment: isis-test
           use-mamba: true
+          mamba-version: "1.5.3"
 
       - name: Create conda environment and install dependencies
         run: |
@@ -95,7 +96,7 @@ jobs:
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
             conda install -c conda-forge -c usgs-astrogeology python=3.10 usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
           elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then
-            conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} -y
+            conda install -c conda-forge -c usgs-astrogeology python=3.10 usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} -y
           else
             conda install -c conda-forge -c usgs-astrogeology python=3.10 isis=${ISIS_VERSION} -y
           fi
