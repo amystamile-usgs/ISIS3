@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Mambaforge
+      - name: Set up Miniforge
         uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-variant: Miniforge3
@@ -80,10 +80,12 @@ jobs:
       ISIS_VERSION: ${{ github.event.release.tag_name || github.ref_name }}
       
     steps:
-      - name: Set up Miniconda
+      - name: Set up Miniforge
         uses: conda-incubator/setup-miniconda@v3
         with:
+          miniforge-variant: Miniforge3
           auto-update-conda: true
+          activate-environment: isis-test
           use-mamba: false
 
       - name: Create conda environment and install dependencies
@@ -91,7 +93,7 @@ jobs:
           export ISISROOT=$CONDA_PREFIX
 
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
-            conda install -c conda-forge -c usgs-astrogeology python=3.11 usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
+            conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
           elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then
             conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} -y
           else
