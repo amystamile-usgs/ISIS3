@@ -59,7 +59,7 @@ jobs:
           BUILT_DIR=$(conda info --base)/conda-bld
           # BUILT_PACKAGE=$(find "$BUILT_DIR" -name "isis-${ISIS_VERSION}-*.conda" | head -n1)
           # BUILT_PACKAGE=$(find "$BUILT_DIR" -name "isis-dev-*.conda" | head -n1)
-          BUILT_PACKAGE="isis-9.0.0-0.conda"
+          BUILT_PACKAGE="isis-9.0.0_RC2-0.conda"
           echo "$BUILT_PACKAGE" > built_package.txt
 
       - name: Upload artifact
@@ -90,8 +90,10 @@ jobs:
         run: |
           export ISISROOT=$CONDA_PREFIX
 
+          echo $ISIS_VERSION
+
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
-            conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
+            conda install -c conda-forge -c usgs-astrogeology python=3.11 usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
           elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then
             conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} -y
           else
