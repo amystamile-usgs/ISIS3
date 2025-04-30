@@ -85,16 +85,15 @@ jobs:
         with:
           miniforge-variant: Miniforge3
           auto-update-conda: true
-          python-version: "3.10"
           activate-environment: isis-test
-          use-mamba: false
+          use-mamba: true
 
       - name: Create conda environment and install dependencies
         run: |
           export ISISROOT=$CONDA_PREFIX
 
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
-            conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
+            conda install -c conda-forge -c python=3.10 usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
           elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then
             conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} -y
           else
