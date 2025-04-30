@@ -13,6 +13,7 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         # os: [ubuntu-latest, macos-13, macos-14]  # Ubuntu, macOS x86_64, macOS arm64
           os: [ubuntu-latest, macos-13]
@@ -72,12 +73,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: build
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-13]
     env:
-      ISIS_VERSION: ${{ needs.build.outputs.isis_version }}
+      ISIS_VERSION: ${{ github.event.release.tag_name || github.ref_name }}
       
-
     steps:
       - name: Set up Mambaforge
         uses: conda-incubator/setup-miniconda@v3
@@ -89,8 +90,6 @@ jobs:
       - name: Create conda environment and install dependencies
         run: |
           export ISISROOT=$CONDA_PREFIX
-
-          echo $ISIS_VERSION
 
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
             conda install -c conda-forge -c usgs-astrogeology python=3.11 usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
