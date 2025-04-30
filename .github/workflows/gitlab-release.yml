@@ -81,14 +81,12 @@ jobs:
       ISIS_VERSION: ${{ github.event.release.tag_name || github.ref_name }}
       
     steps:
-      - name: Set up Miniforge
+      - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
-          miniforge-variant: Miniforge3
-          mamba-version: "1.5.4"
           auto-activate-base: true
           auto-update-conda: true
-          use-mamba: true
+          use-mamba: false
 
       - name: Create conda environment and install dependencies
         run: |
