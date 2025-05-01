@@ -85,24 +85,21 @@ jobs:
         with:
           miniforge-variant: Miniforge3
           auto-update-conda: true
+          activate-environment: isis-test
           use-mamba: true
           mamba-version: "1.5.3"
 
       - name: Create conda environment and install dependencies
         run: |
+          export ISISROOT=$CONDA_PREFIX
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
-            # conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
-            mamba create -n test-isis -y -c conda-forge -c usgs-astrogeology/label/rc isis=${{ env.ISIS_VERSION }} -y
+            conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
           elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then
-            # conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} -y
-            mamba create -n test-isis -y -c conda-forge -c usgs-astrogeology/label/LTS isis=${{ env.ISIS_VERSION }} -y
+            conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} -y
           else
-            # conda install -c conda-forge -c usgs-astrogeology isis=${ISIS_VERSION} -y
-            mamba create -n test-isis -y -c conda-forge -c usgs-astrogeology/label/main isis=${{ env.ISIS_VERSION }} -y
+            conda install -c conda-forge -c usgs-astrogeology isis=${ISIS_VERSION} -y
           fi
-
-          source $CONDA/etc/profile.d/conda.sh
-          conda activate test-isis
+          
           export ISISROOT=$CONDA_PREFIX
           spiceinit -H
       
