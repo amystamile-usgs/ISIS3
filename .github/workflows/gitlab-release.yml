@@ -97,11 +97,11 @@ jobs:
       - name: Create conda environment and install dependencies
         run: |
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
-            conda install python=${{ matrix.python }} -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
+            conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} python=${{ matrix.python }} -y
           elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then
-            conda install python=${{ matrix.python }} -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} -y
+            conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} python=${{ matrix.python }} -y
           else
-            conda install python=${{ matrix.python }} -c conda-forge -c usgs-astrogeology isis=${ISIS_VERSION} -y
+            conda install -c conda-forge -c usgs-astrogeology isis=${ISIS_VERSION} python=${{ matrix.python }} -y
           fi
           
           export ISISROOT=$CONDA_PREFIX
