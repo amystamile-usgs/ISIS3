@@ -75,11 +75,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            python: "3.10"
-          - os: macos-13
-            python: "3.12"
+        os: [ubuntu-latest, macos-13]
     env:
       ISIS_VERSION: ${{ github.event.release.tag_name || github.ref_name }}
       
@@ -89,14 +85,13 @@ jobs:
         with:
           miniforge-variant: Miniforge3
           auto-update-conda: true
-          python-version: ${{ matrix.python }}
           activate-environment: isis-test
           use-mamba: true
           mamba-version: "1.5.3"
 
       - name: Create conda environment and install dependencies
         run: |
-          export ISISROOT=$CONDA_PREFIX
+          conda config --remove-key pinned_packages
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
             conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
           elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then
