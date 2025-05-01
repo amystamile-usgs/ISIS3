@@ -75,7 +75,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13]
+        include:
+          - os: ubuntu-latest
+            python: "3.10"
+          - os: macos-13
+            python: "3.12"
     env:
       ISIS_VERSION: ${{ github.event.release.tag_name || github.ref_name }}
       
@@ -85,6 +89,7 @@ jobs:
         with:
           miniforge-variant: Miniforge3
           auto-update-conda: true
+          python-version: ${{ matrix.python }}
           activate-environment: isis-test
           use-mamba: true
           mamba-version: "1.5.3"
