@@ -76,6 +76,11 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-13]
+        include:
+          - os: ubuntu-latest
+            python: "3.100"
+          - os: macos-13
+            python: "3.12"
     env:
       ISIS_VERSION: ${{ github.event.release.tag_name || github.ref_name }}
       
@@ -91,13 +96,12 @@ jobs:
 
       - name: Create conda environment and install dependencies
         run: |
-          conda config --remove-key pinned_packages
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
-            conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
+            conda install python=${{ matrix.python }} -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
           elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then
-            conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} -y
+            conda install python=${{ matrix.python }} -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} -y
           else
-            conda install -c conda-forge -c usgs-astrogeology isis=${ISIS_VERSION} -y
+            conda install python=${{ matrix.python }} -c conda-forge -c usgs-astrogeology isis=${ISIS_VERSION} -y
           fi
           
           export ISISROOT=$CONDA_PREFIX
