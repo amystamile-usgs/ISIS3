@@ -96,6 +96,8 @@ jobs:
 
       - name: Create conda environment and install dependencies
         run: |
+          source "${CONDA}/etc/profile.d/conda.sh"
+          conda activate isis-test
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
             conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} python=${{ matrix.python }} -y
           elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then
@@ -104,12 +106,7 @@ jobs:
             conda install -c conda-forge -c usgs-astrogeology isis=${ISIS_VERSION} python=${{ matrix.python }} -y
           fi
           
-          export ISISROOT=$(conda info --base)/envs/isis-test
-          export PATH="$ISISROOT/bin:$PATH"
-          echo $ISISROOT
-          echo "Checking spiceinit location: $ISISROOT/bin/spiceinit"
-          ls $ISISROOT/bin/spiceinit || echo "spiceinit not found"
-
+          export ISISROOT=$CONDA_PREFIX
           spiceinit -H
       
       - name: Cleanup Anaconda package if spiceinit fails
