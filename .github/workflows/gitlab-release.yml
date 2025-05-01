@@ -104,7 +104,8 @@ jobs:
             conda install -c conda-forge -c usgs-astrogeology isis=${ISIS_VERSION} python=${{ matrix.python }} -y
           fi
           
-          export ISISROOT=$CONDA_PREFIX
+          export ISISROOT=$(conda info --base)/envs/isis-test
+          export PATH="$ISISROOT/bin:$PATH"
           echo $ISISROOT
           echo "Checking spiceinit location: $ISISROOT/bin/spiceinit"
           ls $ISISROOT/bin/spiceinit || echo "spiceinit not found"
