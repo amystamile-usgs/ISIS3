@@ -105,6 +105,10 @@ jobs:
           fi
           
           export ISISROOT=$CONDA_PREFIX
+          echo $ISISROOT
+          echo "Checking spiceinit location: $ISISROOT/bin/spiceinit"
+          ls $ISISROOT/bin/spiceinit || echo "spiceinit not found"
+
           spiceinit -H
       
       - name: Cleanup Anaconda package if spiceinit fails
