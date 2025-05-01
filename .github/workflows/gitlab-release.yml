@@ -93,17 +93,18 @@ jobs:
           activate-environment: isis-test
           use-mamba: true
           mamba-version: "1.5.3"
+          python-version: ${{ matrix.python }}
 
       - name: Create conda environment and install dependencies
         run: |
           source "${CONDA}/etc/profile.d/conda.sh"
           conda activate isis-test
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
-            conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} python=${{ matrix.python }} -y
+            conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
           elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then
-            conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} python=${{ matrix.python }} -y
+            conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} -y
           else
-            conda install -c conda-forge -c usgs-astrogeology isis=${ISIS_VERSION} python=${{ matrix.python }} -y
+            conda install -c conda-forge -c usgs-astrogeology isis=${ISIS_VERSION} -y
           fi
           
           export ISISROOT=$CONDA_PREFIX
