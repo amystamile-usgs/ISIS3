@@ -91,14 +91,14 @@ jobs:
       - name: Create conda environment and install dependencies
         run: |
           if [[ "$ISIS_VERSION" =~ .*_RC[0-9]$ ]]; then
-            # conda install -c conda-forge -c usgs-astrogeology python=3.11 usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
-            mamba create -n test-isis -y -c conda-forge -c usgs-astrogeology/label/rc python=3.11 isis=${{ env.ISIS_VERSION }} -y
+            # conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/RC::isis=${ISIS_VERSION} -y
+            mamba create -n test-isis -y -c conda-forge -c usgs-astrogeology/label/rc isis=${{ env.ISIS_VERSION }} -y
           elif [[ "$ISIS_VERSION" =~ .*_LTS$ ]]; then
-            # conda install -c conda-forge -c usgs-astrogeology python=3.11 usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} -y
-            mamba create -n test-isis -y -c conda-forge -c usgs-astrogeology/label/LTS python=3.11 isis=${{ env.ISIS_VERSION }} -y
+            # conda install -c conda-forge -c usgs-astrogeology usgs-astrogeology/label/LTS::isis=${ISIS_VERSION} -y
+            mamba create -n test-isis -y -c conda-forge -c usgs-astrogeology/label/LTS isis=${{ env.ISIS_VERSION }} -y
           else
-            # conda install -c conda-forge -c usgs-astrogeology python=3.11 isis=${ISIS_VERSION} -y
-            mamba create -n test-isis -y -c conda-forge -c usgs-astrogeology/label/main python=3.11 isis=${{ env.ISIS_VERSION }} -y
+            # conda install -c conda-forge -c usgs-astrogeology isis=${ISIS_VERSION} -y
+            mamba create -n test-isis -y -c conda-forge -c usgs-astrogeology/label/main isis=${{ env.ISIS_VERSION }} -y
           fi
 
           source $CONDA/etc/profile.d/conda.sh
