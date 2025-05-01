@@ -78,7 +78,7 @@ jobs:
         os: [ubuntu-latest, macos-13]
         include:
           - os: ubuntu-latest
-            python: "3.100"
+            python: "3.10"
           - os: macos-13
             python: "3.12"
     env:
