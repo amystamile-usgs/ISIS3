@@ -21,7 +21,7 @@ jobs:
           WEEK_NUM=$(date +%V)
           if (( WEEK_NUM % 2 != 0 )); then
             echo "Skipping this week ($WEEK_NUM is odd)."
-            exit 0
+            exit 1
           fi
 
       - uses: actions/checkout@v4
