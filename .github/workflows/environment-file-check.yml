@@ -18,7 +18,8 @@ jobs:
 
           # Get list of changed files from the PR payload
           changed_files=$(jq -r '.pull_request.changed_files as $n | .pull_request.files[]?.filename' "$GITHUB_EVENT_PATH" 2>/dev/null || true)
-
+          echo "$changed_files"
+          
           # Convert to array
           readarray -t changed_array <<< "$changed_files"
 
