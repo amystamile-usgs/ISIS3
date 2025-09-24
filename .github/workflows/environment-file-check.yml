@@ -57,8 +57,10 @@ jobs:
 
           # Set output if missing files exist
           if [ ${#missing[@]} -gt 0 ]; then
-             printf -v formatted_missing "%s\n" "${missing[@]}"
-             echo "missing_files=$formatted_missing" >> $GITHUB_OUTPUT
+            printf -v formatted_missing "%s\n" "${missing[@]}"
+            echo "missing_files<<EOF" >> $GITHUB_OUTPUT
+            echo "$formatted_missing" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
           fi
         env:
           changed_files: ${{ env.changed_files }}
