@@ -67,6 +67,12 @@ jobs:
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
-            ⚠️ You modified one of the environment/meta files but the following files were not updated: 
-            **${{ steps.check.outputs.missing_files }}**
-            Please update them as well.
+            > [!CAUTION] Environment/meta file update notice
+            >
+            > **You modified the following file(s):**
+            > $(echo "${{ steps.check.outputs.changed_required }}" | tr ' ' '\n' | sed "s#^#> - https://github.com/${{ github.repository }}/blob/${{ github.head_ref }}/#")
+            >
+            > **The following required file(s) were not updated:**  
+            > $(echo "${{ steps.check.outputs.missing_files }}" | tr ' ' '\n' | sed "s#^#> - https://github.com/${{ github.repository }}/blob/${{ github.head_ref }}/#")
+            >
+            > Please update the missing files as well.
