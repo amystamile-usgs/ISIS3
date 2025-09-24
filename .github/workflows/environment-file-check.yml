@@ -57,7 +57,8 @@ jobs:
 
           # Set output if missing files exist
           if [ ${#missing[@]} -gt 0 ]; then
-            formatted_missing=$(printf "%s\n" "${missing[@]}" | sed 's/^/> - /')
+            formatted_missing=$(printf "%s\n" "${missing[@]}" | sed 's/^/- **&**/')
+            
             echo "missing_files<<EOF" >> $GITHUB_OUTPUT
             echo "$formatted_missing" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
