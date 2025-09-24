@@ -10,30 +10,38 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Get changed files
+        id: files
+        run: |
+          files=$(gh api \
+            repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files \
+            --jq '.[].filename')
+          echo "Changed files:"
+          printf '  -> %s\n' $files
+          echo "changed_files<<EOF" >> $GITHUB_ENV
+          echo "$files" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Determine missing environment/meta files
         id: check
         run: |
-          # List of required files
+          # Required files
           required_files=("environment.yml" "environment_arm.yml" "environment_arm_linux.yml" "recipe/meta.yml")
 
-          # Get list of changed files from the PR payload
-          changed_files=$(jq -r '.pull_request.changed_files as $n | .pull_request.files[]?.filename' "$GITHUB_EVENT_PATH" 2>/dev/null || true)
-          echo "$changed_files"
-          
-          # Convert to array
+          # Convert changed files to array
           readarray -t changed_array <<< "$changed_files"
 
-          # Check if any required files were changed
+          # Check if any required file was changed
           any_changed=false
           for f in "${required_files[@]}"; do
-            for cf in "${changed_array[@]}"; do
-              if [[ "$cf" == "$f" ]]; then
-                any_changed=true
-              fi
-            done
+            if printf '%s\n' "${changed_array[@]}" | grep -qx "$f"; then
+              any_changed=true
+              break
+            fi
           done
 
-          # If none changed, do nothing
           if [ "$any_changed" = false ]; then
             echo "No environment/meta files changed."
             exit 0
@@ -42,26 +50,23 @@ jobs:
           # Determine missing files
           missing=()
           for f in "${required_files[@]}"; do
-            found=false
-            for cf in "${changed_array[@]}"; do
-              if [[ "$cf" == "$f" ]]; then
-                found=true
-                break
-              fi
-            done
-            if [ "$found" = false ]; then
+            if ! printf '%s\n' "${changed_array[@]}" | grep -qx "$f"; then
               missing+=("$f")
             fi
           done
 
-          # If some required files are missing, set output
+          # Set output if missing files exist
           if [ ${#missing[@]} -gt 0 ]; then
             echo "missing_files=${missing[*]}" >> $GITHUB_OUTPUT
           fi
+        env:
+          changed_files: ${{ env.changed_files }}
 
       - name: Comment on PR if files are missing
         if: steps.check.outputs.missing_files
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
-            ⚠️ You modified one of the environment/meta files but the following files were not updated: ${{ steps.check.outputs.missing_files }}. Please update them as well.
+            ⚠️ You modified one of the environment/meta files but the following files were not updated: 
+            **${{ steps.check.outputs.missing_files }}**
+            Please update them as well.
