@@ -8,7 +8,7 @@ dependencies:
   - armadillo
   - boost >=1.76.0,<1.82
   - boost-cpp >=1.76.0,<1.82
-  - blas
+  # - blas
   - bullet >=3.25
   - bz2file
   - bzip2
