@@ -78,3 +78,9 @@ jobs:
             ${{ steps.check.outputs.missing_files }}
             >
             > Please update them as well.
+
+      - name: Fail workflow if missing files
+        if: steps.check.outputs.missing_files
+        run: |
+          echo "Missing required environment/meta files detected."
+          exit 1
