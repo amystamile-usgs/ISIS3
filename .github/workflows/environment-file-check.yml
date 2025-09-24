@@ -57,7 +57,8 @@ jobs:
 
           # Set output if missing files exist
           if [ ${#missing[@]} -gt 0 ]; then
-            echo "missing_files=${missing[*]}" >> $GITHUB_OUTPUT
+             printf -v formatted_missing "%s\n" "${missing[@]}"
+             echo "missing_files=$formatted_missing" >> $GITHUB_OUTPUT
           fi
         env:
           changed_files: ${{ env.changed_files }}
@@ -69,9 +70,6 @@ jobs:
           message: |
             > [!CAUTION] 
             > ## Environment/meta file update notice
-            >
-            > **You modified the following file(s):** ${{ steps.check.outputs.changed_required }}
-            >
-            > **The following required file(s) were not updated:** ${{ steps.check.outputs.missing_files }}
-            >
-            > Please update the missing files as well.
+            > You modified one of the environment/meta files but the following files were not updated:
+            > **${{ steps.check.outputs.missing_files }}**
+            > Please update them as well.
