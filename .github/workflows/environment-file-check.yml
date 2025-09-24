@@ -57,7 +57,7 @@ jobs:
 
           # Set output if missing files exist
           if [ ${#missing[@]} -gt 0 ]; then
-            formatted_missing=$(printf "%s\n" "${missing[@]}" | sed 's/^/- /')
+            formatted_missing=$(printf "%s\n" "${missing[@]}" | sed 's/^/> - /')
 
             echo "missing_files<<EOF" >> $GITHUB_OUTPUT
             echo "$formatted_missing" >> $GITHUB_OUTPUT
@@ -75,6 +75,6 @@ jobs:
             > ## Environment/meta file update notice
             > You modified one of the environment/meta files but the following files were not updated:
             >
-            > ${{ steps.check.outputs.missing_files }}
+            ${{ steps.check.outputs.missing_files }}
             >
             > Please update them as well.
