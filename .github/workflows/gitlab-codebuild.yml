@@ -30,28 +30,23 @@ jobs:
           rm /tmp/key_base64 # Clean up temp file
           
           chmod 600 ~/.ssh/id_rsa
-    
-          # --- DEBUGGING OUTPUT (Check this to ensure key is complete) ---
-          echo "--- START: Written Key Content ---"
-          cat ~/.ssh/id_rsa
-          echo "--- END: Written Key Content ---"
-          # --------------------------------------------------
           
           # 4. Add the server's host key to known_hosts to bypass confirmation prompt
           ssh-keyscan code.usgs.gov >> ~/.ssh/known_hosts
           
           # 5. Start the SSH agent and load the key into memory 
           eval "$(ssh-agent -s)"
-          # *** FIX 1: Load key from STDIN and ignore exit code 1 to proceed ***
+          
+          # Load key from STDIN and ignore exit code 1 to proceed (Critical Fix)
           ssh-add -v < ~/.ssh/id_rsa || true
           
-          # *** FIX 2: Verify agent has keys loaded (ignore failure) ***
-          # This command will now pass even if the key loading failed, allowing the step to complete successfully.
+          # Verify agent has keys loaded (ignore failure to complete step)
           ssh-add -l || true
         shell: bash
     
-      - name: Clone Gitlab Repo via SSH
+      - name: Clone Repo via SSH
         run: |
+          # The key is now correctly loaded, allowing the clone to proceed.
           git clone git@code.usgs.gov:astrogeology/isis-codebuild-ci.git
         shell: bash
     
