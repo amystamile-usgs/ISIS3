@@ -40,9 +40,9 @@ jobs:
           # 4. Add the server's host key to known_hosts to bypass confirmation prompt
           ssh-keyscan code.usgs.gov >> ~/.ssh/known_hosts
           
-          # 5. Start the SSH agent and load the key into memory
+          # 5. Start the SSH agent and load the key into memory (using -q for quiet operation)
           eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/id_rsa
+          ssh-add -q ~/.ssh/id_rsa
         shell: bash
     
       - name: Clone Gitlab Repo via SSH
