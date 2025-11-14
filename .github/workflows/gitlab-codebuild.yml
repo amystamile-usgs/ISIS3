@@ -18,21 +18,27 @@ jobs:
       - name: Configure SSH Key for GitLab Access
         id: ssh_setup
         run: |
+          set -x
           mkdir -p ~/.ssh
+          echo "exit mkdir=$?"
           chmod 700 ~/.ssh
+          echo "exit chmod1=$?"
           
           # Write the key from the GitHub secret
           printf "%s" "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          echo "exit keywrite=$?"
           chmod 600 ~/.ssh/id_rsa
+          echo "exit chmod2=$?"
           
           # Add server host key
-          ssh-keyscan code.usgs.gov >> ~/.ssh/known_hosts
+          ssh-keyscan code.usgs.gov >> ~/.ssh/known_hosts || true
+          echo "exit keyscan=$?"
           
           # Start SSH agent
           eval "$(ssh-agent -s)"
+          echo "exit agent=$?"
           ssh-add ~/.ssh/id_rsa
-          
-          echo "SSH setup complete"
+          echo "exit sshadd=$?"
         shell: bash
     
       - name: Clone Repo via SSH
