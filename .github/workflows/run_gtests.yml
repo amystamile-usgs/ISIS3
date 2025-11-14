@@ -26,10 +26,10 @@ jobs:
     # 3. Build project
     - name: Build project
       run: |
-        sed -i 's/^[[:space:]]*UseWebSpice = "false"/  UseWebSpice = "true"/'  ${GITHUB_WORKSPACE}/ISIS3/isis/IsisPreferences
-        sed -i 's/^[[:space:]]*UseWebSpice = "false"/  UseWebSpice = "true"/'  ${GITHUB_WORKSPACE}/ISIS3/isis/TestPreferences
-        cp ${GITHUB_WORKSPACE}/ISIS3/isis/IsisPreferences ${GITHUB_WORKSPACE}/ISIS3/build/
-        cp ${GITHUB_WORKSPACE}/ISIS3/isis/TestPreferences ${GITHUB_WORKSPACE}/ISIS3/build/
+        sed -i 's/^[[:space:]]*UseWebSpice = "false"/  UseWebSpice = "true"/'  ${GITHUB_WORKSPACE}/isis/IsisPreferences
+        sed -i 's/^[[:space:]]*UseWebSpice = "false"/  UseWebSpice = "true"/'  ${GITHUB_WORKSPACE}/isis/TestPreferences
+        cp ${GITHUB_WORKSPACE}/isis/IsisPreferences ${GITHUB_WORKSPACE}/build/
+        cp ${GITHUB_WORKSPACE}/isis/TestPreferences ${GITHUB_WORKSPACE}/build/
         cd recipe
         echo $ENCRYPTION_KEY | openssl enc -aes-256-cbc -d -in kakadu/kakadu_7_9.zip.enc -out kakadu/kakadu_7_9.zip -pbkdf2 -iter 10000 -pass stdin
         unzip -j kakadu/kakadu_7_9.zip -d /tmp/kakadu_7_9 -x "__MACOSX/*"
