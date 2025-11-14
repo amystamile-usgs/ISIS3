@@ -15,16 +15,35 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Run script
+      
+      - name: Configure SSH Key for GitLab Access
+        id: ssh_setup
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.GITLAB_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan code.usgs.gov >> ~/.ssh/known_hosts
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_rsa
+        shell: bash
+    
+      - name: Clone Private ISIS Repository via SSH
+        run: |
+          git clone git@code.usgs.gov:astrogeology/isis-codebuild-ci.git
+        shell: bash
+    
+      - name: Prepare and Push Changes to GitLab Branch
         run: |
           git config --global user.name "Github_CI"
           git config --global user.email "project_14468_bot_3f7d8e1a392afd88ead5f3f3154e809d@noreply.gitlab.com"
-          git clone https://isis-codebuild-ci:$GITLAB_TOKEN@code.usgs.gov/astrogeology/isis-codebuild-ci.git
           cd isis-codebuild-ci
           git checkout -b PR_$PR_NUMBER
           echo -e "\nenv: \n  shell: bash \n  variables: \n    PR_NUMBER: $PR_NUMBER \n    MERGE_BRANCH: $GITHUB_BASE_REF" >> buildspec.yml
           git commit -a -m "$PR_NUMBER"
           git push origin PR_$PR_NUMBER --force
+        shell: bash
+
           
   comment-bot:
       permissions: write-all
