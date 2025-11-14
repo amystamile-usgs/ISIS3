@@ -26,7 +26,7 @@ jobs:
           echo "exit chmod1=$?"
           
           # Write the key from the GitHub secret
-          printf "%s" "$GITLAB_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          echo "$GITLAB_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           echo "exit keywrite=$?"
           chmod 600 ~/.ssh/id_rsa
           echo "exit chmod2=$?"
