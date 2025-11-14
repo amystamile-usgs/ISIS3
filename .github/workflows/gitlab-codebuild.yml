@@ -18,28 +18,37 @@ jobs:
       - name: Configure SSH Key for GitLab Access
         id: ssh_setup
         run: |
-          # 1. Ensure .ssh directory exists
+          set -x  # SHOW each command as it runs
+
           mkdir -p ~/.ssh
+          echo "exit=$?"
+          
           chmod 700 ~/.ssh
+          echo "exit=$?"
           
-          # 2. Write the single-line Base64 key to a temporary file (Prevents truncation error)
-          printf "%s" "${{ secrets.GITLAB_SSH_PRIVATE_KEY }}" > /tmp/key_base64
+          printf "%s" "***" > /tmp/key_base64
+          echo "exit=$?"
           
-          # 3. Decode the key from the file and write to id_rsa
           base64 --decode /tmp/key_base64 > ~/.ssh/id_rsa
-          rm /tmp/key_base64 # Clean up temp file
+          echo "exit=$?"
+          
+          rm /tmp/key_base64
+          echo "exit=$?"
           
           chmod 600 ~/.ssh/id_rsa
+          echo "exit=$?"
           
-          # 4. Add the server's host key to known_hosts to bypass confirmation prompt
           ssh-keyscan code.usgs.gov >> ~/.ssh/known_hosts
+          echo "exit=$?"
           
-          # 5. Start the SSH agent and load the key into memory 
           eval "$(ssh-agent -s)"
+          echo "exit=$?"
           
           set +e
           ssh-add -v ~/.ssh/id_rsa
+          echo "exit=$?"
           set -e
+          
           echo "SSH setup complete"
         shell: bash
     
