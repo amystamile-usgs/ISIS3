@@ -2,7 +2,6 @@ name: Github to Gitlab CI - Run CodeBuild
 
 env:
   PR_NUMBER: ${{ github.event.number }}
-  GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
 
 on:
   pull_request_target:
