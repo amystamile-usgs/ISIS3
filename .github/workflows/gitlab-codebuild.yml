@@ -2,6 +2,7 @@ name: Github to Gitlab CI - Run CodeBuild
 
 env:
   PR_NUMBER: ${{ github.event.number }}
+  GITLAB_SSH_PRIVATE_KEY: ${{ secrets.GITLAB_SSH_PRIVATE_KEY }}
 
 on:
   pull_request_target:
