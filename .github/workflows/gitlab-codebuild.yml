@@ -18,36 +18,19 @@ jobs:
       - name: Configure SSH Key for GitLab Access
         id: ssh_setup
         run: |
-          set -x  # SHOW each command as it runs
-
           mkdir -p ~/.ssh
-          echo "exit=$?"
-          
           chmod 700 ~/.ssh
-          echo "exit=$?"
           
-          printf "%s" "***" > /tmp/key_base64
-          echo "exit=$?"
-          
-          base64 --decode /tmp/key_base64 > ~/.ssh/id_rsa
-          echo "exit=$?"
-          
-          rm /tmp/key_base64
-          echo "exit=$?"
-          
+          # Write the key from the GitHub secret
+          printf "%s" "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          echo "exit=$?"
           
+          # Add server host key
           ssh-keyscan code.usgs.gov >> ~/.ssh/known_hosts
-          echo "exit=$?"
           
+          # Start SSH agent
           eval "$(ssh-agent -s)"
-          echo "exit=$?"
-          
-          set +e
-          ssh-add -v ~/.ssh/id_rsa
-          echo "exit=$?"
-          set -e
+          ssh-add ~/.ssh/id_rsa
           
           echo "SSH setup complete"
         shell: bash
