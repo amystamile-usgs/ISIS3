@@ -14,6 +14,8 @@ jobs:
     # 1. Checkout code
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        submodules: recursive
 
     # 2. Set up Miniconda
     - name: Set up Conda
