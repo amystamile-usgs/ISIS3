@@ -42,7 +42,10 @@ jobs:
           
           # 5. Start the SSH agent and load the key into memory 
           eval "$(ssh-agent -s)"
-          ssh-add -v ~/.ssh/id_rsa
+          ssh-add -v < ~/.ssh/id_rsa || true
+          
+          # 6. Verify agent has keys loaded (optional, but good check)
+          ssh-add -l
         shell: bash
     
       - name: Clone Gitlab Repo via SSH
