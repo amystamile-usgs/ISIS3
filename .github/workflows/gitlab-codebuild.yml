@@ -40,6 +40,7 @@ jobs:
           set +e
           ssh-add -v ~/.ssh/id_rsa
           set -e
+          echo "SSH setup complete"
         shell: bash
     
       - name: Clone Repo via SSH
