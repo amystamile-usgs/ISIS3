@@ -25,6 +25,8 @@ jobs:
 
     # 3. Build project
     - name: Build project
+      env:
+        ENCRYPTION_KEY: ${{ secrets.KDU_ENC_KEY }}
       run: |
         sed -i 's/^[[:space:]]*UseWebSpice = "false"/  UseWebSpice = "true"/'  ${GITHUB_WORKSPACE}/isis/IsisPreferences
         sed -i 's/^[[:space:]]*UseWebSpice = "false"/  UseWebSpice = "true"/'  ${GITHUB_WORKSPACE}/isis/TestPreferences
