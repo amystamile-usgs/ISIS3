@@ -18,24 +18,38 @@ jobs:
       - name: Configure SSH Key for GitLab Access
         id: ssh_setup
         run: |
+          # 1. Ensure .ssh directory exists
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          echo "${{ secrets.GITLAB_SSH_PRIVATE_KEY }}" | base64 --decode > ~/.ssh/id_rsa
-          printf "%s" "${{ secrets.GITLAB_SSH_PRIVATE_KEY }}" | base64 --decode > ~/.ssh/id_rsa
+          
+          # 2. Write the single-line Base64 key to a temporary file (Prevents truncation error)
+          printf "%s" "${{ secrets.GITLAB_SSH_PRIVATE_KEY }}" > /tmp/key_base64
+          
+          # 3. Decode the key from the file and write to id_rsa
+          base64 --decode /tmp/key_base64 > ~/.ssh/id_rsa
+          rm /tmp/key_base64 # Clean up temp file
+          
           chmod 600 ~/.ssh/id_rsa
-          echo "--- START: Written Key Content (Must start with BEGIN and end with END) ---"
+    
+          # --- DEBUGGING OUTPUT (Check this to ensure key is complete) ---
+          echo "--- START: Written Key Content ---"
           cat ~/.ssh/id_rsa
           echo "--- END: Written Key Content ---"
+          # --------------------------------------------------
+          
+          # 4. Add the server's host key to known_hosts to bypass confirmation prompt
           ssh-keyscan code.usgs.gov >> ~/.ssh/known_hosts
+          
+          # 5. Start the SSH agent and load the key into memory
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa
         shell: bash
     
-      - name: Clone Private ISIS Repository via SSH
+      - name: Clone Repo via SSH
         run: |
           git clone git@code.usgs.gov:astrogeology/isis-codebuild-ci.git
         shell: bash
-    
+  
       - name: Prepare and Push Changes to GitLab Branch
         run: |
           git config --global user.name "Github_CI"
