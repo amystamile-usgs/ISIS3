@@ -37,11 +37,9 @@ jobs:
           # 5. Start the SSH agent and load the key into memory 
           eval "$(ssh-agent -s)"
           
-          # Load key from STDIN and ignore exit code 1 to proceed (Critical Fix)
-          ssh-add -v < ~/.ssh/id_rsa || true
-          
-          # Verify agent has keys loaded (ignore failure to complete step)
-          ssh-add -l || true
+          set +e
+          ssh-add -v ~/.ssh/id_rsa
+          set -e
         shell: bash
     
       - name: Clone Repo via SSH
