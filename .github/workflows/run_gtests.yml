@@ -29,6 +29,8 @@ jobs:
       env:
         ENCRYPTION_KEY: ${{ secrets.KDU_ENC_KEY }}
       run: |
+        source $CONDA/etc/profile.d/conda.sh
+        conda activate isis
         sed -i 's/^[[:space:]]*UseWebSpice = "false"/  UseWebSpice = "true"/'  ${GITHUB_WORKSPACE}/isis/IsisPreferences
         sed -i 's/^[[:space:]]*UseWebSpice = "false"/  UseWebSpice = "true"/'  ${GITHUB_WORKSPACE}/isis/TestPreferences
         cd recipe
