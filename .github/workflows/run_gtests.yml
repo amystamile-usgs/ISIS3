@@ -19,9 +19,10 @@ jobs:
     - name: Set up Conda
       uses: conda-incubator/setup-miniconda@v3
       with:
-          miniforge-variant: Miniforge3
-          auto-update-conda: true
-          use-mamba: true
+        auto-update-conda: true
+        environment-file: environment.yml
+        activate-environment: isis
+        python-version: 3.12              
 
     # 3. Build project
     - name: Build project
