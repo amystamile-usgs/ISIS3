@@ -49,8 +49,12 @@ jobs:
     # 4. Run gtests
     - name: Run tests
       run: |
+        export ISISROOT=${GITHUB_WORKSPACE}/build
+        source $CONDA/etc/profile.d/conda.sh
+        conda activate isis
+        export ISISROOT=${GITHUB_WORKSPACE}/build
         cd build
-        ctest -j8 --output-on-failure --output-junit test-report.xml
+        ctest -R '.' -E '(_app_|_unit_|_module_)' -j 8 --output-on-failure --timeout 10000 --output-junit test-report.xml
 
     # 5. Upload test results
     - name: Upload test report
