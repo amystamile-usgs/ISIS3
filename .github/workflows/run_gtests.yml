@@ -48,6 +48,8 @@ jobs:
     - name: Run tests
       run: |
         export ISISROOT=${GITHUB_WORKSPACE}/build
+        export TMPDIR=${GITHUB_WORKSPACE}/tmp
+        mkdir -p $TMPDIR
         source $CONDA/etc/profile.d/conda.sh
         conda activate isis
         export ISISROOT=${GITHUB_WORKSPACE}/build
