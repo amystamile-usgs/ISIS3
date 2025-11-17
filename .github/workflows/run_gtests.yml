@@ -41,9 +41,11 @@ jobs:
         cd ../
         mkdir build && cd build
         export ISISROOT=${GITHUB_WORKSPACE}/build
-        cp ${GITHUB_WORKSPACE}/isis/IsisPreferences ${GITHUB_WORKSPACE}/build/
-        cp ${GITHUB_WORKSPACE}/isis/TestPreferences ${GITHUB_WORKSPACE}/build/
         cmake -GNinja -DJP2KFLAG=ON -DKAKADU_INCLUDE_DIR=/tmp/kakadu_7_9 ../isis
+        echo "==== IsisPreferences in build ===="
+        cat "${GITHUB_WORKSPACE}/build/IsisPreferences"
+        echo "==== TestPreferences in build ===="
+        cat "${GITHUB_WORKSPACE}/build/TestPreferences"
         ninja -j8
 
     # 4. Run gtests
