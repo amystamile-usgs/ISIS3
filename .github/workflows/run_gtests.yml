@@ -42,10 +42,6 @@ jobs:
         mkdir build && cd build
         export ISISROOT=${GITHUB_WORKSPACE}/build
         cmake -GNinja -DJP2KFLAG=ON -DKAKADU_INCLUDE_DIR=/tmp/kakadu_7_9 ../isis
-        echo "==== IsisPreferences in build ===="
-        cat "${GITHUB_WORKSPACE}/build/IsisPreferences"
-        echo "==== TestPreferences in build ===="
-        cat "${GITHUB_WORKSPACE}/build/TestPreferences"
         ninja -j8
 
     # 4. Run gtests
@@ -56,7 +52,7 @@ jobs:
         conda activate isis
         export ISISROOT=${GITHUB_WORKSPACE}/build
         cd build
-        ctest -R '.' -E '(_app_|_unit_|_module_)' -j 8 --output-on-failure --timeout 10000 --output-junit test-report.xml
+        ctest -R '.' -E '(_app_|_unit_|_module_)' -j 8 --output-on-failure --timeout 1800 --output-junit test-report.xml
 
     # 5. Upload test results
     - name: Upload test report
