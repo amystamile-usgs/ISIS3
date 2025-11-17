@@ -54,7 +54,7 @@ jobs:
         conda activate isis
         export ISISROOT=${GITHUB_WORKSPACE}/build
         cd build
-        ctest -R '.' -E '(_app_|_unit_|_module_)' -j 8 --output-on-failure --timeout 1800 --output-junit test-report.xml
+        ctest -R '.' -E '(_app_|_unit_|_module_)' -j 2 --output-on-failure --timeout 1800 --output-junit test-report.xml
 
     # 5. Upload test results
     - name: Upload test report
