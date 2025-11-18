@@ -473,24 +473,26 @@ namespace Isis {
     // Inorder to improve the speed of iTime comparisons, the leapsecond
     // kernel is loaded only once and left open.
     if(p_lpInitialized) return;
+    if (QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "FALSE") {
 
-    // Get the leap second kernel file open
-    Isis::PvlGroup &dataDir = Isis::Preference::Preferences().findGroup("DataDirectory");
-    QString baseDir = dataDir["Base"];
-    baseDir += "/kernels/lsk/";
-    FileName leapSecond(baseDir + "naif????.tls");
-    QString leapSecondName;
-    try {
-      leapSecondName = QString(leapSecond.highestVersion().expanded());
-    }
-    catch (IException &e) {
-      QString msg = "Unable to load leadsecond file. Either the data area is not set or there are no naif####.tls files present";
-      throw IException(e, IException::User, msg, _FILEINFO_);
-    }
+      // Get the leap second kernel file open
+      Isis::PvlGroup &dataDir = Isis::Preference::Preferences().findGroup("DataDirectory");
+      QString baseDir = dataDir["Base"];
+      baseDir += "/kernels/lsk/";
+      FileName leapSecond(baseDir + "naif????.tls");
+      QString leapSecondName;
+      try {
+        leapSecondName = QString(leapSecond.highestVersion().expanded());
+      }
+      catch (IException &e) {
+        QString msg = "Unable to load leadsecond file. Either the data area is not set or there are no naif####.tls files present";
+        throw IException(e, IException::User, msg, _FILEINFO_);
+      }
 
-    NaifStatus::CheckErrors();
-    SpiceQL::load(leapSecondName.toLatin1().data());
-    NaifStatus::CheckErrors();
+      NaifStatus::CheckErrors();
+      SpiceQL::load(leapSecondName.toLatin1().data());
+      NaifStatus::CheckErrors();
+    }
 
     p_lpInitialized = true;
   }
