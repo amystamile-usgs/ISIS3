@@ -42,9 +42,9 @@ namespace Isis {
    */
   iTime::iTime(const QString &time) {
     bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
-    // if (!useWeb) {
+    if (!useWeb) {
       LoadLeapSecondKernel();
-    // }
+    }
 
     // Convert the time string to a double ephemeris time
     p_et  = SpiceQL::utcToEt(time.toLatin1().data(), useWeb).first;
@@ -63,9 +63,9 @@ namespace Isis {
    */
   void iTime::operator=(const QString &time) {
     bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
-    // if (!useWeb) {
+    if (!useWeb) {
       LoadLeapSecondKernel();
-    // }
+    }
     // Convert the time string to a double ephemeris time
     QByteArray time_bytes = time.toLatin1();
     p_et  = SpiceQL::utcToEt(time_bytes.data(), useWeb).first;
@@ -74,9 +74,9 @@ namespace Isis {
   // Overload of "=" with a c string
   void iTime::operator=(const char *time) {
     bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
-    // if (!useWeb) {
+    if (!useWeb) {
       LoadLeapSecondKernel();
-    // }
+    }
     // Convert the time string to a double ephemeris time
     p_et  = SpiceQL::utcToEt(time, useWeb).first;
   }
@@ -84,10 +84,10 @@ namespace Isis {
 
   // Overload of "=" with a double
   void iTime::operator=(const double time) {
-    // bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
-    // if (!useWeb) {
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+    if (!useWeb) {
       LoadLeapSecondKernel();
-    // }
+    }
     p_et = time;
   }
 
@@ -223,13 +223,13 @@ namespace Isis {
    * @return int
    */
   int iTime::Year() const {
-    NaifStatus::CheckErrors();
-    SpiceChar out[5];
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+    std::pair<std::string, nlohmann::json> result = SpiceQL::etToUtc(p_et, "ISOC", 3, useWeb);
+    QString utc = QString::fromStdString(result.first);
 
-    // Populate the private year member
-    timout_c(p_et, "YYYY", 5, out);
-    NaifStatus::CheckErrors();
-    return IString(out).ToInteger();
+    QString yearStr = utc.mid(0, 4);
+
+    return yearStr.toInt();
   }
 
   /**
@@ -247,13 +247,12 @@ namespace Isis {
    * @return int
    */
   int iTime::Month() const {
-    NaifStatus::CheckErrors();
-    SpiceChar out[3];
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+    std::pair<std::string, nlohmann::json> result = SpiceQL::etToUtc(p_et, "ISOC", 3, useWeb);
+    QString utc = QString::fromStdString(result.first);
 
-    // Populate the private year member
-    timout_c(p_et, "MM", 3, out);
-    NaifStatus::CheckErrors();
-    return IString(out).ToInteger();
+    QString monthStr = utc.mid(5, 2);
+    return monthStr.toInt();
   }
 
   /**
@@ -271,13 +270,12 @@ namespace Isis {
    * @return int
    */
   int iTime::Day() const {
-    NaifStatus::CheckErrors();
-    SpiceChar out[3];
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+    std::pair<std::string, nlohmann::json> result = SpiceQL::etToUtc(p_et, "ISOC", 3, useWeb);
+    QString utc = QString::fromStdString(result.first);
 
-    // Populate the private year member
-    timout_c(p_et, "DD", 3, out);
-    NaifStatus::CheckErrors();
-    return IString(out).ToInteger();
+    QString dayStr = utc.mid(8, 2);
+    return dayStr.toInt();
   }
 
   /**
@@ -295,13 +293,12 @@ namespace Isis {
    * @return int
    */
   int iTime::Hour() const {
-    NaifStatus::CheckErrors();
-    SpiceChar out[3];
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+    std::pair<std::string, nlohmann::json> result = SpiceQL::etToUtc(p_et, "ISOC", 3, useWeb);
+    QString utc = QString::fromStdString(result.first);
 
-    // Populate the private year member
-    timout_c(p_et, "HR", 3, out);
-    NaifStatus::CheckErrors();
-    return IString(out).ToInteger();
+    QString hourStr = utc.mid(11, 2);
+    return hourStr.toInt();
   }
 
   /**
@@ -319,13 +316,12 @@ namespace Isis {
    * @return int
    */
   int iTime::Minute() const {
-    NaifStatus::CheckErrors();
-    SpiceChar out[3];
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+    std::pair<std::string, nlohmann::json> result = SpiceQL::etToUtc(p_et, "ISOC", 3, useWeb);
+    QString utc = QString::fromStdString(result.first);
 
-    // Populate the private year member
-    timout_c(p_et, "MN", 3, out);
-    NaifStatus::CheckErrors();
-    return IString(out).ToInteger();
+    QString minuteStr = utc.mid(14, 2);
+    return minuteStr.toInt();
   }
 
   /**
@@ -350,13 +346,12 @@ namespace Isis {
    * @return double
    */
   double iTime::Second() const {
-    NaifStatus::CheckErrors();
-    SpiceChar out[256];
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+    std::pair<std::string, nlohmann::json> result = SpiceQL::etToUtc(p_et, "ISOC", 3, useWeb);
+    QString utc = QString::fromStdString(result.first);
 
-    // Populate the private year member
-    timout_c(p_et, "SC.#######::RND", 256, out);
-    NaifStatus::CheckErrors();
-    return IString(out).ToDouble();
+    QString secondStr = utc.mid(17, 2);
+    return secondStr.toInt();
   }
 
   /**
@@ -374,13 +369,13 @@ namespace Isis {
    * @return int
    */
   int iTime::DayOfYear() const {
-    NaifStatus::CheckErrors();
-    SpiceChar out[4];
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+    std::pair<std::string, nlohmann::json> result = SpiceQL::etToUtc(p_et, "ISOD", 0, useWeb);
+    QString utc = QString::fromStdString(result.first);
 
-    // Populate the private year member
-    timout_c(p_et, "DOY", 4, out);
-    NaifStatus::CheckErrors();
-    return IString(out).ToInteger();
+    QString dayOfYearStr = utc.mid(5, 3);
+
+    return dayOfYearStr.toInt();
   }
 
   /**
@@ -450,9 +445,9 @@ namespace Isis {
     }
 
     bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
-    // if (!useWeb) {
+    if (!useWeb) {
       LoadLeapSecondKernel();
-    // }
+    }
 
     double et;
     et  = SpiceQL::utcToEt(utcString.toLatin1().data(), useWeb).first;
