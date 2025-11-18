@@ -41,16 +41,13 @@ namespace Isis {
    *             Example:"2000/12/31 23:59:01.6789" or "2000-12-31T23:59:01.6789"
    */
   iTime::iTime(const QString &time) {
-    LoadLeapSecondKernel();
-
-    NaifStatus::CheckErrors();
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+    // if (!useWeb) {
+      LoadLeapSecondKernel();
+    // }
 
     // Convert the time string to a double ephemeris time
-    SpiceDouble et;
-    str2et_c(time.toLatin1().data(), &et);
-
-    p_et = et;
-    NaifStatus::CheckErrors();
+    p_et  = SpiceQL::utcToEt(time.toLatin1().data(), useWeb).first;
   }
 
 
@@ -65,34 +62,32 @@ namespace Isis {
    *             Example:"2000/12/31 23:59:01.6789" or "2000-12-31T23:59:01.6789"
    */
   void iTime::operator=(const QString &time) {
-    LoadLeapSecondKernel();
-
-    NaifStatus::CheckErrors();
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+    // if (!useWeb) {
+      LoadLeapSecondKernel();
+    // }
     // Convert the time string to a double ephemeris time
-    SpiceDouble et;
-    str2et_c(time.toLatin1().data(), &et);
-
-    p_et = et;
-    NaifStatus::CheckErrors();
+    QByteArray time_bytes = time.toLatin1();
+    p_et  = SpiceQL::utcToEt(time_bytes.data(), useWeb).first;
   }
 
   // Overload of "=" with a c string
   void iTime::operator=(const char *time) {
-    LoadLeapSecondKernel();
-
-    NaifStatus::CheckErrors();
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+    // if (!useWeb) {
+      LoadLeapSecondKernel();
+    // }
     // Convert the time string to a double ephemeris time
-    SpiceDouble et;
-    str2et_c(time, &et);
-
-    p_et = et;
-    NaifStatus::CheckErrors();
+    p_et  = SpiceQL::utcToEt(time, useWeb).first;
   }
 
 
   // Overload of "=" with a double
   void iTime::operator=(const double time) {
-    LoadLeapSecondKernel();
+    // bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+    // if (!useWeb) {
+      LoadLeapSecondKernel();
+    // }
     p_et = time;
   }
 
@@ -454,13 +449,14 @@ namespace Isis {
       utcString = dateString + "T" + timeString;
     }
 
-    NaifStatus::CheckErrors();
-    LoadLeapSecondKernel();
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+    // if (!useWeb) {
+      LoadLeapSecondKernel();
+    // }
 
     double et;
-    utc2et_c(utcString.toLatin1().data(), &et);
+    et  = SpiceQL::utcToEt(utcString.toLatin1().data(), useWeb).first;
     setEt(et);
-    NaifStatus::CheckErrors();
   }
 
   //---------------------------------------------------
@@ -473,26 +469,24 @@ namespace Isis {
     // Inorder to improve the speed of iTime comparisons, the leapsecond
     // kernel is loaded only once and left open.
     if(p_lpInitialized) return;
-    if (QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "FALSE") {
 
-      // Get the leap second kernel file open
-      Isis::PvlGroup &dataDir = Isis::Preference::Preferences().findGroup("DataDirectory");
-      QString baseDir = dataDir["Base"];
-      baseDir += "/kernels/lsk/";
-      FileName leapSecond(baseDir + "naif????.tls");
-      QString leapSecondName;
-      try {
-        leapSecondName = QString(leapSecond.highestVersion().expanded());
-      }
-      catch (IException &e) {
-        QString msg = "Unable to load leadsecond file. Either the data area is not set or there are no naif####.tls files present";
-        throw IException(e, IException::User, msg, _FILEINFO_);
-      }
-
-      NaifStatus::CheckErrors();
-      SpiceQL::load(leapSecondName.toLatin1().data());
-      NaifStatus::CheckErrors();
+    // Get the leap second kernel file open
+    Isis::PvlGroup &dataDir = Isis::Preference::Preferences().findGroup("DataDirectory");
+    QString baseDir = dataDir["Base"];
+    baseDir += "/kernels/lsk/";
+    FileName leapSecond(baseDir + "naif????.tls");
+    QString leapSecondName;
+    try {
+      leapSecondName = QString(leapSecond.highestVersion().expanded());
     }
+    catch (IException &e) {
+      QString msg = "Unable to load leadsecond file. Either the data area is not set or there are no naif####.tls files present";
+      throw IException(e, IException::User, msg, _FILEINFO_);
+    }
+
+    NaifStatus::CheckErrors();
+    SpiceQL::load(leapSecondName.toLatin1().data());
+    NaifStatus::CheckErrors();
 
     p_lpInitialized = true;
   }
