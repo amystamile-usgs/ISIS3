@@ -159,10 +159,10 @@ namespace Isis {
       if (QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "FALSE") {
         // Still need to load clock kernels for now
         load(kernels["LeapSecond"], true);
-          if ( kernels.hasKeyword("SpacecraftClock")) {
-            load(kernels["SpacecraftClock"], true);
-          }
+        if ( kernels.hasKeyword("SpacecraftClock")) {
+          load(kernels["SpacecraftClock"], true);
         }
+      }
 
     }
     catch(IException &e) {

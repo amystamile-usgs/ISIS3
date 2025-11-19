@@ -8,7 +8,9 @@ find files of those names at the top level of this repository. **/
 
 #include "IString.h"
 #include "iTime.h"
+#include "Preference.h"
 #include "PvlSequence.h"
+#include "spiceql.h"
 
 using namespace std;
 
@@ -254,13 +256,13 @@ namespace Isis {
    *
    */
   void RadarSlantRangeMap::SetCoefficients(PvlKeyword &keyword) {
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
     PvlSequence seq;
     seq = keyword;
     for (int i = 0; i < seq.Size(); i++) {
       // TODO:  Test array size to be 4 if not throw error
       std::vector<QString> array = seq[i];
-      double et;
-      utc2et_c(array[0].toLatin1().data(), &et);
+      double et = SpiceQL::utcToEt(array[0].toLatin1().data(), useWeb).first;
       p_time.push_back(et);
       p_a0.push_back(toDouble(array[1]));
       p_a1.push_back(toDouble(array[2]));

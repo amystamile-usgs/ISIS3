@@ -37,7 +37,9 @@
 #include "IString.h"
 #include "iTime.h"
 #include "NaifStatus.h"
+#include "Preference.h"
 #include "SpkSpiceSegment.h"
+#include "spiceql.h"
 
 using namespace std;
 
@@ -394,11 +396,10 @@ QString SpkSpiceSegment::toUTC(const double &et) const {
 
 /** Converts a UTC time string to ET  */
 double SpkSpiceSegment::UTCtoET(const QString &utc) const {
-  SpiceDouble et;
+  bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+  double et;
 
-  NaifStatus::CheckErrors();
-  utc2et_c(utc.toLatin1().data(), &et);
-  NaifStatus::CheckErrors();
+  et  = SpiceQL::utcToEt(utc.toLatin1().data(), useWeb).first;
 
   return (et);
 }

@@ -14,6 +14,7 @@ find files of those names at the top level of this repository. **/
 #include <SpiceZmc.h>
 
 #include "FileName.h"
+#include "Preference.h"
 
 class QString;
 
@@ -74,7 +75,8 @@ namespace Isis {
       * @param time An ephemeris time (ET).
       */
       iTime(const double time) {
-        if(!p_lpInitialized)
+        bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+        if(!p_lpInitialized && !useWeb)
           LoadLeapSecondKernel();
 
         p_et = time;

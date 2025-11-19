@@ -23,7 +23,9 @@ find files of those names at the top level of this repository. **/
 #include "IString.h"
 #include "iTime.h"
 #include "NaifStatus.h"
+#include "Preference.h"
 #include "ReseauDistortionMap.h"
+#include "spiceql.h"
 
 using namespace std;
 
@@ -163,9 +165,10 @@ namespace Isis {
 
     // find center shutter time
     double centerTime = shuttertimes.first.Et() + exposureDuration / 2.0;
-    char timepds[25];
-    et2utc_c(centerTime, "ISOC", 3, 25, timepds);
-    utc2et_c(timepds, &centerTime);
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+
+    std::pair<std::string, nlohmann::json> timepds = SpiceQL::etToUtc(centerTime, "ISOC", 3, useWeb);
+    centerTime  = SpiceQL::utcToEt(timepds.first, useWeb).first;
 
     // Setup detector map
     new CameraDetectorMap(this);

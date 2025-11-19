@@ -21,8 +21,10 @@ find files of those names at the top level of this repository. **/
 #include "LineScanCameraDetectorMap.h"
 #include "LineScanCameraGroundMap.h"
 #include "LineScanCameraSkyMap.h"
+#include "Preference.h"
 #include "PvlGroup.h"
 #include "PvlKeyword.h"
+#include "spiceql.h"
 
 using namespace std;
 namespace Isis {
@@ -83,11 +85,10 @@ namespace Isis {
     Pvl &lab = *cube.label();
     PvlGroup &inst = lab.findGroup("Instrument", Pvl::Traverse);
     QString stime = (QString)inst["StartTime"];
-    SpiceDouble etStart;
-    str2et_c(stime.toLatin1().data(), &etStart);
+    bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+    double etStart = SpiceQL::utcToEt(stime.toLatin1().data(), useWeb).first;
     stime = (QString) inst["StopTime"];
-    SpiceDouble etStop;
-    str2et_c(stime.toLatin1().data(), &etStop);
+    double etStop = SpiceQL::utcToEt(stime.toLatin1().data(), useWeb).first;
     iTime isisTime( (QString) inst["StartTime"]);
 
     // Get other info from labels

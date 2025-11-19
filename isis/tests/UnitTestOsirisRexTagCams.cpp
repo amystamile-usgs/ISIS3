@@ -1,5 +1,7 @@
 #include "OsirisRexTagcamsCamera.h"
 
+#include "spiceql.h"
+#include "Preference.h"
 #include "iTime.h"
 #include "TempFixtures.h"
 #include "TestUtilities.h"
@@ -40,8 +42,8 @@ TEST_F(TempTestingFiles, UnitTestOsirisRexTagCamsNAVCam) {
   const PvlGroup &inst = navCube.label()->findGroup("Instrument", Pvl::Traverse);
   double exposureDuration = ((double) inst["ExposureDuration"])/1000;
   QString stime = inst["StartTime"];
-  double et; // StartTime keyword is the center exposure time
-  str2et_c(stime.toLatin1().data(), &et);
+  bool useWeb = QString(Preference::Preferences().findGroup("WebSpice")["UseWebSpice"]).toUpper() == "TRUE";
+  double et = SpiceQL::utcToEt(stime.toLatin1().data(), useWeb).first;
   pair <iTime, iTime> shuttertimes = cam->ShutterOpenCloseTimes(et, exposureDuration);
   EXPECT_NEAR(shuttertimes.first.Et(), 636543100.32342994, 1e-8);
   EXPECT_NEAR(shuttertimes.second.Et(), 636543100.32343423, 1e-8);
