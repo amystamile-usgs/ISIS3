@@ -56,6 +56,7 @@ jobs:
 
           # Filter out _app_, _unit_, _module_ tests
           jq -r '.tests[] | select(.name | test("_app_|_unit_|_module_") | not) | .name' all_tests.json > functional_tests.txt
+          
           mv functional_tests.txt $GITHUB_WORKSPACE/
 
           # Tar build and functional test list
@@ -63,6 +64,7 @@ jobs:
           tar -czf isis-build.tar.gz build /tmp/kakadu_7_9 functional_tests.txt
 
           cd $GITHUB_WORKSPACE
+          
           tar -czf isis-build.tar.gz build /tmp/kakadu_7_9 functional_tests.txt
       
 
