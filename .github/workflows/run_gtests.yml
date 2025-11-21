@@ -1,4 +1,4 @@
-name: Run GTests
+name: Run GTests (Sharded)
 
 on:
   pull_request:
@@ -7,58 +7,179 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  build_and_upload:
     runs-on: ubuntu-latest
+    outputs:
+      artifact-path: ${{ steps.upload_build.outputs.artifact-path }}
+    steps:
+      # 1. Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      # 2. Set up Conda
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          environment-file: environment.yml
+          activate-environment: isis
+          python-version: 3.12
+
+      # 3. Build project
+      - name: Build project
+        env:
+          ENCRYPTION_KEY: ${{ secrets.KDU_ENC_KEY }}
+        run: |
+          source $CONDA/etc/profile.d/conda.sh
+          conda activate isis
+
+          # Enable WebSpice
+          sed -i 's/^[[:space:]]*UseWebSpice = "false"/  UseWebSpice = "true"/' ${GITHUB_WORKSPACE}/isis/IsisPreferences
+          sed -i 's/^[[:space:]]*UseWebSpice = "false"/  UseWebSpice = "true"/' ${GITHUB_WORKSPACE}/isis/TestPreferences
+
+          # Kakadu setup
+          cd recipe
+          echo $ENCRYPTION_KEY | openssl enc -aes-256-cbc -d -in kakadu/kakadu_7_9.zip.enc -out kakadu/kakadu_7_9.zip -pbkdf2 -iter 10000 -pass stdin
+          unzip -j kakadu/kakadu_7_9.zip -d /tmp/kakadu_7_9 -x "__MACOSX/*"
+          cd ../
+
+          # Build
+          mkdir build && cd build
+          export ISISROOT=${GITHUB_WORKSPACE}/build
+          cmake -GNinja -DJP2KFLAG=ON -DKAKADU_INCLUDE_DIR=/tmp/kakadu_7_9 ../isis
+          ninja -j$(nproc)
+
+          # Generate full test list
+          ctest --show-only=json-v1 > all_tests.json
+
+          # Filter out _app_, _unit_, _module_ tests
+          jq -r '.tests[] | select(.name | test("_app_|_unit_|_module_") | not) | .name' all_tests.json > functional_tests.txt
+          mv functional_tests.txt $GITHUB_WORKSPACE/
+
+          # Tar build and functional test list
+          cd $GITHUB_WORKSPACE
+          tar -czf isis-build.tar.gz build /tmp/kakadu_7_9 functional_tests.txt
+
+      # 4. Upload build artifact
+      - name: Upload Build Artifact
+        id: upload_build
+        uses: actions/upload-artifact@v4
+        with:
+          name: isis-build-artifacts
+          path: isis-build.tar.gz
+          retention-days: 1
+
+  test_sharded:
+    needs: build_and_upload
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]  # four parallel shards
 
     steps:
-    # 1. Checkout code
-    - name: Checkout code
-      uses: actions/checkout@v3
-      with:
-        submodules: recursive
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # 2. Set up Miniconda
-    - name: Set up Conda
-      uses: conda-incubator/setup-miniconda@v3
-      with:
-        auto-update-conda: true
-        environment-file: environment.yml
-        activate-environment: isis
-        python-version: 3.12              
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: isis-build-artifacts
+          path: .
 
-    # 3. Build project
-    - name: Build project
-      env:
-        ENCRYPTION_KEY: ${{ secrets.KDU_ENC_KEY }}
-      run: |
-        source $CONDA/etc/profile.d/conda.sh
-        conda activate isis
-        sed -i 's/^[[:space:]]*UseWebSpice = "false"/  UseWebSpice = "true"/'  ${GITHUB_WORKSPACE}/isis/IsisPreferences
-        sed -i 's/^[[:space:]]*UseWebSpice = "false"/  UseWebSpice = "true"/'  ${GITHUB_WORKSPACE}/isis/TestPreferences
-        cd recipe
-        echo $ENCRYPTION_KEY | openssl enc -aes-256-cbc -d -in kakadu/kakadu_7_9.zip.enc -out kakadu/kakadu_7_9.zip -pbkdf2 -iter 10000 -pass stdin
-        unzip -j kakadu/kakadu_7_9.zip -d /tmp/kakadu_7_9 -x "__MACOSX/*"
-        cd ../
-        mkdir build && cd build
-        export ISISROOT=${GITHUB_WORKSPACE}/build
-        cmake -GNinja -DJP2KFLAG=ON -DKAKADU_INCLUDE_DIR=/tmp/kakadu_7_9 ../isis
-        ninja -j8
+      - name: Extract build artifacts
+        run: tar -xzf isis-build.tar.gz
 
-    # 4. Run gtests
-    - name: Run tests
-      run: |
-        export ISISROOT=${GITHUB_WORKSPACE}/build
-        export TMPDIR=${GITHUB_WORKSPACE}/tmp
-        mkdir -p $TMPDIR
-        source $CONDA/etc/profile.d/conda.sh
-        conda activate isis
-        export ISISROOT=${GITHUB_WORKSPACE}/build
-        cd build
-        ctest -R '.' -E '(_app_|_unit_|_module_)' -j 2 --output-on-failure --timeout 1800 --output-junit test-report.xml
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          environment-file: environment.yml
+          activate-environment: isis
+          python-version: 3.12
 
-    # 5. Upload test results
-    - name: Upload test report
-      uses: actions/upload-artifact@v4
-      with:
-        name: gtest-report
-        path: build/test-report.xml
+      - name: Run Functional Test Shard ${{ matrix.shard }}/4
+        run: |
+          export TMPDIR=${GITHUB_WORKSPACE}/tmp
+          mkdir -p $TMPDIR
+
+          source $CONDA/etc/profile.d/conda.sh
+          conda activate isis
+          export ISISROOT=${GITHUB_WORKSPACE}/build
+
+          cd build
+
+          # Read functional tests
+          mapfile -t tests < ../functional_tests.txt
+          total=${#tests[@]}
+          shard_index=${{ matrix.shard }}
+          N=4
+          start=$(( total * shard_index / N ))
+          end=$(( total * (shard_index + 1) / N - 1 ))
+
+          echo "Running tests $start to $end of $total"
+
+          # Log file for this shard
+          shard_log="../shard_${{ matrix.shard }}.log"
+          touch $shard_log
+
+          # Run only the shard's tests
+          for i in $(seq $start $end); do
+              test_name="${tests[i]}"
+              echo "Running test: $test_name"
+              ctest -R "^${test_name}$" --output-on-failure | tee -a $shard_log
+          done
+
+      - name: Upload shard log
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gtest-shard-logs
+          path: shard_${{ matrix.shard }}.log
+
+  post_pr_summary:
+    needs: test_sharded
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download all shard logs
+        uses: actions/download-artifact@v4
+        with:
+          name: gtest-shard-logs
+          path: ./logs
+
+      - name: Generate PR summary
+        id: generate_summary
+        run: |
+          total_passed=0
+          total_failed=0
+          summary_file=pr_test_summary.md
+          echo "## Functional Test Summary" > $summary_file
+
+          for log in ./logs/shard_*.log; do
+            passed=$(grep -c "100% tests passed" $log || true)
+            failed=$(grep -c "FAILED" $log || true)
+            total_passed=$((total_passed + passed))
+            total_failed=$((total_failed + failed))
+
+            if grep -q "FAILED" $log; then
+              echo "" >> $summary_file
+              echo "### Failures in $(basename $log)" >> $summary_file
+              grep -A3 "FAILED" $log >> $summary_file
+            fi
+          done
+
+          echo "" >> $summary_file
+          echo "**Total passed shards:** $total_passed" >> $summary_file
+          echo "**Total failed shards:** $total_failed" >> $summary_file
+          cat $summary_file
+
+      - name: Post PR comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: pr_test_summary.md
