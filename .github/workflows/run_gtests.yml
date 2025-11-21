@@ -62,6 +62,10 @@ jobs:
           cd $GITHUB_WORKSPACE
           tar -czf isis-build.tar.gz build /tmp/kakadu_7_9 functional_tests.txt
 
+          cd $GITHUB_WORKSPACE
+          tar -czf isis-build.tar.gz build /tmp/kakadu_7_9 functional_tests.txt
+      
+
       # 4. Upload build artifact
       - name: Upload Build Artifact
         id: upload_build
