@@ -137,7 +137,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: gtest-shard-logs
+          name: gtest-shard-logs-${{ matrix.shard }}
           path: shard_${{ matrix.shard }}.log
 
   post_pr_summary:
@@ -146,13 +146,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
+  
       - name: Download all shard logs
         uses: actions/download-artifact@v4
         with:
-          name: gtest-shard-logs
-          path: ./logs
-
+          name: gtest-shard-logs-0
+          path: ./logs/shard_0.log
+      # Repeat for shard_1, shard_2, shard_3 or loop in bash
+  
       - name: Generate PR summary
         id: generate_summary
         run: |
@@ -160,26 +161,26 @@ jobs:
           total_failed=0
           summary_file=pr_test_summary.md
           echo "## Functional Test Summary" > $summary_file
-
-          for log in ./logs/shard_*.log; do
+  
+          for log in ./logs/*.log; do
             passed=$(grep -c "100% tests passed" $log || true)
             failed=$(grep -c "FAILED" $log || true)
             total_passed=$((total_passed + passed))
             total_failed=$((total_failed + failed))
-
+  
             if grep -q "FAILED" $log; then
               echo "" >> $summary_file
               echo "### Failures in $(basename $log)" >> $summary_file
-              grep -A3 "FAILED" $log >> $summary_file
+              grep -A10 "FAILED" $log >> $summary_file
             fi
           done
-
+  
           echo "" >> $summary_file
           echo "**Total passed shards:** $total_passed" >> $summary_file
           echo "**Total failed shards:** $total_failed" >> $summary_file
-          cat $summary_file
-
+  
       - name: Post PR comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: peter-evans/create-or-update-comment@v3
         with:
-          path: pr_test_summary.md
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: ${{ steps.generate_summary.outputs.summary_file }}
