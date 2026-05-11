@@ -20,7 +20,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-variant: Miniforge3
-          auto-update-conda: true
+          auto-update-conda: false
           use-mamba: true
       - name: Build Release
         run: |
