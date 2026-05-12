@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- Floppy disk body -->
+  <rect x="4" y="4" width="16" height="16" rx="1" fill="none" stroke="#cccccc" stroke-width="2"/>
+  <!-- Disk notch -->
+  <rect x="6" y="4" width="8" height="6" fill="none" stroke="#cccccc" stroke-width="2"/>
+  <!-- Save button/label area -->
+  <rect x="6" y="14" width="12" height="4" fill="#4cafb4"/>
+  <!-- Write protect notch -->
+  <rect x="15" y="5" width="3" height="4" fill="#4cafb4"/>
+</svg>

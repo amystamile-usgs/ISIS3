@@ -1,6 +1,7 @@
 #include "ScatterPlotTool.h"
 
 #include <QAction>
+#include <QFile>
 #include <QHBoxLayout>
 #include <QPushButton>
 
@@ -58,7 +59,12 @@ namespace Isis {
    */
   QAction *ScatterPlotTool::toolPadAction(ToolPad *toolpad) {
     m_action = new QAction(toolpad);
-    m_action->setIcon(QPixmap(toolIconDir() + "/scatterplot.png"));
+    QString scatterplotIcon = toolIconDir() + "/scatterplot_modern.svg";
+    if (QFile::exists(scatterplotIcon)) {
+      m_action->setIcon(QIcon(scatterplotIcon));
+    } else {
+      m_action->setIcon(QPixmap(toolIconDir() + "/scatterplot.png"));
+    }
     m_action->setToolTip("Scatter Plot");
     //action->setShortcut(Qt::Key_C);
     connect(m_action, SIGNAL(triggered()),

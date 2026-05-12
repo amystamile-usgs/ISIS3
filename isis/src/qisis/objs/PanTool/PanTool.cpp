@@ -2,6 +2,7 @@
 
 #include <QAction>
 #include <QComboBox>
+#include <QFile>
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QLabel>
@@ -47,7 +48,12 @@ namespace Isis {
 
   QAction *PanTool::toolPadAction(ToolPad *pad) {
     QAction *action = new QAction(pad);
-    action->setIcon(QPixmap(toolIconDir() + "/move.png"));
+    QString moveIconPath = toolIconDir() + "/move_modern.svg";
+    if (QFile::exists(moveIconPath)) {
+      action->setIcon(QIcon(moveIconPath));
+    } else {
+      action->setIcon(QPixmap(toolIconDir() + "/move.png"));
+    }
     action->setToolTip("Pan (P)");
     action->setShortcut(Qt::Key_P);
     QString text  =

@@ -1,6 +1,7 @@
 #include "StatisticsTool.h"
 
 #include <QAction>
+#include <QFile>
 #include <QCheckBox>
 #include <QDebug>
 #include <QDialog>
@@ -181,7 +182,12 @@ namespace Isis {
    */
   QAction *StatisticsTool::toolPadAction(ToolPad *toolpad) {
     QAction *action = new QAction("Statistics", toolpad);
-    action->setIcon(QPixmap(toolIconDir() + "/statistics.png"));
+    QString statisticsIcon = toolIconDir() + "/statistics_modern.svg";
+    if (QFile::exists(statisticsIcon)) {
+      action->setIcon(QIcon(statisticsIcon));
+    } else {
+      action->setIcon(QPixmap(toolIconDir() + "/statistics.png"));
+    }
     action->setToolTip("Statistics");
     QObject::connect(action, SIGNAL(triggered()), p_dialog, SLOT(show()));
 

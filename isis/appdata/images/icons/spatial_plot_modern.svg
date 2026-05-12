@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- Graph axes -->
+  <line x1="3" y1="20" x2="21" y2="20" stroke="#666666" stroke-width="1.5"/>
+  <line x1="3" y1="3" x2="3" y2="20" stroke="#666666" stroke-width="1.5"/>
+  <!-- Spatial wave -->
+  <path d="M3 12 Q6 8, 9 12 T15 12 T21 12" fill="none" stroke="#4cafb4" stroke-width="2"/>
+  <!-- Sample points -->
+  <circle cx="6" cy="10" r="1.5" fill="#4cafb4"/>
+  <circle cx="12" cy="12" r="1.5" fill="#4cafb4"/>
+  <circle cx="18" cy="12" r="1.5" fill="#4cafb4"/>
+</svg>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<application name="isisworkspace" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://isis.astrogeology.usgs.gov/Schemas/Application/application.xsd">
+  <brief>
+    Modern integrated ISIS workspace with dockable panels
+  </brief>
+
+  <description>
+    <p>
+      ISIS Workspace is a modern, integrated application that combines the functionality
+      of multiple ISIS GUI tools into a single unified interface. It features dockable
+      panels for cube viewing, control network editing, and footprint visualization.
+    </p>
+
+    <h3>Key Features</h3>
+    <ul>
+      <li>Dockable panels that can be arranged according to your workflow</li>
+      <li>Cube viewer with all standard ISIS analysis tools (from qview)</li>
+      <li>Control network editor for creating and editing control points</li>
+      <li>Footprint visualization showing image coverage and overlaps</li>
+      <li>Synchronized views - all panels work with the same cubes</li>
+      <li>Modern Qt6 interface with dark/light theme support</li>
+      <li>Project-based workflow with save/restore functionality</li>
+    </ul>
+
+    <h3>Cube Viewing</h3>
+    <p>
+      The cube viewer panel provides full qview functionality including:
+    </p>
+    <ul>
+      <li>Interactive zoom, pan, and stretch</li>
+      <li>Band selection and display</li>
+      <li>Spatial and spectral plotting</li>
+      <li>Statistics and histogram analysis</li>
+      <li>Measurement and tracking tools</li>
+      <li>Lat/lon grid overlays</li>
+      <li>Feature nomenclature display</li>
+    </ul>
+
+    <h3>Control Network Editing</h3>
+    <p>
+      The control network panel allows you to:
+    </p>
+    <ul>
+      <li>Create new control networks</li>
+      <li>Load and edit existing networks</li>
+      <li>View control points and measures in table format</li>
+      <li>Edit point coordinates and attributes</li>
+      <li>Save modified networks</li>
+    </ul>
+
+    <h3>Footprint Visualization</h3>
+    <p>
+      The footprint panel displays:
+    </p>
+    <ul>
+      <li>2D geographic footprints of all loaded cubes</li>
+      <li>Image overlap visualization</li>
+      <li>Control point locations</li>
+      <li>Interactive selection and navigation</li>
+    </ul>
+
+    <h3>Usage</h3>
+    <p>
+      Launch ISIS Workspace from the command line with optional cube files:
+    </p>
+    <pre>
+      isisworkspace
+      isisworkspace cube1.cub cube2.cub cube3.cub
+    </pre>
+    <p>
+      Once running, use the File menu to open cubes or projects. The View menu allows
+      you to show/hide panels and toggle between dark and light themes. All panel
+      layouts are automatically saved and restored when you reopen the application.
+    </p>
+  </description>
+
+  <category>
+    <categoryItem>Display</categoryItem>
+  </category>
+
+  <seeAlso>
+    <applications>
+      <item>qview</item>
+      <item>qnet</item>
+      <item>cneteditor</item>
+      <item>qmos</item>
+      <item>ipce</item>
+    </applications>
+  </seeAlso>
+
+  <history>
+    <change name="Amy Stamile" date="2026-05-12">
+      Original version - modern integrated ISIS workspace
+    </change>
+  </history>
+
+  <groups>
+  </groups>
+</application>

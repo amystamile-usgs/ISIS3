@@ -9,6 +9,7 @@ find files of those names at the top level of this repository. **/
 #include "AdvancedTrackTool.h"
 
 #include <QAction>
+#include <QFile>
 #include <QApplication>
 #include <QLabel>
 #include <QListIterator>
@@ -57,7 +58,12 @@ namespace Isis {
 
     p_action = new QAction(parent);
     p_action->setText("Tracking ...");
-    p_action->setIcon(QPixmap(toolIconDir() + "/goto.png"));
+    QString gotoIcon = toolIconDir() + "/goto_modern.svg";
+    if (QFile::exists(gotoIcon)) {
+      p_action->setIcon(QIcon(gotoIcon));
+    } else {
+      p_action->setIcon(QPixmap(toolIconDir() + "/goto.png"));
+    }
     p_action->setShortcut(Qt::CTRL + Qt::Key_T);
     p_action->setWhatsThis("<b>Function: </b> Opens the Advanced Tracking Tool \
                            window. This window will track sample/line positions,\

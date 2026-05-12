@@ -1,6 +1,7 @@
 #include "MeasureTool.h"
 
 #include <QApplication>
+#include <QFile>
 #include <QCheckBox>
 #include <QFileDialog>
 #include <QHBoxLayout>
@@ -88,7 +89,12 @@ namespace Isis {
    */
   QAction *MeasureTool::toolPadAction(ToolPad *toolpad) {
     QAction *action = new QAction(toolpad);
-    action->setIcon(QPixmap(toolIconDir() + "/measure.png"));
+    QString measureIcon = toolIconDir() + "/measure_modern.svg";
+    if (QFile::exists(measureIcon)) {
+      action->setIcon(QIcon(measureIcon));
+    } else {
+      action->setIcon(QPixmap(toolIconDir() + "/measure.png"));
+    }
     action->setToolTip("Measure (M)");
     action->setShortcut(Qt::Key_M);
 

@@ -4,6 +4,7 @@
 
 #include <QAction>
 #include <QComboBox>
+#include <QFile>
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QMenuBar>
@@ -110,7 +111,12 @@ namespace Isis {
    */
   QAction *StretchTool::toolPadAction(ToolPad *pad) {
     QAction *action = new QAction(pad);
-    action->setIcon(QPixmap(toolIconDir() + "/stretch_global.png"));
+    QString stretchIconPath = toolIconDir() + "/stretch_modern.svg";
+    if (QFile::exists(stretchIconPath)) {
+      action->setIcon(QIcon(stretchIconPath));
+    } else {
+      action->setIcon(QPixmap(toolIconDir() + "/stretch_global.png"));
+    }
     action->setToolTip("Stretch (S)");
     action->setShortcut(Qt::Key_S);
     QString text  =
@@ -148,7 +154,12 @@ namespace Isis {
     QToolButton *butt = new QToolButton(hbox);
     butt->setAutoRaise(true);
     butt->setIconSize(QSize(22, 22));
-    butt->setIcon(QPixmap(toolIconDir() + "/regional_stretch-2.png"));
+    QString stretchIcon = toolIconDir() + "/stretch_modern.svg";
+    if (QFile::exists(stretchIcon)) {
+      butt->setIcon(QIcon(stretchIcon));
+    } else {
+      butt->setIcon(QPixmap(toolIconDir() + "/regional_stretch-2.png"));
+    }
     butt->setToolTip("Stretch");
     QString text  =
       "<b>Function:</b> Automatically compute min/max stretch using viewed \

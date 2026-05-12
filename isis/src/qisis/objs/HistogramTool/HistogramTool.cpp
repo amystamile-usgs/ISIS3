@@ -3,6 +3,7 @@
 #include <geos/geom/Point.h>
 
 #include <QDebug>
+#include <QFile>
 #include <QDockWidget>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -31,7 +32,12 @@ namespace Isis {
   HistogramTool::HistogramTool(QWidget *parent) : AbstractPlotTool(parent) {
     m_action = new QAction(this);
     m_action->setText("Histogram Tool");
-    m_action->setIcon(QPixmap(toolIconDir() + "/histogram.png"));
+    QString histogramIcon = toolIconDir() + "/histogram_modern.svg";
+    if (QFile::exists(histogramIcon)) {
+      m_action->setIcon(QIcon(histogramIcon));
+    } else {
+      m_action->setIcon(QPixmap(toolIconDir() + "/histogram.png"));
+    }
   }
 
 
@@ -59,7 +65,12 @@ namespace Isis {
    */
   QAction *HistogramTool::toolPadAction(ToolPad *toolpad) {
     QAction *action = new QAction(toolpad);
-    action->setIcon(QPixmap(toolIconDir() + "/histogram.png"));
+    QString histogramIcon = toolIconDir() + "/histogram_modern.svg";
+    if (QFile::exists(histogramIcon)) {
+      action->setIcon(QIcon(histogramIcon));
+    } else {
+      action->setIcon(QPixmap(toolIconDir() + "/histogram.png"));
+    }
     action->setToolTip("Histogram (H)");
     action->setShortcut(Qt::Key_H);
 

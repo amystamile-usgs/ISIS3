@@ -9,6 +9,7 @@ find files of those names at the top level of this repository. **/
 #include "LatLonGridTool.h"
 
 #include <QAction>
+#include <QFile>
 #include <QPixmap>
 #include <QStackedWidget>
 #include <QHBoxLayout>
@@ -38,7 +39,12 @@ namespace Isis {
    */
   QAction *LatLonGridTool::toolPadAction(ToolPad *pad) {
     QAction *action = new QAction(pad);
-    action->setIcon(QPixmap(toolIconDir() + "/grid.png"));
+    QString gridIcon = toolIconDir() + "/grid_modern.svg";
+    if (QFile::exists(gridIcon)) {
+      action->setIcon(QIcon(gridIcon));
+    } else {
+      action->setIcon(QPixmap(toolIconDir() + "/grid.png"));
+    }
     action->setToolTip("Lat Lon Grid Tool (G)");
     action->setShortcut(Qt::Key_G);
 

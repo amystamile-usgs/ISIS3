@@ -4,6 +4,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QImage>
@@ -46,10 +47,16 @@ namespace Isis {
   FileTool::FileTool(QWidget *parent) : Tool(parent) {
     p_parent = parent;
     p_dir.setPath("/thisDirDoesNotExist!");
+
     p_open = new QAction(parent);
     p_open->setShortcut(Qt::CTRL + Qt::Key_O);
     p_open->setText("&Open...");
-    p_open->setIcon(QPixmap(toolIconDir() + "/fileopen.png"));
+    QString openIcon = toolIconDir() + "/fileopen_modern.svg";
+    if (QFile::exists(openIcon)) {
+      p_open->setIcon(QIcon(openIcon));
+    } else {
+      p_open->setIcon(QPixmap(toolIconDir() + "/fileopen.png"));
+    }
     p_open->setToolTip("Open cube");
     QString whatsThis =
       "<b>Function:</b> Open an <i>Isis cube</i> in new viewport \
@@ -72,7 +79,12 @@ namespace Isis {
     p_save = new QAction(parent);
     p_save->setShortcut(Qt::CTRL + Qt::Key_S);
     p_save->setText("&Save");
-    p_save->setIcon(QPixmap(toolIconDir() + "/filesave.png"));
+    QString saveIcon = toolIconDir() + "/filesave_modern.svg";
+    if (QFile::exists(saveIcon)) {
+      p_save->setIcon(QIcon(saveIcon));
+    } else {
+      p_save->setIcon(QPixmap(toolIconDir() + "/filesave.png"));
+    }
     p_save->setToolTip("Save");
     whatsThis =
       "<b>Function:</b> Save changes to the current Cube \
@@ -83,7 +95,12 @@ namespace Isis {
 
     p_saveAs = new QAction(parent);
     p_saveAs->setText("Save &As...");
-    p_saveAs->setIcon(QPixmap(toolIconDir() + "/filesaveas.png"));
+    QString saveAsIcon = toolIconDir() + "/filesaveas_modern.svg";
+    if (QFile::exists(saveAsIcon)) {
+      p_saveAs->setIcon(QIcon(saveAsIcon));
+    } else {
+      p_saveAs->setIcon(QPixmap(toolIconDir() + "/filesaveas.png"));
+    }
     p_saveAs->setToolTip("Save As");
     whatsThis =
       "<b>Function:</b> Save the current Cube to the specified location";

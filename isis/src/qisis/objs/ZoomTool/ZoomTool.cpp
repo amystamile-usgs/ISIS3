@@ -10,6 +10,7 @@ find files of those names at the top level of this repository. **/
 
 #include <QAction>
 #include <QApplication>
+#include <QFile>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -41,7 +42,12 @@ namespace Isis {
     p_zoomIn2X = new QAction(parent);
     p_zoomIn2X->setShortcut(Qt::Key_Plus);
     p_zoomIn2X->setText("Zoom In");
-    p_zoomIn2X->setIcon(QPixmap(toolIconDir() + "/viewmag+.png"));
+    QString zoomInIcon = toolIconDir() + "/viewmag+_modern.svg";
+    if (QFile::exists(zoomInIcon)) {
+      p_zoomIn2X->setIcon(QIcon(zoomInIcon));
+    } else {
+      p_zoomIn2X->setIcon(QPixmap(toolIconDir() + "/viewmag+.png"));
+    }
     connect(p_zoomIn2X, SIGNAL(triggered()), this, SLOT(zoomIn2X()));
 
     p_zoomIn4X = new QAction(parent);
@@ -57,7 +63,12 @@ namespace Isis {
     p_zoomOut2X = new QAction(parent);
     p_zoomOut2X->setShortcut(Qt::Key_Minus);
     p_zoomOut2X->setText("Zoom Out");
-    p_zoomOut2X->setIcon(QPixmap(toolIconDir() + "/viewmag-.png"));
+    QString zoomOutIcon = toolIconDir() + "/viewmag-_modern.svg";
+    if (QFile::exists(zoomOutIcon)) {
+      p_zoomOut2X->setIcon(QIcon(zoomOutIcon));
+    } else {
+      p_zoomOut2X->setIcon(QPixmap(toolIconDir() + "/viewmag-.png"));
+    }
     connect(p_zoomOut2X, SIGNAL(triggered()), this, SLOT(zoomOut2X()));
 
     p_zoomOut4X = new QAction(parent);
@@ -73,13 +84,23 @@ namespace Isis {
     p_zoomActual = new QAction(parent);
     p_zoomActual->setShortcut(Qt::Key_Slash);
     p_zoomActual->setText("&Actual Pixels");
-    p_zoomActual->setIcon(QPixmap(toolIconDir() + "/viewmag1.png"));
+    QString zoom1Icon = toolIconDir() + "/viewmag1_modern.svg";
+    if (QFile::exists(zoom1Icon)) {
+      p_zoomActual->setIcon(QIcon(zoom1Icon));
+    } else {
+      p_zoomActual->setIcon(QPixmap(toolIconDir() + "/viewmag1.png"));
+    }
     connect(p_zoomActual, SIGNAL(triggered()), this, SLOT(zoomActual()));
 
     p_zoomFit = new QAction(parent);
     p_zoomFit->setShortcut(Qt::Key_Asterisk);
     p_zoomFit->setText("&Fit in Window");
-    p_zoomFit->setIcon(QPixmap(toolIconDir() + "/viewmagfit.png"));
+    QString zoomFitIcon = toolIconDir() + "/viewmagfit_modern.svg";
+    if (QFile::exists(zoomFitIcon)) {
+      p_zoomFit->setIcon(QIcon(zoomFitIcon));
+    } else {
+      p_zoomFit->setIcon(QPixmap(toolIconDir() + "/viewmagfit.png"));
+    }
     connect(p_zoomFit, SIGNAL(triggered()), this, SLOT(zoomFit()));
 
   }
@@ -144,7 +165,12 @@ namespace Isis {
     QWidget *hbox = new QWidget(parent);
 
     QToolButton *zoomInButton = new QToolButton(hbox);
-    zoomInButton->setIcon(QPixmap(toolIconDir() + "/viewmag+.png"));
+    QString zoomInIconPath = toolIconDir() + "/viewmag+_modern.svg";
+    if (QFile::exists(zoomInIconPath)) {
+      zoomInButton->setIcon(QIcon(zoomInIconPath));
+    } else {
+      zoomInButton->setIcon(QPixmap(toolIconDir() + "/viewmag+.png"));
+    }
     zoomInButton->setToolTip("Zoom In");
     QString text =
       "<b>Function:</b> Zoom in 2X at the center of the active viewport \
@@ -160,7 +186,12 @@ namespace Isis {
     zoomInButton->setIconSize(QSize(22, 22));
 
     QToolButton *zoomOutButton = new QToolButton(hbox);
-    zoomOutButton->setIcon(QPixmap(toolIconDir() + "/viewmag-.png"));
+    QString zoomOutIconPath = toolIconDir() + "/viewmag-_modern.svg";
+    if (QFile::exists(zoomOutIconPath)) {
+      zoomOutButton->setIcon(QIcon(zoomOutIconPath));
+    } else {
+      zoomOutButton->setIcon(QPixmap(toolIconDir() + "/viewmag-.png"));
+    }
     zoomOutButton->setToolTip("Zoom Out");
     text =
       "<b>Function:</b> Zoom out 2X at the center of the active viewport \
@@ -176,7 +207,12 @@ namespace Isis {
     zoomOutButton->setIconSize(QSize(22, 22));
 
     QToolButton *zoomActButton = new QToolButton(hbox);
-    zoomActButton->setIcon(QPixmap(toolIconDir() + "/viewmag1.png"));
+    QString zoom1IconPath = toolIconDir() + "/viewmag1_modern.svg";
+    if (QFile::exists(zoom1IconPath)) {
+      zoomActButton->setIcon(QIcon(zoom1IconPath));
+    } else {
+      zoomActButton->setIcon(QPixmap(toolIconDir() + "/viewmag1.png"));
+    }
     zoomActButton->setToolTip("Zoom 1:1");
     text =
       "<b>Function:</b> Zoom the active viewport to 1:1 such that one \
@@ -205,7 +241,12 @@ namespace Isis {
     zoomFitMenu->addAction(fitHeight);
 
     QToolButton *zoomFitButton = new QToolButton(hbox);
-    zoomFitButton->setIcon(QPixmap(toolIconDir() + "/viewmagfit.png"));
+    QString zoomFitIconPath = toolIconDir() + "/viewmagfit_modern.svg";
+    if (QFile::exists(zoomFitIconPath)) {
+      zoomFitButton->setIcon(QIcon(zoomFitIconPath));
+    } else {
+      zoomFitButton->setIcon(QPixmap(toolIconDir() + "/viewmagfit.png"));
+    }
     zoomFitButton->setMenu(zoomFitMenu);
     zoomFitButton->setPopupMode(QToolButton::MenuButtonPopup);
     zoomFitButton->setToolTip("Fit in viewport");

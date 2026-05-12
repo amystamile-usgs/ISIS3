@@ -4,6 +4,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDialog>
+#include <QFile>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -60,7 +61,12 @@ namespace Isis {
     p_findPoint = new QAction(parent);
     p_findPoint->setShortcut(Qt::CTRL + Qt::Key_F);
     p_findPoint->setText("&Find Point");
-    p_findPoint->setIcon( QPixmap(toolIconDir() + "/find.png") );
+    QString findIcon = toolIconDir() + "/find_modern.svg";
+    if (QFile::exists(findIcon)) {
+      p_findPoint->setIcon(QIcon(findIcon));
+    } else {
+      p_findPoint->setIcon(QPixmap(toolIconDir() + "/find.png"));
+    }
     QString text =
       "<b>Function:</b> Centers all linked viewports to the selected lat/lon. \
       The user can click anywhere on the image to have that point centered, or \
@@ -180,7 +186,12 @@ namespace Isis {
    */
   QAction *FindTool::toolPadAction(ToolPad *toolpad) {
     QAction *action = new QAction(toolpad);
-    action->setIcon( QPixmap(toolIconDir() + "/find.png") );
+    QString findIcon = toolIconDir() + "/find_modern.svg";
+    if (QFile::exists(findIcon)) {
+      action->setIcon(QIcon(findIcon));
+    } else {
+      action->setIcon(QPixmap(toolIconDir() + "/find.png"));
+    }
     action->setToolTip("Find (F)");
     action->setShortcut(Qt::Key_F);
     QString text =
@@ -212,7 +223,12 @@ namespace Isis {
     QWidget *hbox = new QWidget;
 
     p_showDialogButton = new QToolButton(hbox);
-    p_showDialogButton->setIcon( QPixmap(toolIconDir() + "/find.png") );
+    QString findIcon = toolIconDir() + "/find_modern.svg";
+    if (QFile::exists(findIcon)) {
+      p_showDialogButton->setIcon(QIcon(findIcon));
+    } else {
+      p_showDialogButton->setIcon(QPixmap(toolIconDir() + "/find.png"));
+    }
     p_showDialogButton->setToolTip("Find Point");
     QString text =
       "<b>Function:</b> Centers all linked viewports to the selected lat/lon. \

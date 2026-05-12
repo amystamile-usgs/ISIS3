@@ -9,6 +9,7 @@ find files of those names at the top level of this repository. **/
 #include "EditTool.h"
 
 #include <QAction>
+#include <QFile>
 #include <QApplication>
 #include <QComboBox>
 #include <QDebug>
@@ -58,7 +59,12 @@ namespace Isis {
    */
   QAction *EditTool::toolPadAction(ToolPad *pad) {
     QAction *action = new QAction(pad);
-    action->setIcon(QPixmap(toolIconDir() + "/color_line.png"));
+    QString colorlineIcon = toolIconDir() + "/color_line_modern.svg";
+    if (QFile::exists(colorlineIcon)) {
+      action->setIcon(QIcon(colorlineIcon));
+    } else {
+      action->setIcon(QPixmap(toolIconDir() + "/color_line.png"));
+    }
     action->setToolTip("Image Edit (E)");
     action->setShortcut(Qt::Key_E);
 
@@ -130,7 +136,12 @@ namespace Isis {
     connect(p_dnLineEdit, SIGNAL(editingFinished()), this, SLOT(changeDn()));
 
     p_undoButton = new QToolButton;
-    p_undoButton->setIcon(QPixmap(toolIconDir() + "/undo.png"));
+    QString undoIcon = toolIconDir() + "/undo_modern.svg";
+    if (QFile::exists(undoIcon)) {
+      p_undoButton->setIcon(QIcon(undoIcon));
+    } else {
+      p_undoButton->setIcon(QPixmap(toolIconDir() + "/undo.png"));
+    }
     p_undoButton->setToolTip("Undo");
     text =
       "<b>Function:</b> Undo last edit operation";
@@ -140,7 +151,12 @@ namespace Isis {
     p_undoButton->setIconSize(QSize(22, 22));
 
     p_redoButton = new QToolButton;
-    p_redoButton->setIcon(QPixmap(toolIconDir() + "/redo.png"));
+    QString redoIcon = toolIconDir() + "/redo_modern.svg";
+    if (QFile::exists(redoIcon)) {
+      p_redoButton->setIcon(QIcon(redoIcon));
+    } else {
+      p_redoButton->setIcon(QPixmap(toolIconDir() + "/redo.png"));
+    }
     p_redoButton->setToolTip("Redo");
     text =
       "<b>Function:</b> Redo last undo operation";

@@ -1,6 +1,7 @@
 #include "HelpTool.h"
 
 #include <QAction>
+#include <QFile>
 #include <QApplication>
 #include <QMenu>
 #include <QString>
@@ -20,7 +21,12 @@ namespace Isis {
     p_whatsThis = new QAction(parent);
     p_whatsThis->setShortcut(Qt::SHIFT + Qt::Key_F1);
     p_whatsThis->setText("&What's This?");
-    p_whatsThis->setIcon(QPixmap(toolIconDir() + "/contexthelp.png"));
+    QString contexthelpIcon = toolIconDir() + "/contexthelp_modern.svg";
+    if (QFile::exists(contexthelpIcon)) {
+      p_whatsThis->setIcon(QIcon(contexthelpIcon));
+    } else {
+      p_whatsThis->setIcon(QPixmap(toolIconDir() + "/contexthelp.png"));
+    }
     p_whatsThis->setToolTip("What's This");
     QString whatsThis =
       "<b>Function:</b> Use this to get longer descriptions of button \

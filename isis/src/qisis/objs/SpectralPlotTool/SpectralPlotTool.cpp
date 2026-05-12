@@ -7,6 +7,7 @@
 #include "geos/geom/Point.h"
 
 #include <QAction>
+#include <QFile>
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -149,7 +150,12 @@ namespace Isis {
   QAction *SpectralPlotTool::toolPadAction(ToolPad *toolpad) {
     m_toolPadAction = new QAction(toolpad);
     m_toolPadAction->setText("Spectral Plot Tool");
-    m_toolPadAction->setIcon(QPixmap(toolIconDir() + "/spectral_plot.png"));
+    QString spectralplotIcon = toolIconDir() + "/spectral_plot_modern.svg";
+    if (QFile::exists(spectralplotIcon)) {
+      m_toolPadAction->setIcon(QIcon(spectralplotIcon));
+    } else {
+      m_toolPadAction->setIcon(QPixmap(toolIconDir() + "/spectral_plot.png"));
+    }
     QString text = "<b>Function:</b> Create a spectral plot using statistics across a spectrum "
                    "(bands).";
     m_toolPadAction->setWhatsThis(text);

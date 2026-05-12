@@ -1,6 +1,7 @@
 #include "SunShadowTool.h"
 
 #include <QApplication>
+#include <QFile>
 #include <QComboBox>
 #include <QCheckBox>
 #include <QFileDialog>
@@ -90,7 +91,12 @@ namespace Isis {
    */
   QAction *SunShadowTool::toolPadAction(ToolPad *toolpad) {
     QAction *action = new QAction(toolpad);
-    action->setIcon(QPixmap(toolIconDir() + "/sunshadow.png"));
+    QString sunshadowIcon = toolIconDir() + "/sunshadow_modern.svg";
+    if (QFile::exists(sunshadowIcon)) {
+      action->setIcon(QIcon(sunshadowIcon));
+    } else {
+      action->setIcon(QPixmap(toolIconDir() + "/sunshadow.png"));
+    }
     action->setToolTip("Sun Shadow (U)");
     action->setShortcut(Qt::Key_U);
 

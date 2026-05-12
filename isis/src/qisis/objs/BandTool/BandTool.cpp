@@ -10,6 +10,7 @@ find files of those names at the top level of this repository. **/
 
 #include <QAction>
 #include <QComboBox>
+#include <QFile>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
@@ -45,7 +46,12 @@ namespace Isis {
    */
   QAction *BandTool::toolPadAction(ToolPad *pad) {
     QAction *action = new QAction(pad);
-    action->setIcon(QPixmap(toolIconDir() + "/rgb.png"));
+    QString iconPath = toolIconDir() + "/rgb_modern.svg";
+    if (QFile::exists(iconPath)) {
+      action->setIcon(QIcon(iconPath));
+    } else {
+      action->setIcon(QPixmap(toolIconDir() + "/rgb.png"));
+    }
     action->setToolTip("Band Selection (B)");
     action->setShortcut(Qt::Key_B);
     QString text  =
@@ -95,7 +101,12 @@ namespace Isis {
 
     QIcon colorIcon;
     QIcon grayIcon;
-    colorIcon.addPixmap(toolIconDir() + "/rgb.png", QIcon::Normal, QIcon::On);
+    QString rgbIconPath = toolIconDir() + "/rgb_modern.svg";
+    if (QFile::exists(rgbIconPath)) {
+      colorIcon.addFile(rgbIconPath, QSize(), QIcon::Normal, QIcon::On);
+    } else {
+      colorIcon.addPixmap(toolIconDir() + "/rgb.png", QIcon::Normal, QIcon::On);
+    }
     grayIcon.addPixmap(toolIconDir() + "/gray.png", QIcon::Normal, QIcon::Off);
     p_rgbButton->setIcon(colorIcon);
     p_rgbButton->setText("RGB");

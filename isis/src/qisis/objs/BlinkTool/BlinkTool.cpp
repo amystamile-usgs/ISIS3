@@ -16,6 +16,7 @@ find files of those names at the top level of this repository. **/
 #include <QDialog>
 #include <QDoubleSpinBox>
 #include <QEvent>
+#include <QFile>
 #include <QHBoxLayout>
 #include <QListWidgetItem>
 #include <QMenu>
@@ -71,7 +72,12 @@ namespace Isis {
     p_dialog->setLayout(layout);
 
     QToolButton *reverse = new QToolButton(buttons);
-    reverse->setIcon(QPixmap(toolIconDir() + "/blinkReverse.png"));
+    QString reverseIcon = toolIconDir() + "/blinkReverse_modern.svg";
+    if (QFile::exists(reverseIcon)) {
+      reverse->setIcon(QIcon(reverseIcon));
+    } else {
+      reverse->setIcon(QPixmap(toolIconDir() + "/blinkReverse.png"));
+    }
     reverse->setIconSize(QSize(22, 22));
     reverse->setShortcut(Qt::CTRL + Qt::Key_Delete);
     reverse->setToolTip("Previous");
@@ -82,7 +88,12 @@ namespace Isis {
     connect(reverse, SIGNAL(released()), this, SLOT(reverse()));
 
     QToolButton *stop = new QToolButton(buttons);
-    stop->setIcon(QPixmap(toolIconDir() + "/blinkStop.png"));
+    QString stopIcon = toolIconDir() + "/blinkStop_modern.svg";
+    if (QFile::exists(stopIcon)) {
+      stop->setIcon(QIcon(stopIcon));
+    } else {
+      stop->setIcon(QPixmap(toolIconDir() + "/blinkStop.png"));
+    }
     stop->setIconSize(QSize(22, 22));
     stop->setToolTip("Stop");
     text = "<b>Function:</b> Stop automatic timed blinking";
@@ -90,7 +101,12 @@ namespace Isis {
     connect(stop, SIGNAL(released()), this, SLOT(stop()));
 
     QToolButton *start = new QToolButton(buttons);
-    start->setIcon(QPixmap(toolIconDir() + "/blinkStart.png"));
+    QString startIcon = toolIconDir() + "/blinkStart_modern.svg";
+    if (QFile::exists(startIcon)) {
+      start->setIcon(QIcon(startIcon));
+    } else {
+      start->setIcon(QPixmap(toolIconDir() + "/blinkStart.png"));
+    }
     start->setIconSize(QSize(22, 22));
     start->setToolTip("Start");
     text = "<b>Function:</b> Start automatic timed blinking.  Cycles \

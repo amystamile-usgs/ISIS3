@@ -6,6 +6,7 @@
 #include <geos/geom/Point.h>
 
 #include <QHBoxLayout>
+#include <QFile>
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
@@ -82,7 +83,12 @@ namespace Isis {
   QAction *SpatialPlotTool::toolPadAction(ToolPad *toolpad) {
     m_toolPadAction = new QAction(toolpad);
     m_toolPadAction->setText("Spatial Plot Tool");
-    m_toolPadAction->setIcon(QPixmap(toolIconDir() + "/spatial_plot.png"));
+    QString spatialplotIcon = toolIconDir() + "/spatial_plot_modern.svg";
+    if (QFile::exists(spatialplotIcon)) {
+      m_toolPadAction->setIcon(QIcon(spatialplotIcon));
+    } else {
+      m_toolPadAction->setIcon(QPixmap(toolIconDir() + "/spatial_plot.png"));
+    }
     QString text = "<b>Function:</b> Create a spatial plot of the selected pixels' DN values.";
     m_toolPadAction->setWhatsThis(text);
     return m_toolPadAction;

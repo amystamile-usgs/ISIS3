@@ -1,6 +1,7 @@
 #include "FeatureNomenclatureTool.h"
 
 #include <QAction>
+#include <QFile>
 #include <QApplication>
 #include <QBitmap>
 #include <QCheckBox>
@@ -364,7 +365,12 @@ namespace Isis {
   QAction *FeatureNomenclatureTool::toolPadAction(ToolPad *toolpad) {
     QAction *action = new QAction(toolpad);
 
-    action->setIcon(QPixmap(toolIconDir() + "/nomenclature.png"));
+    QString nomenclatureIcon = toolIconDir() + "/nomenclature_modern.svg";
+    if (QFile::exists(nomenclatureIcon)) {
+      action->setIcon(QIcon(nomenclatureIcon));
+    } else {
+      action->setIcon(QPixmap(toolIconDir() + "/nomenclature.png"));
+    }
     action->setToolTip("Nomenclature (N)");
     action->setShortcut(Qt::Key_N);
     action->setObjectName("nomenclatureToolButton");

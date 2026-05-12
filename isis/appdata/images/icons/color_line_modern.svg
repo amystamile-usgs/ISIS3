@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- Pencil body -->
+  <path d="M18 2 L22 6 L9 19 L5 20 L6 16 Z" fill="none" stroke="#cccccc" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Pencil tip -->
+  <path d="M18 2 L22 6 L20 8 L16 4 Z" fill="#4cafb4"/>
+  <!-- Edit mark -->
+  <line x1="7" y1="17" x2="10" y2="14" stroke="#4cafb4" stroke-width="2"/>
+</svg>

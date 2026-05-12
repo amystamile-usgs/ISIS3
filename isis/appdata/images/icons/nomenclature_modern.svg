@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- Planet/globe -->
+  <circle cx="12" cy="12" r="8" fill="none" stroke="#cccccc" stroke-width="2"/>
+  <!-- Latitude lines -->
+  <ellipse cx="12" cy="12" rx="8" ry="3" fill="none" stroke="#cccccc" stroke-width="1"/>
+  <ellipse cx="12" cy="12" rx="8" ry="6" fill="none" stroke="#cccccc" stroke-width="1"/>
+  <!-- Longitude line -->
+  <ellipse cx="12" cy="12" rx="3" ry="8" fill="none" stroke="#cccccc" stroke-width="1"/>
+  <!-- Label marker -->
+  <circle cx="15" cy="9" r="2" fill="#4cafb4"/>
+  <text x="15" y="10.5" font-size="3" fill="#ffffff" text-anchor="middle" font-weight="bold">A</text>
+</svg>

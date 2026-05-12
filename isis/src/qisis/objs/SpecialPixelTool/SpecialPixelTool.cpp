@@ -1,6 +1,7 @@
 #include "SpecialPixelTool.h"
 
 #include <QCheckBox>
+#include <QFile>
 #include <QColorDialog>
 #include <QDialog>
 #include <QHBoxLayout>
@@ -155,7 +156,12 @@ namespace Isis {
     p_action = new QAction(parent);
     //p_action->setShortcut(Qt::CTRL+Qt::Key_C);
     p_action->setText("&Special Pixel Tool ...");
-    p_action->setIcon(QPixmap(toolIconDir() + "/colorize.png"));
+    QString colorizeIcon = toolIconDir() + "/colorize_modern.svg";
+    if (QFile::exists(colorizeIcon)) {
+      p_action->setIcon(QIcon(colorizeIcon));
+    } else {
+      p_action->setIcon(QPixmap(toolIconDir() + "/colorize.png"));
+    }
     p_action->setToolTip("SpecialPixelTool");
     QString text =
       "<b>Function:</b> Opens a window that allows you to chose what color to \

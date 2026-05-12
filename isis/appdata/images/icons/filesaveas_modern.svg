@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- Floppy disk body -->
+  <rect x="3" y="3" width="14" height="14" rx="1" fill="none" stroke="#cccccc" stroke-width="2"/>
+  <!-- Disk notch -->
+  <rect x="5" y="3" width="7" height="5" fill="none" stroke="#cccccc" stroke-width="2"/>
+  <!-- Save button area -->
+  <rect x="5" y="12" width="10" height="3" fill="#cccccc"/>
+  <!-- Plus sign -->
+  <line x1="19" y1="16" x2="19" y2="22" stroke="#4cafb4" stroke-width="2" stroke-linecap="round"/>
+  <line x1="16" y1="19" x2="22" y2="19" stroke="#4cafb4" stroke-width="2" stroke-linecap="round"/>
+</svg>
