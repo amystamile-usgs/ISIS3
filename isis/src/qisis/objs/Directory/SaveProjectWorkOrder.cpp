@@ -96,7 +96,17 @@ namespace Isis {
     bool success = WorkOrder::setupExecution();
 
     if (success) {
-      // Check to save if the save dialog (for a temp project) completed 
+      // Lightweight mode projects cannot be saved yet - they don't have .ecub files
+      if (project()->usesLightweightMode()) {
+        QMessageBox::warning(NULL, tr("Cannot Save Lightweight Project"),
+            tr("Projects imported in lightweight mode cannot be saved yet. "
+               "Lightweight mode references cubes in place without creating project files.\n\n"
+               "To create a saveable project, re-import with 'Create workspace structure' enabled."),
+            QMessageBox::Ok);
+        return false;
+      }
+
+      // Check to save if the save dialog (for a temp project) completed
       // (i.e. it was not cancelled)
       success = project()->save();
       if (success) {

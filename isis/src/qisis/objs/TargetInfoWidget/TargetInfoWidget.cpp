@@ -5,6 +5,7 @@
 #include <QPixmap>
 
 #include "Directory.h"
+#include "IException.h"
 #include "SpiceRotation.h"
 #include "TargetBody.h"
 #include "TargetBodyDisplayProperties.h"
@@ -29,24 +30,24 @@ namespace Isis {
 
     // Ken TODO - set up map between target display names and icon/image names
     QPixmap image;
-    if (name.compare("MOON") == 0) {
+    if (name.compare("MOON", Qt::CaseInsensitive) == 0) {
       image.load(FileName("$ISISROOT/appdata/images/targets/nasa_moon_large.png").expanded());
       setWindowIcon(QIcon(FileName("$ISISROOT/appdata/images/icons/weather-clear-night.png")
                                    .expanded()));
     }
-    else if (name.compare("Enceladus") == 0) {
+    else if (name.compare("Enceladus", Qt::CaseInsensitive) == 0) {
       image.load(FileName("$ISISROOT/appdata/images/targets/nasa_enceladus_saturn.png").expanded());
       setWindowIcon(QIcon(FileName("$ISISROOT/appdata/images/icons/nasa_enceladus.png").expanded()));
     }
-    else if (name.compare("Europa") == 0) {
+    else if (name.compare("Europa", Qt::CaseInsensitive) == 0) {
       image.load(FileName("$ISISROOT/appdata/images/targets/nasa_europa_large.png").expanded());
       setWindowIcon(QIcon(FileName("$ISISROOT/appdata/images/icons/nasa_europa.png").expanded()));
     }
-    else if (name.compare("Mars") == 0) {
+    else if (name.compare("Mars", Qt::CaseInsensitive) == 0) {
       image.load(FileName("$ISISROOT/appdata/images/targets/nasa_mars_large.png").expanded());
       setWindowIcon(QIcon(FileName("$ISISROOT/appdata/images/icons/nasa_mars.png").expanded()));
     }
-    else if (name.compare("Titan") == 0) {
+    else if (name.compare("Titan", Qt::CaseInsensitive) == 0) {
       image.load(FileName("$ISISROOT/appdata/images/targets/nasa_titan_large.png").expanded());
       setWindowIcon(QIcon(FileName("$ISISROOT/appdata/images/icons/nasa_titan.png").expanded()));
     }
@@ -101,10 +102,22 @@ namespace Isis {
         m_target->frameType() != Isis::SpiceRotation::UNKNOWN ) {
 
       std::vector<Angle> poleRaCoefs = m_target->poleRaCoefs();
+
+      if (poleRaCoefs.size() < 2) {
+        return "N/A";
+      }
+
       std::vector<double> poleRaNutPrecCoefs = m_target->poleRaNutPrecCoefs();
 
       const QChar degChar(0260);
-      QString coefLetter = m_target->naifPlanetSystemName().at(0);
+
+      QString systemName = m_target->naifPlanetSystemName();
+
+      if (systemName.isEmpty()) {
+        return "N/A";
+      }
+
+      QString coefLetter = systemName.at(0);
 
       if (poleRaCoefs[1].degrees() < 0.0 ) {
         poleRaString.append(tr("%1%3 - %2T").arg(poleRaCoefs[0].degrees()).arg(-poleRaCoefs[1]
@@ -156,11 +169,21 @@ namespace Isis {
         m_target->frameType() != Isis::SpiceRotation::UNKNOWN ) {
 
       std::vector<Angle> poleDecCoefs = m_target->poleDecCoefs();
+
+      if (poleDecCoefs.size() < 2) {
+        return "N/A";
+      }
+
       std::vector<double> poleDecNutPrecCoefs = m_target->poleDecNutPrecCoefs();
 
       const QChar degChar(0260);
 
-      QString coefLetter = m_target->naifPlanetSystemName().at(0);
+      QString systemName = m_target->naifPlanetSystemName();
+      if (systemName.isEmpty()) {
+        return "N/A";
+      }
+
+      QString coefLetter = systemName.at(0);
 
       if (poleDecCoefs[1].degrees() < 0.0 ) {
         poleDecString.append(tr("%1%3 - %2T").arg(poleDecCoefs[0].degrees()).arg(-poleDecCoefs[1]
@@ -212,11 +235,21 @@ namespace Isis {
     {
 
       std::vector<Angle> pmCoefs = m_target->pmCoefs();
+
+      if (pmCoefs.size() < 3) {  // PM uses 3 coefficients
+        return "N/A";
+      }
+
       std::vector<double> pmNutPrecCoefs = m_target->pmNutPrecCoefs();
 
       const QChar degChar(0260);
 
-      QString coefLetter = m_target->naifPlanetSystemName().at(0);
+      QString systemName = m_target->naifPlanetSystemName();
+      if (systemName.isEmpty()) {
+        return "N/A";
+      }
+
+      QString coefLetter = systemName.at(0);
 
       if (pmCoefs[1].degrees() < 0.0 ) {
         pmString.append(tr("%1%3 - %2d").arg(pmCoefs[0].degrees()).arg(-pmCoefs[1].degrees())

@@ -162,7 +162,8 @@ namespace Isis {
       };
 
     private:
-      void importConfirmedImages(QStringList confirmedImages, bool copyDnData);
+      void importConfirmedImages(QStringList confirmedImages, bool copyDnData, bool generateFootprints,
+                                 bool createWorkspace);
 
     private:
       ImageList *m_newImages; //!< List of images that are being imported in this work order.

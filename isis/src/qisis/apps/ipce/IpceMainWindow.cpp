@@ -13,6 +13,7 @@ find files of those names at the top level of this repository. **/
 #include <QColor>
 #include <QDebug>
 #include <QDockWidget>
+#include <QLabel>
 #include <QMap>
 #include <QMapIterator>
 #include <QMdiArea>
@@ -29,6 +30,7 @@ find files of those names at the top level of this repository. **/
 #include <QTreeView>
 #include <QVariant>
 #include <QTabWidget>
+#include <QVBoxLayout>
 
 
 #include "AbstractProjectItemView.h"
@@ -69,9 +71,45 @@ namespace Isis {
     m_maxThreadCount = -1;
 
     QWidget *centralWidget = new QWidget;
+    QVBoxLayout *layout = new QVBoxLayout(centralWidget);
+    layout->setAlignment(Qt::AlignCenter);
+
+    QLabel *titleLabel = new QLabel("<h1>Welcome to IPCE</h1>");
+    titleLabel->setAlignment(Qt::AlignCenter);
+    titleLabel->setStyleSheet("QLabel { margin: 20px; }");
+
+    QLabel *instructionsLabel = new QLabel(
+      "<div style='font-size: 14px; line-height: 1.6;'>"
+      "<h2>Getting Started:</h2>"
+      "<ol style='margin-left: 20px;'>"
+      "<li style='margin-bottom: 10px;'><b>Import images:</b> File → Import → Import Images</li>"
+      "<li style='margin-bottom: 10px;'><b>Explore data:</b> Use the tree on the left to browse imported images</li>"
+      "<li style='margin-bottom: 10px;'><b>Open views:</b> Right-click on images to open viewers (DN view, footprint view, etc.)</li>"
+      "<li style='margin-bottom: 10px;'><b>Save your work:</b> File → Save Project (optional, saves state for later)</li>"
+      "</ol>"
+      "<h2 style='margin-top: 30px;'>Import Options:</h2>"
+      "<ul style='margin-left: 20px;'>"
+      "<li style='margin-bottom: 8px;'><b>Generate footprints:</b> Create image footprints (slower, needed for footprint view)</li>"
+      "<li style='margin-bottom: 8px;'><b>Copy data:</b> Copy cube files into saved project (uses more disk space)</li>"
+      "<li style='margin-bottom: 8px;'><b>Create workspace:</b> Create traditional project folder structure</li>"
+      "</ul>"
+      "<p style='margin-top: 30px; padding: 15px; background-color: #ffffcc; border-left: 4px solid #ffaa00;'>"
+      "<i><b>Tip:</b> Leave all three options unchecked for fastest import and smallest disk usage.<br>"
+      "IPCE will work directly with your cube files without copying them.</i>"
+      "</p>"
+      "</div>"
+    );
+    instructionsLabel->setWordWrap(true);
+    instructionsLabel->setTextFormat(Qt::RichText);
+    instructionsLabel->setMaximumWidth(800);
+    instructionsLabel->setMargin(20);
+
+    layout->addWidget(titleLabel);
+    layout->addWidget(instructionsLabel);
+
     centralWidget->setAutoFillBackground(true);
     QPalette p = centralWidget->palette();
-    p.setBrush(QPalette::Window, QBrush(Qt::Dense6Pattern));
+    p.setColor(QPalette::Window, QColor(240, 240, 240));
     centralWidget->setPalette(p);
     setCentralWidget(centralWidget);
 
@@ -818,7 +856,18 @@ namespace Isis {
         return;
       }
       else if (box->clickedButton() == (QAbstractButton*)save) {
-        m_directory->project()->save();
+        // Check if lightweight mode before saving
+        if (m_directory->project()->usesLightweightMode()) {
+          QMessageBox::warning(this, tr("Cannot Save Lightweight Project"),
+              tr("This project uses lightweight mode and cannot be saved.\n\n"
+                 "Lightweight mode references cubes in place without creating project files. "
+                 "To create a saveable project, re-import with 'Create workspace structure' enabled."),
+              QMessageBox::Ok);
+          // Continue closing without saving
+        }
+        else {
+          m_directory->project()->save();
+        }
       }
     }
     //  Write global settings, for now this is for the project "Project"

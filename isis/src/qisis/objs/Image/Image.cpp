@@ -234,10 +234,9 @@ namespace Isis {
     }
 
     if (!result && m_cube) {
-      Blob example = ImagePolygon().toBlob();
 
-      QString blobType = example.Type();
-      QString blobName = example.Name();
+      QString blobType = "Polygon";
+      QString blobName = "Footprint";
 
       Pvl &labels = *m_cube->label();
 
@@ -604,7 +603,15 @@ namespace Isis {
     stream.writeStartElement("image");
 
     stream.writeAttribute("id", m_id->toString());
-    stream.writeAttribute("fileName", FileName(m_fileName).name());
+
+    // In lightweight mode, save full path; in workspace mode, save base name only
+    if (project->usesLightweightMode()) {
+      stream.writeAttribute("fileName", m_fileName);  // Full path
+    }
+    else {
+      stream.writeAttribute("fileName", FileName(m_fileName).name());  // Base name only
+    }
+
     stream.writeAttribute("instrumentId", m_instrumentId);
     stream.writeAttribute("spacecraftName", m_spacecraftName);
 
@@ -667,6 +674,12 @@ namespace Isis {
   void Image::updateFileName(Project *project) {
     closeCube();
 
+    // In lightweight mode, keep original path - don't update
+    if (project->usesLightweightMode()) {
+      return;
+    }
+
+    // In workspace mode, update to project structure
     FileName original(m_fileName);
     FileName newName(project->imageDataRoot() + "/" +
                      original.dir().dirName() + "/" + original.name());

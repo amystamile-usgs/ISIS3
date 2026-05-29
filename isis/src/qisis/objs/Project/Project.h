@@ -350,6 +350,10 @@ namespace Isis {
       void setActiveImageList(QString displayName);
       ImageList *activeImageList();
 
+      // Lightweight mode (reference cubes in place without workspace structure)
+      bool usesLightweightMode() const;
+      void setLightweightMode(bool enabled);
+
       static QString cnetRoot(QString projectRoot);
       QString cnetRoot() const;
       QList<ControlList *> controls();
@@ -637,6 +641,7 @@ namespace Isis {
       bool m_isOpen; //! used to determine whether a project is currently open
       bool m_isClean; //! used to determine whether a project's changes are unsaved
       bool m_clearing; //! used to negate segfaults happening in post undos when clearning project
+      bool m_usesLightweightMode; //! If true, images are referenced in place without workspace structure
       int m_numImagesCurrentlyReading;
 
       QMutex *m_mutex;

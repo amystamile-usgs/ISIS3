@@ -28,6 +28,7 @@
 
 #include "Directory.h"
 #include "Footprint2DView.h"
+#include "IException.h"
 #include "ImageList.h"
 #include "MosaicSceneItem.h"
 #include "MosaicSceneWidget.h"
@@ -138,6 +139,61 @@ namespace Isis {
    */
   bool Footprint2DViewWorkOrder::setupExecution() {
     bool success = WorkOrder::setupExecution();
+
+    // Check if any images lack footprints and offer to generate them
+    if (success) {
+      ImageList *images = imageList();
+      QList<Image *> imagesNeedingFootprints;
+
+      foreach (Image *image, *images) {
+        if (!image->isFootprintable()) {
+          imagesNeedingFootprints.append(image);
+        }
+      }
+
+      if (!imagesNeedingFootprints.isEmpty()) {
+        QString message;
+        if (imagesNeedingFootprints.count() == 1) {
+          message = tr("This image does not have a footprint. Would you like to generate one now?\n\n"
+                      "Note: Footprint generation can take several seconds per image.");
+        }
+        else {
+          message = tr("%1 of the selected images do not have footprints. Would you like to generate them now?\n\n"
+                      "Note: This may take several seconds per image.")
+                      .arg(imagesNeedingFootprints.count());
+        }
+
+        QMessageBox::StandardButton response = QMessageBox::question(NULL,
+            tr("Generate Footprints?"),
+            message,
+            QMessageBox::Yes | QMessageBox::No,
+            QMessageBox::Yes);
+
+        if (response == QMessageBox::Yes) {
+          // Generate footprints for images that need them
+          foreach (Image *image, imagesNeedingFootprints) {
+            try {
+              if (!image->initFootprint(project()->mutex())) {
+                QMessageBox::warning(NULL, tr("Footprint Generation Failed"),
+                    tr("Could not generate footprint for %1.\n"
+                       "This image may not have valid camera/SPICE data.")
+                    .arg(image->displayProperties()->displayName()));
+              }
+            }
+            catch (IException &e) {
+              QMessageBox::warning(NULL, tr("Footprint Generation Error"),
+                  tr("Error generating footprint for %1:\n%2")
+                  .arg(image->displayProperties()->displayName())
+                  .arg(e.what()));
+            }
+          }
+        }
+        else {
+          // User declined to generate footprints, abort the work order
+          success = false;
+        }
+      }
+    }
 
     int maxRecommendedFootprints = 50000;
     if (success && imageList()->count() > maxRecommendedFootprints) {

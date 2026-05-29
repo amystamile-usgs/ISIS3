@@ -105,6 +105,7 @@ namespace Isis {
     m_isTemporaryProject = true;
     m_isOpen = false;
     m_isClean = true;
+    m_usesLightweightMode = false;
     m_activeControl = NULL;
     m_activeImageList = NULL;
 
@@ -1657,6 +1658,24 @@ namespace Isis {
   void Project::setClean(bool value) {
     m_isClean = value;
     m_undoStack.cleanChanged(value);
+  }
+
+
+  /**
+   * Check if project is in lightweight mode (references cubes in place without workspace structure)
+   * @return bool True if lightweight mode is enabled
+   */
+  bool Project::usesLightweightMode() const {
+    return m_usesLightweightMode;
+  }
+
+
+  /**
+   * Enable or disable lightweight mode for this project
+   * @param enabled True to enable lightweight mode, false for traditional workspace mode
+   */
+  void Project::setLightweightMode(bool enabled) {
+    m_usesLightweightMode = enabled;
   }
 
 
