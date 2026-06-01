@@ -856,18 +856,7 @@ namespace Isis {
         return;
       }
       else if (box->clickedButton() == (QAbstractButton*)save) {
-        // Check if lightweight mode before saving
-        if (m_directory->project()->usesLightweightMode()) {
-          QMessageBox::warning(this, tr("Cannot Save Lightweight Project"),
-              tr("This project uses lightweight mode and cannot be saved.\n\n"
-                 "Lightweight mode references cubes in place without creating project files. "
-                 "To create a saveable project, re-import with 'Create workspace structure' enabled."),
-              QMessageBox::Ok);
-          // Continue closing without saving
-        }
-        else {
-          m_directory->project()->save();
-        }
+        m_directory->project()->save();
       }
     }
     //  Write global settings, for now this is for the project "Project"

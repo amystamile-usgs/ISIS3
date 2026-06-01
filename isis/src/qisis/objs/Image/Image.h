@@ -139,8 +139,6 @@ namespace Isis {
       Angle phaseAngle() const;
       double sampleResolution() const;
 
-      void copyToNewProjectRoot(const Project *project, FileName newProjectRoot);
-      void deleteFromDisk();
       void save(QXmlStreamWriter &stream, const Project *project, FileName newProjectRoot) const;
 
     public slots:

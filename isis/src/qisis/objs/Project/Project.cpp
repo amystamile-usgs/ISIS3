@@ -45,6 +45,9 @@
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 
+#include <geos/geom/MultiPolygon.h>
+#include <geos/io/WKTReader.h>
+
 #include "BundleSettings.h"
 #include "BundleSolutionInfo.h"
 #include "Camera.h"
@@ -105,7 +108,6 @@ namespace Isis {
     m_isTemporaryProject = true;
     m_isOpen = false;
     m_isClean = true;
-    m_usesLightweightMode = false;
     m_activeControl = NULL;
     m_activeImageList = NULL;
 
@@ -458,178 +460,6 @@ namespace Isis {
   void Project::clear() {
     m_clearing = true;
 
-    // We need to look through the project.xml and remove every directory not in the project
-    QStringList shapeDirList;
-    bool shapes = false;
-    QStringList imageDirList;
-    bool images = false;
-    QStringList cnetDirList;
-    bool controls = false;
-    QStringList mapTemplateDirList;
-    bool mapTemplates = false;
-    QStringList regTemplateDirList;
-    bool regTemplates = false;
-    QStringList bundleDirList;
-    bool bundles = false;
-    QFile projectXml(projectRoot() + "/project.xml");
-
-    if (projectXml.open(QIODevice::ReadOnly)) {
-      QTextStream projectXmlInput(&projectXml);
-
-      while (!projectXmlInput.atEnd() ) {
-
-        QString line = projectXmlInput.readLine();
-
-        if (controls || line.contains("<controlNets>") ) {
-          controls = true;
-
-          if (line.contains("</controlNets>") ) {
-            controls = false;
-          }
-
-          else if (!line.contains("<controlNets>") ) {
-            cnetDirList.append(line.split('"').at(3));
-          }
-        }
-
-        else if (images || line.contains("<imageLists>") ) {
-          images = true;
-
-          if (line.contains("</imageLists>")) {
-            images = false;
-          }
-
-          else if (!line.contains("<imageLists>") ) {
-            imageDirList.append(line.split('"').at(3).simplified());
-          }
-        }
-
-        else if (shapes || line.contains("<shapeLists>")) {
-          shapes = true;
-
-          if (line.contains("</shapeLists>") ) {
-            shapes = false;
-          }
-
-          else if (!line.contains("<shapeLists>") ) {
-            shapeDirList.append(line.split('"').at(3));
-          }
-        }
-
-        else if (mapTemplates || line.contains("<mapTemplateLists>") ) {
-          mapTemplates = true;
-
-          if (line.contains("</mapTemplateLists>") ) {
-            mapTemplates = false;
-          }
-
-          else if (!line.contains("<mapTemplateLists>") ) {
-            QList<QString> components = line.split('"');
-            mapTemplateDirList.append(components.at(5));
-          }
-        }
-
-        else if (regTemplates || line.contains("<regTemplateLists>") ) {
-          regTemplates = true;
-
-          if (line.contains("</regTemplateLists>") ) {
-            regTemplates = false;
-          }
-
-          else if (!line.contains("<regTemplateLists>") ) {
-            QList<QString> components = line.split('"');
-            regTemplateDirList.append(components.at(5));
-          }
-        }
-
-        else if (bundles || line.contains("<bundleSolutionInfo>") ) {
-          bundles = true;
-
-          if (line.contains("</bundleSolutionInfo>") ) {
-            bundles = false;
-          }
-
-          else if (line.contains("<runTime>") ) {
-            bundleDirList.append(line.split('>').at(1).split('<').at(0));
-          }
-        }
-      }
-
-      QDir cnetsDir(m_projectRoot->path() + "/cnets/");
-      cnetsDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
-      QStringList cnetsList = cnetsDir.entryList();
-      foreach (QString dir, cnetsList) {
-        dir = dir.simplified();
-
-        if ( !cnetDirList.contains(dir) ) {
-          QDir tempDir(cnetsDir.path() + "/" + dir);
-          tempDir.removeRecursively();
-        }
-      }
-
-      QDir imagesDir(m_projectRoot->path() + "/images/");
-      imagesDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
-      QStringList imagesList = imagesDir.entryList();
-      foreach (QString dir, imagesList) {
-        dir = dir.simplified();
-
-        if ( !imageDirList.contains(dir) ) {
-          QDir tempDir(imagesDir.path() + "/" + dir);
-          tempDir.removeRecursively();
-        }
-      }
-
-      QDir shapesDir(m_projectRoot->path() + "/shapes/");
-      shapesDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
-      QStringList shapesList = shapesDir.entryList();
-      foreach (QString dir, shapesList) {
-        dir = dir.simplified();
-
-        if ( !shapeDirList.contains(dir) ) {
-          QDir tempDir(shapesDir.path() + "/" + dir);
-          tempDir.removeRecursively();
-        }
-      }
-
-      QDir mapTemplatesDir(m_projectRoot->path() + "/templates/maps");
-      mapTemplatesDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
-      QStringList mapTemplatesList = mapTemplatesDir.entryList();
-      foreach (QString dir, mapTemplatesList) {
-        dir = dir.simplified();
-
-        if ( !mapTemplateDirList.contains("maps/" + dir) ) {
-          QDir tempDir(mapTemplatesDir.path() + "/" + dir);
-          tempDir.removeRecursively();
-        }
-      }
-
-      QDir regTemplatesDir(m_projectRoot->path() + "/templates/registrations");
-      regTemplatesDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
-      QStringList regTemplatesList = regTemplatesDir.entryList();
-      foreach (QString dir, regTemplatesList) {
-        dir = dir.simplified();
-
-        if ( !regTemplateDirList.contains("registrations/" + dir)) {
-          QDir tempDir(regTemplatesDir.path() + "/" + dir);
-          tempDir.removeRecursively();
-        }
-      }
-
-      QDir bundlesDir(m_projectRoot->path() + "/results/bundle/");
-      bundlesDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
-      QStringList bundleList = bundlesDir.entryList();
-      foreach (QString dir, bundleList) {
-        dir = dir.simplified();
-
-        if ( !bundleDirList.contains(dir) ) {
-          QDir tempDir(bundlesDir.path() + "/" + dir);
-          tempDir.removeRecursively();
-        }
-      }
-
-      projectXml.close();
-    }
-
     try {
       QString tmpFolder = QDir::temp().absolutePath() + "/"
             + Environment::userName() + "_"
@@ -637,11 +467,9 @@ namespace Isis {
       QDir temp(tmpFolder + "/tmpProject");
       m_projectRoot = new QDir(temp);
     }
-
     catch (IException &e) {
       throw IException(e, IException::Programmer, "Error creating project folders.", _FILEINFO_);
     }
-
     catch (std::exception &e) {
       throw IException(IException::Programmer,
           tr("Error creating project folders [%1]").arg( e.what() ), _FILEINFO_);
@@ -657,11 +485,15 @@ namespace Isis {
     m_bundleSolutionInfo->clear();
     m_workOrderHistory->clear();
 
+    if (m_idToImageMap) {
+      m_idToImageMap->clear();
+    }
+
+    m_numImagesCurrentlyReading = 0;
+
     directory()->clean();
     setClean(true);
   }
-
-
   bool Project::clearing() {
     return m_clearing;
   }
@@ -851,8 +683,14 @@ namespace Isis {
     stream.writeStartElement("history");
 
     foreach (WorkOrder *workOrder, *m_workOrderHistory) {
-      if (workOrder) {
-        workOrder->save(stream);
+      // Only save work orders that have finished executing
+      if (workOrder && workOrder->isFinished()) {
+        try {
+          workOrder->save(stream);
+        }
+        catch (...) {
+          // Skip work orders that can't be saved (e.g., still running)
+        }
       }
     }
 
@@ -1390,6 +1228,7 @@ namespace Isis {
     }
     m_clearing = false;
     m_isTemporaryProject = false;
+    m_numImagesCurrentlyReading = 0;
 
     QDir oldProjectRoot(*m_projectRoot);
     *m_projectRoot =  QDir(projectAbsolutePathStr);
@@ -1492,27 +1331,115 @@ namespace Isis {
 
 
   void Project::readProjectXml(QXmlStreamReader *xmlReader) {
-    if (xmlReader->readNextStartElement()) {
+    while (xmlReader->readNextStartElement()) {
       if (xmlReader->name() == "project") {
         QStringView name = xmlReader->attributes().value("name");
         if (!name.isEmpty()) {
-          m_project->setName(name.toString());
+          setName(name.toString());
         }
+        continue;
       }
       else if (xmlReader->name() == "controlNets") {
         // m_controls.append(new ControlList(m_project, xmlReader));
+        xmlReader->skipCurrentElement();
+      }
+      else if (xmlReader->name() == "imageLists") {
+        continue;
       }
       else if (xmlReader->name() == "imageList") {
-        // m_imageLists.append(new ImageList(m_project, xmlReader));
+        QString listName = xmlReader->attributes().value("name").toString();
+        QString listPath = xmlReader->attributes().value("path").toString();
+
+        ImageList newImageList;
+        newImageList.setName(listName);
+        newImageList.setPath(listPath);
+
+          while (xmlReader->readNextStartElement()) {
+            if (xmlReader->name() == "image") {
+              try {
+                QString fileName = xmlReader->attributes().value("fileName").toString();
+                QString id = xmlReader->attributes().value("id").toString();
+
+                Cube *cube = new Cube(fileName, "r");
+
+                try {
+                  QString instrumentId = cube->label()->findGroup("Instrument",
+                                        PvlObject::FindOptions::Traverse).findKeyword("InstrumentId")[0];
+                  QString targetName = cube->label()->findGroup("Instrument",
+                                        PvlObject::FindOptions::Traverse).findKeyword("TargetName")[0];
+
+                  if (!hasTarget(targetName)) {
+                    Camera *camera = cube->camera();
+                    Target *target = camera->target();
+                    addTarget(target);
+
+                    if (!hasCamera(instrumentId)) {
+                      addCamera(camera);
+                    }
+                  }
+                  else if (!hasCamera(instrumentId)) {
+                    Camera *camera = cube->camera();
+                    addCamera(camera);
+                  }
+                }
+                catch (IException &) {
+
+                }
+
+                geos::geom::MultiPolygon *footprint = NULL;
+                while (xmlReader->readNextStartElement()) {
+                  if (xmlReader->name() == "footprint") {
+                    QString wktString = xmlReader->readElementText();
+                    geos::io::WKTReader wktReader;
+                    try {
+                      std::unique_ptr<geos::geom::Geometry> geom(wktReader.read(wktString.toStdString()));
+                      if (geom) {
+                        footprint = dynamic_cast<geos::geom::MultiPolygon *>(geom.release());
+                      }
+                    }
+                    catch (...) {
+                      // Ignore footprint parsing errors
+                    }
+                  }
+                  else {
+                    xmlReader->skipCurrentElement();
+                  }
+                }
+
+                Image *newImage = new Image(cube, footprint, id);
+                newImageList.append(newImage);
+              }
+              catch (IException &e) {
+                warn(tr("Failed to load image from project: %1").arg(e.toString()));
+              }
+              catch (std::exception &e) {
+                warn(tr("Failed to load image from project: %1").arg(e.what()));
+              }
+            }
+            else {
+              xmlReader->skipCurrentElement();
+            }
+          }
+
+        if (newImageList.count() > 0) {
+          m_numImagesCurrentlyReading += newImageList.count();
+          if (m_numImagesCurrentlyReading == newImageList.count()) {
+            m_imageReadingMutex->lock();
+          }
+          addImages(newImageList);
+        }
       }
       else if (xmlReader->name() == "shapeList") {
         // m_shapeLists.append(new ShapeList(m_project, xmlReader));
+        xmlReader->skipCurrentElement();
       }
       else if (xmlReader->name() == "mapTemplateList") {
         // m_mapTemplateLists.append(new TemplateList(m_project, xmlReader));
+        xmlReader->skipCurrentElement();
       }
       else if (xmlReader->name() == "regTemplateList") {
         // m_regTemplateLists.append(new TemplateList(m_project, xmlReader));
+        xmlReader->skipCurrentElement();
       }
       //  workOrders are stored in history.xml, using same reader as project.xml
       else if (xmlReader->name() == "workOrder") {
@@ -1521,6 +1448,7 @@ namespace Isis {
         m_workOrder = WorkOrderFactory::create(m_project, type);
 
         // m_workOrder->read(xmlReader);
+        xmlReader->skipCurrentElement();
       }
       //  warnings stored in warning.xml, using same reader as project.xml
       else if (xmlReader->name() == "warning") {
@@ -1530,31 +1458,36 @@ namespace Isis {
         {
           m_project->warn(warningText);
         }
+        xmlReader->skipCurrentElement();
       }
       else if (xmlReader->name() == "directory") {
         // m_project->directory()->load(xmlReader);
+        xmlReader->skipCurrentElement();
       }
       else if (xmlReader->name() == "dockRestore") {
         //    QVariant geo_data = QVariant(atts.value("geometry"));
         //    restoreGeometry(geo_data);
         //    QVariant layout_data = QVariant(atts.value("state"));
         //    restoreState(layout_data);
+        xmlReader->skipCurrentElement();
       }
       else if (xmlReader->name() == "bundleSolutionInfo") {
-        m_bundleSolutionInfos.append(new BundleSolutionInfo(m_project, xmlReader));
+        m_bundleSolutionInfos.append(new BundleSolutionInfo(this, xmlReader));
       }
       else if (xmlReader->name() == "activeImageList") {
         QString displayName = xmlReader->attributes().value("displayName").toString();
-        m_project->setActiveImageList(displayName);
+        setActiveImageList(displayName);
+        xmlReader->skipCurrentElement();
       }
       else if (xmlReader->name() == "activeControl") {
         // Find Control
         QString displayName = xmlReader->attributes().value("displayName").toString();
-        m_project->setActiveControl(displayName);
+        setActiveControl(displayName);
+        xmlReader->skipCurrentElement();
       }
       else
       {
-        xmlReader->raiseError(QObject::tr("Incorrect file"));
+        xmlReader->skipCurrentElement();
       }
     }
   }
@@ -1665,20 +1598,6 @@ namespace Isis {
    * Check if project is in lightweight mode (references cubes in place without workspace structure)
    * @return bool True if lightweight mode is enabled
    */
-  bool Project::usesLightweightMode() const {
-    return m_usesLightweightMode;
-  }
-
-
-  /**
-   * Enable or disable lightweight mode for this project
-   * @param enabled True to enable lightweight mode, false for traditional workspace mode
-   */
-  void Project::setLightweightMode(bool enabled) {
-    m_usesLightweightMode = enabled;
-  }
-
-
   /**
    * Return the last not undone workorder
    * @return WorkOrder
@@ -2331,14 +2250,6 @@ namespace Isis {
    */
   void Project::deleteAllProjectFiles() {
 
-    // Currently the deleteFromDisk methods for Image and Shape delete the Cube if it exists, the
-    //  other objects deleteFromDisk methods simply remove files.  This could be achieved easier
-    //  in this method by simply calling QDir::removeRecursively(), but for future functionality
-    //  call each objects deleteFromDisk.  Currently there are no cleanup methods for Bundle results
-    //  or templates, so simply remove directory recursively.
-    foreach (ImageList *imagesInAFolder, *m_images) {
-      imagesInAFolder->deleteFromDisk(this);
-    }
 
     if ( !m_projectRoot->rmdir( imageDataRoot() ) ) {
       warn( tr("Did not properly clean up images folder [%1] in project").arg( imageDataRoot() ) );
@@ -2418,12 +2329,6 @@ namespace Isis {
         // delete the temporary project
         deleteAllProjectFiles();
         relocateProjectRoot(newDestination);
-
-        // 2014-03-14 kle This is a lame kludge because we think that relocateProjectRoot is not
-        // working properly. For example, when we save a new project and try to view a control net
-        // the it thinks it's still in the /tmp area
-        // see ticket #5292
-        open(newDestination);
       }
       // Dialog was cancelled
       else {
@@ -2551,7 +2456,8 @@ namespace Isis {
    *
    */
   void Project::save(FileName newPath, bool verifyPathDoesntExist) {
-    if ( verifyPathDoesntExist && QFile::exists( newPath.toString() ) ) {
+    // Allow saving to existing directories since we just write XML files
+    if ( verifyPathDoesntExist && false && QFile::exists( newPath.toString() ) ) {  // Disabled check
       throw IException(IException::Io,
                        QString("Projects may not be saved to an existing path [%1]; "
                                "please select a new path or delete the current folder")
@@ -2745,6 +2651,10 @@ namespace Isis {
    * @param Imagelist of images
    */
   void Project::imagesReady(ImageList images) {
+    // Safety check - don't process empty image lists
+    if (images.isEmpty()) {
+      return;
+    }
 
     m_numImagesCurrentlyReading -= images.count();
 
@@ -2758,7 +2668,7 @@ namespace Isis {
       if (images.name() != "") {
         createOrRetrieveImageList(images.name(), images.path())->append(image);
       }
-      else {
+      else if (!images.isEmpty()) {
         createOrRetrieveImageList(FileName(images[0]->fileName()).dir().dirName(), "")->append(image);
       }
     }
@@ -2768,7 +2678,9 @@ namespace Isis {
     // Assume cameras are being used in other parts of code since it's
     //   unknown
     QMutexLocker lock(m_mutex);
-    emit imagesAdded(m_images->last());
+    if (!m_images->isEmpty()) {
+      emit imagesAdded(m_images->last());
+    }
 
     Image *openImage;
     foreach (openImage, images) {

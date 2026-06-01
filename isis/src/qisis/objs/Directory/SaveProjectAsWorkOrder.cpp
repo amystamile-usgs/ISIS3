@@ -95,16 +95,6 @@ namespace Isis {
     bool success = WorkOrder::setupExecution();
 
     if (success) {
-      // Lightweight mode projects cannot be saved yet - they don't have .ecub files
-      if (project()->usesLightweightMode()) {
-        QMessageBox::warning(NULL, tr("Cannot Save Lightweight Project"),
-            tr("Projects imported in lightweight mode cannot be saved yet. "
-               "Lightweight mode references cubes in place without creating project files.\n\n"
-               "To create a saveable project, re-import with 'Create workspace structure' enabled."),
-            QMessageBox::Ok);
-        return false;
-      }
-
       QString newDestination =
           QFileDialog::getSaveFileName(NULL, QString("Project Location"), QString("."));
 
@@ -131,7 +121,7 @@ namespace Isis {
     QString destination = internalData().first();
     if (!destination.isEmpty()) {
       project()->save(destination);
-      project()->open(destination);
+      project()->relocateProjectRoot(destination);
       project()->setClean(true);
     }
   }

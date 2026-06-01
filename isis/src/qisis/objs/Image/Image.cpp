@@ -503,87 +503,6 @@ namespace Isis {
 
 
   /**
-   * @brief Copy the cub/ecub files associated with this image into the new project.
-   * @param newProjectRoot  The root directory where the project is stored.
-   */
-  void Image::copyToNewProjectRoot(const Project *project, FileName newProjectRoot) {
-    if (FileName(newProjectRoot) != FileName(project->projectRoot())) {
-      Cube origImage(m_fileName);
-
-      // The imageDataRoot will either be PROJECTROOT/images or PROJECTROOT/results/bundle/timestamp/images,
-      // depending on how the newProjectRoot points to.
-      FileName newExternalLabelFileName(Project::imageDataRoot(newProjectRoot.toString()) + "/" +
-          FileName(m_fileName).dir().dirName() + "/" + FileName(m_fileName).name());
-
-      if (m_fileName != newExternalLabelFileName.toString()) {
-        // This cube copy creates a filename w/ecub extension in the new project root, but looks to
-        // be a cube(internal vs external). It changes the DnFile pointer to the old ecub,
-        // /tmp/tsucharski_ipce/tmpProject/images/import1/AS15-.ecub, but doing a less on file
-        // immediately after the following call indicates it is a binary file.
-        QScopedPointer<Cube> newExternalLabel(
-            origImage.copy(newExternalLabelFileName, CubeAttributeOutput("+External")));
-
-        // If this is an ecub (it should be) and is pointing to a relative file name,
-        //   then we want to copy the DN cube also.
-        if ( origImage.labelsAttached() == Cube::ExternalLabel) {
-          if (origImage.externalCubeFileName().path() == ".") {
-            Cube dnFile(
-                FileName(m_fileName).path() + "/" + origImage.externalCubeFileName().name());
-            FileName newDnFileName = newExternalLabelFileName.setExtension("cub");
-            QScopedPointer<Cube> newDnFile(dnFile.copy(newDnFileName, CubeAttributeOutput()));
-            newDnFile->close();
-            // Changes the ecube's DnFile pointer in the labels.
-            newExternalLabel->relocateDnData(newDnFileName.name());
-          }
-          else {
-            //  If the the ecub's external cube is pointing to the old project root, update to new
-            //  project root.
-            if (origImage.externalCubeFileName().toString().contains(project->projectRoot())) {
-              QString newExternalCubeFileName = origImage.externalCubeFileName().toString();
-              newExternalCubeFileName.replace(project->projectRoot(), project->newProjectRoot());
-              newExternalLabel->relocateDnData(newExternalCubeFileName);
-            }
-            else {
-              newExternalLabel->relocateDnData(origImage.externalCubeFileName());
-            }
-          }
-        }
-      }
-    }
-  }
-
-
-  /**
-   * @brief Delete the image data from disk. The cube() will no longer be accessible
-   * until you call updateFileName().
-   * @throws IException::Io "Could not remove file [$filename]"
-   */
-  void Image::deleteFromDisk() {
-    bool deleteCubAlso = (cube()->externalCubeFileName().path() == ".");
-    closeCube();
-
-    if (!QFile::remove(m_fileName)) {
-      throw IException(IException::Io,
-                       tr("Could not remove file [%1]").arg(m_fileName),
-                       _FILEINFO_);
-    }
-
-    if (deleteCubAlso) {
-      FileName cubFile = FileName(m_fileName).setExtension("cub");
-      if (!QFile::remove(cubFile.expanded() ) ) {
-        throw IException(IException::Io,
-                         tr("Could not remove file [%1]").arg(m_fileName),
-                         _FILEINFO_);
-      }
-    }
-
-    // If we're the last thing in the folder, remove the folder too.
-    QDir dir;
-    dir.rmdir(FileName(m_fileName).path());
-  }
-
-
-  /**
    * @brief Write the Image properties out to an XML file.
    * @param stream The output data stream.
    * @param project The project this image is contained within.
@@ -604,14 +523,7 @@ namespace Isis {
 
     stream.writeAttribute("id", m_id->toString());
 
-    // In lightweight mode, save full path; in workspace mode, save base name only
-    if (project->usesLightweightMode()) {
-      stream.writeAttribute("fileName", m_fileName);  // Full path
-    }
-    else {
-      stream.writeAttribute("fileName", FileName(m_fileName).name());  // Base name only
-    }
-
+    stream.writeAttribute("fileName", m_fileName);
     stream.writeAttribute("instrumentId", m_instrumentId);
     stream.writeAttribute("spacecraftName", m_spacecraftName);
 
@@ -674,12 +586,8 @@ namespace Isis {
   void Image::updateFileName(Project *project) {
     closeCube();
 
-    // In lightweight mode, keep original path - don't update
-    if (project->usesLightweightMode()) {
-      return;
-    }
+    return;
 
-    // In workspace mode, update to project structure
     FileName original(m_fileName);
     FileName newName(project->imageDataRoot() + "/" +
                      original.dir().dirName() + "/" + original.name());

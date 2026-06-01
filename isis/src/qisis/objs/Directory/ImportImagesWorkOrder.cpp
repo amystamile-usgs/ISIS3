@@ -190,10 +190,6 @@ namespace Isis {
         bool createWorkspace = false;
 
         if (!stateToSave->isEmpty()) {
-          // Check if we already have images in the project - if so, enforce the same mode
-          bool hasExistingImages = !project()->images().isEmpty();
-          bool existingIsLightweight = project()->usesLightweightMode();
-
           // Create inline dialog
           QDialog optionsDialog(qobject_cast<QWidget *>(parent()));
           optionsDialog.setWindowTitle(tr("Import Images - Options"));
@@ -242,92 +238,6 @@ namespace Isis {
           footprintLayout->addWidget(footprintInfo);
           mainLayout->addWidget(footprintGroup);
 
-          // Copy images option
-          QGroupBox *copyGroup = new QGroupBox(tr("Image Data"), &optionsDialog);
-          QVBoxLayout *copyLayout = new QVBoxLayout(copyGroup);
-
-          QCheckBox *copyCheckbox = new QCheckBox(
-              tr("Copy image data (DN values) into project"), &optionsDialog);
-          copyCheckbox->setChecked(false);  // Default: no copy
-
-          QLabel *copyInfo = new QLabel(
-              tr("<b>Recommended: Disabled</b> to save disk space<br><br>"
-                 "If disabled, creates lightweight .ecub files that reference the original cubes. "
-                 "This is faster and saves disk space but requires original files to remain accessible.<br><br>"
-                 "Enable this only if you need a self-contained project or if source images will be moved/deleted."),
-              &optionsDialog);
-          copyInfo->setWordWrap(true);
-
-          copyLayout->addWidget(copyCheckbox);
-          copyLayout->addWidget(copyInfo);
-          mainLayout->addWidget(copyGroup);
-
-          // Project structure option
-          QGroupBox *structureGroup = new QGroupBox(tr("Project Structure"), &optionsDialog);
-          QVBoxLayout *structureLayout = new QVBoxLayout(structureGroup);
-
-          QCheckBox *createWorkspaceCheckbox = new QCheckBox(
-              tr("Create project workspace structure"), &optionsDialog);
-
-          QString structureInfoText;
-          if (hasExistingImages) {
-            // Force same mode as existing images
-            createWorkspaceCheckbox->setChecked(existingIsLightweight ? false : true);
-            createWorkspaceCheckbox->setEnabled(false);  // Can't change mode
-            structureInfoText = existingIsLightweight
-              ? tr("<b>Locked to Lightweight Mode</b><br><br>"
-                   "This project already has images imported in lightweight mode. "
-                   "All subsequent imports must use the same mode for consistency.")
-              : tr("<b>Locked to Workspace Mode</b><br><br>"
-                   "This project already has images imported in workspace mode. "
-                   "All subsequent imports must use the same mode for consistency.");
-          }
-          else {
-            // First import - user can choose
-            createWorkspaceCheckbox->setChecked(false);  // Default: lightweight mode
-            structureInfoText = tr("<b>Recommended: Disabled</b> for maximum flexibility<br><br>"
-                   "If disabled (lightweight mode), images are referenced in place without creating "
-                   "project folders or .ecub files. This is much faster and lets you keep your own organization.<br><br>"
-                   "If enabled (workspace mode), creates project/images/importN/ folders and .ecub files. "
-                   "Only needed if you want a traditional project structure.");
-          }
-
-          QLabel *structureInfo = new QLabel(structureInfoText, &optionsDialog);
-          structureInfo->setWordWrap(true);
-
-          structureLayout->addWidget(createWorkspaceCheckbox);
-          structureLayout->addWidget(structureInfo);
-          mainLayout->addWidget(structureGroup);
-
-          // Connect workspace checkbox to auto-enable copy checkbox
-          connect(createWorkspaceCheckbox, &QCheckBox::toggled, [copyCheckbox, copyInfo](bool checked) {
-            if (checked) {
-              // Workspace mode requires copying DN data
-              copyCheckbox->setChecked(true);
-              copyCheckbox->setEnabled(false);
-              copyInfo->setText(tr("<b>Required for Workspace Mode</b><br><br>"
-                                   "Workspace mode requires copying DN data into the project structure. "
-                                   "This creates a self-contained project that can be saved and moved."));
-            }
-            else {
-              // Lightweight mode - copy is optional
-              copyCheckbox->setEnabled(true);
-              copyInfo->setText(tr("<b>Recommended: Disabled</b> to save disk space<br><br>"
-                                   "If disabled, creates lightweight .ecub files that reference the original cubes. "
-                                   "This is faster and saves disk space but requires original files to remain accessible.<br><br>"
-                                   "Enable this only if you need a self-contained project or if source images will be moved/deleted."));
-            }
-          });
-
-          // Trigger the connection to set initial state
-          if (createWorkspaceCheckbox->isChecked()) {
-            copyCheckbox->setChecked(true);
-            copyCheckbox->setEnabled(false);
-            copyInfo->setText(tr("<b>Required for Workspace Mode</b><br><br>"
-                                 "Workspace mode requires copying DN data into the project structure. "
-                                 "This creates a self-contained project that can be saved and moved."));
-          }
-
           mainLayout->addStretch();
 
           // Buttons
@@ -340,36 +250,14 @@ namespace Isis {
 
           // Show dialog and get results
           if (optionsDialog.exec() == QDialog::Accepted) {
-            copyDnData = copyCheckbox->isChecked();
+            copyDnData = false;
             generateFootprints = footprintsCheckbox->isChecked();
-            createWorkspace = createWorkspaceCheckbox->isChecked();
+            createWorkspace = false;
           }
           else {
             // User cancelled
             return false;
           }
-        }
-
-        // Only prompt to save project if importing many images AND creating a workspace
-        // Lightweight mode doesn't need project saving before import
-        QMessageBox::StandardButton saveProjectAnswer = QMessageBox::No;
-        if (stateToSave->count() >= 100 && project()->isTemporaryProject() && createWorkspace) {
-          saveProjectAnswer = QMessageBox::question(qobject_cast<QWidget *>(parent()),
-                   tr("Save Project Before Importing Images"),
-                   tr("You are importing a large number of images with workspace mode enabled. "
-                      "Would you like to save your project <b>before</b> importing? "
-                      "This is recommended when creating a workspace for large datasets."),
-                   QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
-                   QMessageBox::Yes);
-        }
-
-        if (saveProjectAnswer == QMessageBox::Yes) {
-          SaveProjectWorkOrder saveWorkOrder(project());
-          saveWorkOrder.trigger();
-        }
-
-        if (saveProjectAnswer == QMessageBox::Cancel) {
-          return false;
         }
 
         // Store options in internal data: [ copy|nocopy, footprints|nofootprints, workspace|lightweight, img1, img2, ... ]
@@ -419,8 +307,6 @@ namespace Isis {
   void ImportImagesWorkOrder::undoExecution() {
     if (m_list && project()->images().size() > 0 ) {
       project()->waitForImageReaderFinished();
-      // Remove the images from disk.
-      m_list->deleteFromDisk( project() );
       // Remove the images from the model, which updates the tree view.
       ProjectItem *currentItem =
           project()->directory()->model()->findItemData( QVariant::fromValue(m_list) );
@@ -665,12 +551,7 @@ namespace Isis {
     try {
       if (!confirmedImages.isEmpty()) {
 
-        // LIGHTWEIGHT MODE: Just reference cubes in place, no workspace structure
-        if (!createWorkspace) {
-          // Enable lightweight mode on the project
-          project()->setLightweightMode(true);
-
-          setProgressRange(0, confirmedImages.count());
+        setProgressRange(0, confirmedImages.count());
 
           m_newImages = new ImageList;
           m_newImages->reserve(confirmedImages.count());
@@ -761,150 +642,10 @@ namespace Isis {
           }
 
           m_newImages->moveToThread(thread());
-
-          // No internal data update needed for lightweight mode - just use original paths
-          return;
-        }
-
-        // WORKSPACE MODE: Original behavior - create folders and .ecub files
-        QDir folder = project()->addImageFolder("import");
-
-        setProgressRange(0, confirmedImages.count());
-
-        // We are creating a new QObject within an asynchronous execute(), which means that this
-        // variable, m_newImages, has thread affinity with a thread in the gloabal thread pool
-        // (i.e. m_newImages lives in a thread in the global thread pool).
-        // see WorkOrder::redo().
-        m_newImages = new ImageList;
-        m_newImages->reserve(confirmedImages.count());
-
-        QStringList confirmedImagesFileNames;
-        QStringList confirmedImagesIds;
-
-        foreach (QString confirmedImage, confirmedImages) {
-          QStringList fileNameAndId = confirmedImage.split(",");
-          confirmedImagesFileNames.append(fileNameAndId.first());
-
-          // Determine if there was already a unique id provided for the file.
-          if (fileNameAndId.count() == 2) {
-            confirmedImagesIds.append(fileNameAndId.last());
-          }
-          else {
-            confirmedImagesIds.append(QString());
-          }
-        }
-
-        OriginalFileToProjectCubeFunctor functor(thread(), folder, copyDnData);
-        // Start concurrently copying the images to import.
-        QFuture<Cube *> future = QtConcurrent::mapped(confirmedImagesFileNames, functor);
-
-        // The new internal data will store the copied files as well as their associated unique id's.
-        QStringList newInternalData;
-        newInternalData.append(internalData().first());
-
-        // By releasing a thread from the global thread pool, we are effectively temporarily
-        // increasing the max number of available threads. This is useful when a thread goes to sleep
-        // waiting for more work, so we can allow other threads to continue.
-        // See Qt's QThreadPool::releaseThread() documentation.
-        QThreadPool::globalInstance()->releaseThread();
-        for (int i = 0; i < confirmedImages.count(); i++) {
-          setProgressValue(i);
-
-          // This will wait for the result at i to finish (the functor invocation finishes) and
-          // get the cube.
-          Cube *cube = future.resultAt(i);
-
-          if (cube) {
-
-            // Confirm that the target body and the gui camera do not exist before creating and 
-            // and adding them for each image. Since a target may be covered by many cameras and a 
-            // camera may cover many targets, have to get tricky with the checking.
-            QString instrumentId = cube->label()->findGroup("Instrument", 
-                              PvlObject::FindOptions::Traverse).findKeyword("InstrumentId")[0];
-            QString targetName = cube->label()->findGroup("Instrument", 
-                              PvlObject::FindOptions::Traverse).findKeyword("TargetName")[0];
-            if (!project()->hasTarget(targetName)) {
-              Camera *camera = cube->camera();
-              Target *target = camera->target();
-              project()->addTarget(target);
-              
-              if (!project()->hasCamera(instrumentId)) {
-                project()->addCamera(camera);
-              }
-            }
-            else if (!project()->hasCamera(instrumentId)) {
-              Camera *camera = cube->camera();
-              project()->addCamera(camera);
-            }
-
-            // Create a new image from the result in the thread spawned in WorkOrder::redo().
-            Image *newImage = new Image(cube);
-
-            // Generate footprint if requested (do this before closing cube)
-            if (generateFootprints) {
-              try {
-                if (!newImage->initFootprint(project()->mutex())) {
-                  m_warning.append(tr("Could not generate footprint for %1\n")
-                      .arg(newImage->displayProperties()->displayName()));
-                }
-              }
-              catch (IException &e) {
-                m_warning.append(tr("Footprint error for %1: %2\n")
-                    .arg(newImage->displayProperties()->displayName())
-                    .arg(e.what()));
-              }
-            }
-
-            newImage->closeCube();
-            // Memory for cube is deleted in Image::closeCube()
-            cube = NULL;
-
-            // Either use a unique id that was already provided or create one for the new image.
-            if (confirmedImagesIds[i].isEmpty()) {
-              confirmedImagesIds[i] = newImage->id();
-            }
-            else {
-              newImage->setId(confirmedImagesIds[i]);
-            }
-
-            QStringList imageInternalData;
-            imageInternalData.append(confirmedImagesFileNames[i]);
-            imageInternalData.append(confirmedImagesIds[i]);
-
-            newInternalData.append(imageInternalData.join(","));
-
-            m_newImages->append(newImage);
-
-            // Move the new image back and its display properities to the GUI thread.
-            // Note: thread() returns the GUI thread because this ImportImagesWorkOrder lives
-            // (was created) in the GUI thread.
-            newImage->moveToThread(thread());
-            newImage->displayProperties()->moveToThread(thread());
-          }
-        }
-        // Since we temporarily increased the max thread count (by releasing a thread), make sure
-        // to re-reserve the thread for the global thread pool's accounting.
-        // See Qt's QThreadPool::reserveThread().
-        QThreadPool::globalInstance()->reserveThread();
-
-        m_warning = functor.errors().toString();
-
-        // Recall that m_newImages has thread affinity with a thread in the global thread pool.
-        // Move it to the GUI-thread because these threads in the pool do not run in an event loop,
-        // so they cannot process events.
-        // See https://doc.qt.io/qt-5/threads-qobject.html#per-thread-event-loop
-        // See http://doc.qt.io/qt-5/threads-technologies.html#comparison-of-solutions
-        m_newImages->moveToThread(thread());
-
-        if (m_newImages->isEmpty()) {
-          folder.removeRecursively();
-        }
-
-        setInternalData(newInternalData);
       }
     }
     catch (IException &e) {
-        QMessageBox::critical(NULL, tr("Error"), tr(e.what()));
+      m_warning = e.toString();
     }
   }
 }

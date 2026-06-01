@@ -724,27 +724,6 @@ namespace Isis {
 
 
   /**
-   * Delete all of the contained Images from disk.
-   *
-   * @param project The project the images in the image list belong to.
-   *
-   * @see Image::deleteFromDisk()
-   */
-  void ImageList::deleteFromDisk(Project *project) {
-    foreach (Image *image, *this) {
-      image->deleteFromDisk();
-    }
-
-    if (!m_path.isEmpty()) {
-      QFile::remove(project->imageDataRoot() + "/" + m_path + "/images.xml");
-
-      QDir dir;
-      dir.rmdir(project->imageDataRoot() + "/" + m_path);
-    }
-  }
-
-
-  /**
    * Convert this image list into XML format for saving/restoring capabilities.
    *
    * This writes:
@@ -773,166 +752,15 @@ namespace Isis {
     stream.writeStartElement("imageList");
     stream.writeAttribute("name", m_name);
     stream.writeAttribute("path", m_path);
-    // The newProjectRoot contains the full path and we want the dataRoot to be relative to the
-    // projectRoot so that projects can be moved. 
-    QString dataRoot =
-        Project::imageDataRoot(newProjectRoot.toString()).remove(project->newProjectRoot());
-    // Get rid of any preceding "/"
-    if (dataRoot.startsWith("/")) {
-      dataRoot.remove(0,1);
-    }
-    stream.writeAttribute("dataRoot", dataRoot);
-
-    FileName settingsFileName(Project::imageDataRoot(newProjectRoot.toString()) +
-                              "/" + m_path + "/images.xml");
-
-    if (!settingsFileName.dir().mkpath(settingsFileName.path())) {
-      throw IException(IException::Io,
-                       QString("Failed to create directory [%1]")
-                         .arg(settingsFileName.path()),
-                       _FILEINFO_);
-    }
-    QFile imageListContentsFile(settingsFileName.toString());
-
-    if (!imageListContentsFile.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
-      throw IException(IException::Io,
-          QString("Unable to save image information for [%1] because [%2] could not be opened for "
-                  "writing")
-            .arg(m_name).arg(settingsFileName.original()),
-          _FILEINFO_);
-    }
-
-    QXmlStreamWriter imageDetailsWriter(&imageListContentsFile);
-    imageDetailsWriter.setAutoFormatting(true);
-    imageDetailsWriter.writeStartDocument();
-
-    imageDetailsWriter.writeStartElement("images");
-
-    // Only copy images if saving to new location
-    if (project->newProjectRoot() != project->projectRoot()) {
-      int countWidth = QString("%1L").arg(count()).size() - 1;
-      QChar paddingChar('0');
-
-      QLabel *progressLabel = new QLabel;
-
-      QProgressDialog progressDialog;
-      progressDialog.setLabel(progressLabel);
-      progressDialog.setRange(-1, count());
-      progressDialog.setValue(-1);
-
-      // Mapped is way faster than hundreds/thousands of run() calls... so use mapped for performance
-      QFuture<void *> future = QtConcurrent::mapped(*this,
-                                                    CopyImageDataFunctor(project, newProjectRoot));
-
-      for (int i = 0; i < count(); i++) {
-        int newProgressValue = progressDialog.value() + 1;
-        progressLabel->setText(
-            tr("Saving Image Information for [%1] - %L2/%L3 done")
-              .arg(m_name)
-              .arg(newProgressValue, countWidth, 10, paddingChar)
-              .arg(count()));
-        progressDialog.setValue(newProgressValue);
-        try {
-          future.resultAt(i);
-        }
-        catch(std::exception &e) {
-          QString msg("Could not save ImageList: "+this->name() );
-          throw IException(IException::Io,msg,_FILEINFO_);
-        }
-      }
-
-      progressLabel->setText(tr("Finalizing..."));
-      progressDialog.setRange(0, 0);
-      progressDialog.setValue(0);
-    }
 
     foreach (Image *image, *this) {
-      image->save(imageDetailsWriter, project, newProjectRoot);
+      image->save(stream, project, newProjectRoot);
     }
-
-    imageDetailsWriter.writeEndElement();
-
-    imageDetailsWriter.writeEndDocument();
 
     stream.writeEndElement();
   }
 
 
-  /**
-   * Constructor for CopyImageDataFunctor.
-   *
-   * @param project The project that the image data will be saved to when the functor is used
-   * @param newProjectRoot The path to the project root
-   */
-  ImageList::CopyImageDataFunctor::CopyImageDataFunctor(const Project *project,
-                                                        FileName newProjectRoot) {
-    m_project = project;
-    m_newProjectRoot = newProjectRoot;
-  }
-
-
-  /**
-   * Copy constructor for CopyImageDataFunctor.
-   *
-   * @param other The functor to copy from
-   */
-  ImageList::CopyImageDataFunctor::CopyImageDataFunctor(const CopyImageDataFunctor &other) {
-    m_project = other.m_project;
-    m_newProjectRoot = other.m_newProjectRoot;
-  }
-
-
-  /**
-   * Destructor for CopyImageDataFunctor.
-   */
-  ImageList::CopyImageDataFunctor::~CopyImageDataFunctor() {
-  }
-
-
-  /**
-   * Copies the cub/ecub files for an image into m_project.
-   * Used by save to copy the imageList into a new project.
-   *
-   * @param imageToCopy The image to copy into m_project.
-   *
-   * @see save
-   */
-  void *ImageList::CopyImageDataFunctor::operator()(Image * const &imageToCopy) {
-    try {
-      imageToCopy->copyToNewProjectRoot(m_project, m_newProjectRoot); 
-    }
-    catch (IException &e) {
-      IString msg = "Could not copy image [" + imageToCopy->displayProperties()->displayName() +
-                    "]";
-      throw IException(e, IException::Io, msg, _FILEINFO_);
-    }
-    return NULL;
-  }
-
-
-  /**
-   * Assignment operator for CopyImageDataFunctor.
-   *
-   * @param rhs The functor to assign from
-   *
-   * @return @b ImageList::CopyImageDataFunctor & A reference to a copy of the functor
-   */
-  ImageList::CopyImageDataFunctor &ImageList::CopyImageDataFunctor::operator=(
-      const CopyImageDataFunctor &rhs) {
-    m_project = rhs.m_project;
-    m_newProjectRoot = rhs.m_newProjectRoot;
-    return *this;
-  }
-
-
-  /**
-   * Sets the alpha values of the images based on a list of values.
-   * The alpha value of the first image in the image list will be set to the first value in alphaValues,
-   * the alpha value of the second image will be set to the second value, etc.
-   *
-   * @param alphaValues The list of alpha values to be applied.
-   *
-   */
   void ImageList::applyAlphas(QStringList alphaValues) {
     if (count() == alphaValues.count()) {
       for (int i = 0; i < count(); i++) {

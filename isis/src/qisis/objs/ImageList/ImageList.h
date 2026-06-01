@@ -111,7 +111,6 @@ namespace Isis {
       QString name() const;
       QString path() const;
 
-      void deleteFromDisk(Project *project);
       void save(QXmlStreamWriter &stream, const Project *project, FileName newProjectRoot) const;
 
     signals:
