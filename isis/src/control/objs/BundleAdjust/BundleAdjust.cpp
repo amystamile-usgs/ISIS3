@@ -3183,7 +3183,7 @@ namespace Isis {
     if (iApp == NULL) { // in a function call
       printf("%s", status.toStdString().c_str());
     }
-    else if (QCoreApplication::applicationName() != "ipce") {
+    else if (QCoreApplication::applicationName() != "astroset") {
       printf("%s", status.toStdString().c_str());
     }
   }

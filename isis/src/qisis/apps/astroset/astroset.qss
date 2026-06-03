@@ -1,0 +1,461 @@
+/* IPCE Dark Theme - Mission Control Style */
+
+/* ========================================
+   Global Settings
+   ======================================== */
+
+QMainWindow {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                stop:0 #0a0814, stop:0.5 #0d0a1a, stop:1 #0a0814);
+}
+
+QWidget {
+    color: #e8eef7;
+    background: transparent;
+}
+
+/* ========================================
+   Dock Widgets (Glassmorphic Cards)
+   ======================================== */
+
+QDockWidget {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 rgba(20, 20, 40, 0.85),
+                                stop:1 rgba(15, 15, 30, 0.85));
+    border: 1px solid rgba(100, 80, 180, 0.3);
+    border-radius: 12px;
+}
+
+QDockWidget::title {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 rgba(30, 25, 50, 0.9),
+                                stop:1 rgba(20, 20, 40, 0.8));
+    padding: 12px 18px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom: 1px solid rgba(130, 100, 220, 0.4);
+    font-weight: 700;
+    color: #e8eef7;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+/* ========================================
+   Tree Views
+   ======================================== */
+
+QTreeView {
+    border: 1px solid rgba(100, 80, 180, 0.3);
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 rgba(18, 18, 35, 0.9),
+                                stop:1 rgba(15, 15, 30, 0.9));
+    selection-background-color: rgba(80, 60, 160, 0.5);
+    selection-color: #ffffff;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+QTreeView::item {
+    padding: 10px 12px;
+    border: none;
+    border-radius: 8px;
+    margin: 2px 0px;
+    color: #e8eef7;
+}
+
+QTreeView::item:hover {
+    background: rgba(60, 50, 120, 0.3);
+    border: 1px solid rgba(120, 100, 220, 0.4);
+}
+
+QTreeView::item:selected {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                stop:0 rgba(80, 60, 160, 0.5),
+                                stop:1 rgba(100, 80, 180, 0.4));
+    border-left: 3px solid #00ff88;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+QTreeView::branch {
+    background: transparent;
+}
+
+QHeaderView::section {
+    background: rgba(25, 20, 45, 0.8);
+    color: #a0a8c0;
+    padding: 10px;
+    border: none;
+    border-bottom: 1px solid rgba(100, 80, 180, 0.3);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+
+QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 rgba(40, 35, 70, 0.8),
+                                stop:1 rgba(30, 25, 55, 0.8));
+    border: 1px solid rgba(120, 100, 220, 0.5);
+    border-radius: 8px;
+    padding: 10px 20px;
+    color: #e8eef7;
+    font-weight: 700;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 rgba(60, 50, 110, 0.9),
+                                stop:1 rgba(50, 40, 90, 0.9));
+    border: 1px solid rgba(160, 130, 255, 0.7);
+    color: #ffffff;
+}
+
+QPushButton:pressed {
+    background: rgba(80, 60, 140, 0.6);
+    border: 1px solid rgba(0, 255, 136, 0.8);
+}
+
+QPushButton:disabled {
+    background: rgba(20, 20, 35, 0.5);
+    color: #505870;
+    border: 1px solid rgba(60, 60, 90, 0.3);
+}
+
+/* ========================================
+   Menu & Toolbar
+   ======================================== */
+
+QMenuBar {
+    background: rgba(12, 12, 28, 0.95);
+    border-bottom: 1px solid rgba(80, 70, 140, 0.4);
+    padding: 4px 8px;
+}
+
+QMenuBar::item {
+    padding: 8px 16px;
+    background: transparent;
+    color: #c0cce0;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+QMenuBar::item:selected {
+    background: rgba(80, 60, 140, 0.5);
+    border: 1px solid rgba(120, 100, 200, 0.6);
+    color: #ffffff;
+}
+
+QMenu {
+    background: rgba(20, 18, 38, 0.95);
+    border: 1px solid rgba(120, 100, 220, 0.5);
+    border-radius: 10px;
+    padding: 6px;
+}
+
+QMenu::item {
+    padding: 10px 32px 10px 16px;
+    border-radius: 6px;
+    color: #e8eef7;
+}
+
+QMenu::item:selected {
+    background: rgba(80, 60, 160, 0.5);
+    border: 1px solid rgba(0, 255, 136, 0.4);
+    color: #ffffff;
+}
+
+QMenu::separator {
+    height: 1px;
+    background: rgba(100, 80, 180, 0.3);
+    margin: 6px 10px;
+}
+
+QToolBar {
+    background: rgba(20, 18, 38, 0.85);
+    border-bottom: 1px solid rgba(100, 80, 180, 0.3);
+    spacing: 4px;
+    padding: 10px;
+}
+
+QToolButton {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 8px;
+    color: #e8eef7;
+}
+
+QToolButton:hover {
+    background: rgba(60, 50, 120, 0.4);
+    border: 1px solid rgba(120, 100, 220, 0.5);
+}
+
+QToolButton:pressed {
+    background: rgba(80, 60, 140, 0.6);
+    border: 1px solid rgba(0, 255, 136, 0.6);
+}
+
+/* ========================================
+   Text Edits & Line Edits
+   ======================================== */
+
+QTextEdit, QLineEdit {
+    border: 1px solid rgba(100, 80, 180, 0.4);
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: rgba(18, 18, 35, 0.7);
+    color: #ffffff;
+    selection-background-color: rgba(80, 60, 160, 0.5);
+    selection-color: #ffffff;
+}
+
+QTextEdit:focus, QLineEdit:focus {
+    border: 1px solid rgba(0, 255, 136, 0.7);
+    background: rgba(20, 20, 40, 0.8);
+}
+
+/* ========================================
+   Scroll Bars
+   ======================================== */
+
+QScrollBar:vertical {
+    border: none;
+    background: rgba(26, 26, 40, 0.5);
+    width: 10px;
+    margin: 0px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:vertical {
+    background: rgba(80, 70, 140, 0.6);
+    min-height: 30px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: rgba(100, 90, 160, 0.8);
+}
+
+QScrollBar:horizontal {
+    border: none;
+    background: rgba(26, 26, 40, 0.5);
+    height: 10px;
+    margin: 0px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:horizontal {
+    background: rgba(80, 70, 140, 0.6);
+    min-width: 30px;
+    border-radius: 5px;
+}
+
+/* ========================================
+   Progress Bars
+   ======================================== */
+
+QProgressBar {
+    border: none;
+    border-radius: 6px;
+    text-align: center;
+    background: rgba(30, 25, 50, 0.6);
+    height: 8px;
+    color: #00ff88;
+    font-weight: 700;
+}
+
+QProgressBar::chunk {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                stop:0 #00ff88, stop:1 #00ccaa);
+    border-radius: 6px;
+}
+
+/* ========================================
+   Tab Widgets
+   ======================================== */
+
+QTabWidget::pane {
+    border: 1px solid rgba(100, 80, 180, 0.3);
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 rgba(18, 18, 35, 0.7),
+                                stop:1 rgba(15, 15, 30, 0.7));
+    border-radius: 10px;
+    padding: 10px;
+}
+
+QTabBar::tab {
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 10px 20px;
+    margin-right: 4px;
+    border-radius: 8px;
+    color: #8090b0;
+    font-weight: 600;
+}
+
+QTabBar::tab:selected {
+    background: rgba(80, 60, 160, 0.4);
+    border: 1px solid rgba(0, 255, 136, 0.5);
+    color: #ffffff;
+    font-weight: 700;
+}
+
+QTabBar::tab:hover:!selected {
+    background: rgba(50, 40, 90, 0.3);
+    border: 1px solid rgba(120, 100, 220, 0.4);
+    color: #c0cce0;
+}
+
+/* ========================================
+   Tables and Lists
+   ======================================== */
+
+QTableWidget, QTableView, QListWidget {
+    background: rgba(15, 15, 30, 0.7);
+    color: #e8eef7;
+    border: 1px solid rgba(100, 80, 180, 0.3);
+    border-radius: 8px;
+    gridline-color: rgba(80, 80, 120, 0.2);
+}
+
+QTableWidget::item, QTableView::item, QListWidget::item {
+    color: #e8eef7;
+    padding: 6px;
+}
+
+QTableWidget::item:selected, QTableView::item:selected, QListWidget::item:selected {
+    background: rgba(80, 60, 160, 0.5);
+    color: #ffffff;
+}
+
+/* ========================================
+   Dialog Windows
+   ======================================== */
+
+QDialog {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                stop:0 #121223, stop:0.5 #0f0f1e, stop:1 #121223);
+    border: 2px solid rgba(100, 80, 180, 0.5);
+    border-radius: 12px;
+    color: #e8eef7;
+}
+
+QDialog QLabel {
+    color: #e8eef7;
+    background: transparent;
+}
+
+/* ========================================
+   Status Bar
+   ======================================== */
+
+QStatusBar {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 rgba(15, 12, 30, 0.95),
+                                stop:1 rgba(10, 10, 25, 0.95));
+    border-top: 1px solid rgba(100, 80, 180, 0.4);
+    color: #7c8ba0;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 12px;
+}
+
+/* ========================================
+   Combo Boxes
+   ======================================== */
+
+QComboBox {
+    border: 1px solid rgba(100, 80, 180, 0.4);
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: rgba(18, 18, 35, 0.7);
+    color: #ffffff;
+}
+
+QComboBox:hover {
+    border: 1px solid rgba(120, 100, 220, 0.6);
+}
+
+QComboBox QAbstractItemView {
+    border: 1px solid rgba(120, 100, 220, 0.5);
+    background: rgba(20, 18, 38, 0.95);
+    selection-background-color: rgba(80, 60, 160, 0.5);
+    selection-color: #ffffff;
+    border-radius: 8px;
+}
+
+/* ========================================
+   Group Boxes
+   ======================================== */
+
+QGroupBox {
+    border: 1px solid rgba(100, 80, 180, 0.3);
+    border-radius: 10px;
+    margin-top: 16px;
+    padding-top: 18px;
+    background: rgba(18, 18, 35, 0.5);
+    color: #e8eef7;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 6px 14px;
+    background: rgba(80, 60, 160, 0.3);
+    color: #ffffff;
+    font-weight: 700;
+    border-radius: 6px;
+    border: 1px solid rgba(120, 100, 220, 0.5);
+    margin-left: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+/* ========================================
+   Check Boxes & Radio Buttons
+   ======================================== */
+
+QCheckBox, QRadioButton {
+    color: #e8eef7;
+    spacing: 8px;
+}
+
+QCheckBox::indicator, QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(100, 80, 180, 0.6);
+    border-radius: 4px;
+    background: rgba(18, 18, 35, 0.8);
+}
+
+QCheckBox::indicator:hover, QRadioButton::indicator:hover {
+    border-color: rgba(0, 255, 136, 0.7);
+}
+
+QCheckBox::indicator:checked, QRadioButton::indicator:checked {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                stop:0 #6366f1, stop:1 #00ff88);
+    border-color: #00ff88;
+}
+
+QRadioButton::indicator {
+    border-radius: 9px;
+}
+
+/* ========================================
+   Tooltips
+   ======================================== */
+
+QToolTip {
+    border: 1px solid rgba(0, 255, 136, 0.6);
+    background: rgba(10, 10, 25, 0.95);
+    color: #e8eef7;
+    border-radius: 6px;
+    padding: 6px 10px;
+}
