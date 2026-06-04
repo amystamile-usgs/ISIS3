@@ -16,6 +16,7 @@ find files of those names at the top level of this repository. **/
 #include <QDebug>
 #include <QDockWidget>
 #include <QLabel>
+#include <QTimer>
 #include <QMap>
 #include <QMapIterator>
 #include <QMdiArea>
@@ -53,10 +54,9 @@ find files of those names at the top level of this repository. **/
 #include "ProjectItem.h"
 #include "ProjectItemModel.h"
 #include "ProjectItemTreeView.h"
+#include "FileName.h"
 #include "Pvl.h"
 #include "OpenProjectWorkOrder.h"
-#include "SensorInfoWidget.h"
-#include "TargetInfoWidget.h"
 #include "TemplateEditorWidget.h"
 #include "ViewSubWindow.h"
 
@@ -79,26 +79,19 @@ namespace Isis {
       QMainWindow(parent) {
     m_maxThreadCount = -1;
 
-    QString styleSheetPath = "$ISISROOT/src/qisis/apps/astroset/astroset.qss";
-    FileName styleFile(styleSheetPath);
-    QFile file(styleFile.expanded());
-    QString styleSheet = QLatin1String(file.readAll());
-    qApp->setStyleSheet(styleSheet);
-    file.close();
-
     QPalette darkPalette;
-    darkPalette.setColor(QPalette::Window, QColor(10, 8, 20));
-    darkPalette.setColor(QPalette::WindowText, QColor(232, 238, 247));
-    darkPalette.setColor(QPalette::Base, QColor(18, 18, 35));
-    darkPalette.setColor(QPalette::AlternateBase, QColor(20, 20, 38));
-    darkPalette.setColor(QPalette::ToolTipBase, QColor(232, 238, 247));
-    darkPalette.setColor(QPalette::ToolTipText, QColor(232, 238, 247));
-    darkPalette.setColor(QPalette::Text, QColor(232, 238, 247));
-    darkPalette.setColor(QPalette::Button, QColor(30, 25, 55));
-    darkPalette.setColor(QPalette::ButtonText, QColor(232, 238, 247));
+    darkPalette.setColor(QPalette::Window, QColor(24, 32, 40));
+    darkPalette.setColor(QPalette::WindowText, QColor(180, 200, 210));
+    darkPalette.setColor(QPalette::Base, QColor(28, 38, 45));
+    darkPalette.setColor(QPalette::AlternateBase, QColor(32, 42, 50));
+    darkPalette.setColor(QPalette::ToolTipBase, QColor(180, 200, 210));
+    darkPalette.setColor(QPalette::ToolTipText, QColor(180, 200, 210));
+    darkPalette.setColor(QPalette::Text, QColor(180, 200, 210));
+    darkPalette.setColor(QPalette::Button, QColor(40, 55, 65));
+    darkPalette.setColor(QPalette::ButtonText, QColor(180, 200, 210));
     darkPalette.setColor(QPalette::BrightText, Qt::white);
-    darkPalette.setColor(QPalette::Link, QColor(100, 150, 255));
-    darkPalette.setColor(QPalette::Highlight, QColor(80, 60, 160));
+    darkPalette.setColor(QPalette::Link, QColor(96, 216, 220));
+    darkPalette.setColor(QPalette::Highlight, QColor(70, 140, 150));
     darkPalette.setColor(QPalette::HighlightedText, Qt::white);
     qApp->setPalette(darkPalette);
 
@@ -147,7 +140,7 @@ namespace Isis {
     QWidget *dashboardContainer = new QWidget();
     dashboardContainer->setStyleSheet(
       "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, "
-      "            stop:0 #0a0814, stop:0.5 #0d0a1a, stop:1 #0a0814);"
+      "            stop:0 #1a252e, stop:0.5 #1e2a35, stop:1 #1a252e);"
     );
 
     QVBoxLayout *dashboardLayout = new QVBoxLayout(dashboardContainer);
@@ -168,6 +161,7 @@ namespace Isis {
 
     // Create a container with stack + tab bar overlay
     QWidget *mainContainer = new QWidget();
+    mainContainer->setStyleSheet("QWidget { background: #1c2630; }");
     QHBoxLayout *mainContainerLayout = new QHBoxLayout(mainContainer);
     mainContainerLayout->setContentsMargins(0, 0, 0, 0);
     mainContainerLayout->setSpacing(0);
@@ -187,7 +181,37 @@ namespace Isis {
 
     setDockNestingEnabled(true);
 
-    setStyleSheet("QMainWindow::separator {background: rgba(100, 80, 180, 0.3); width: 3; height: 3px;}");
+    setStyleSheet(
+      "QMainWindow { background: #1c2630; } "
+      "QWidget { background: #1c2630; } "
+      "QMainWindow::separator { background: rgba(70, 140, 150, 0.4); width: 3; height: 3px; } "
+      "QDockWidget { color: #b4c8d2; background: #1c2630; border: none; } "
+      "QDockWidget::title { background: #28363f; padding: 8px; color: #b4c8d2; font-weight: 600; } "
+      "QTreeView { background: #1c2630; color: #b4c8d2; border: 1px solid #3a4e58; selection-background-color: #468c96; } "
+      "QTreeView::item:selected { background: #468c96; color: white; } "
+      "QTreeView::item:hover { background: rgba(70, 140, 150, 0.3); } "
+      "QTreeView::branch { background: #1c2630; } "
+      "QMenuBar { background: #1e2a35; color: #b4c8d2; border: none; padding: 2px; } "
+      "QMenuBar::item { padding: 8px 14px; border-radius: 0; background: transparent; } "
+      "QMenuBar::item:selected { background: #468c96; color: white; } "
+      "QMenuBar::item:pressed { background: #3a7888; } "
+      "QMenu { background: #28363f; color: #b4c8d2; border: 1px solid #468c96; padding: 4px; } "
+      "QMenu::item { padding: 8px 30px; } "
+      "QMenu::item:selected { background: #468c96; color: white; } "
+      "QMenu::separator { height: 1px; background: #3a4e58; margin: 4px 10px; } "
+      "QToolBar { background: #1e2a35; border: none; spacing: 4px; padding: 6px; } "
+      "QToolButton { background: transparent; color: #60d8dc; border: none; padding: 10px; border-radius: 6px; } "
+      "QToolButton:hover { background: rgba(70, 140, 150, 0.5); } "
+      "QToolButton:pressed { background: rgba(70, 140, 150, 0.7); } "
+      "QToolButton:checked { background: #468c96; color: white; } "
+      "QStatusBar { background: #1c2630; color: #b4c8d2; } "
+      "QScrollBar:vertical { background: #1c2630; width: 12px; } "
+      "QScrollBar::handle:vertical { background: #3a4e58; border-radius: 6px; min-height: 20px; } "
+      "QScrollBar::handle:vertical:hover { background: #468c96; } "
+      "QScrollBar:horizontal { background: #1c2630; height: 12px; } "
+      "QScrollBar::handle:horizontal { background: #3a4e58; border-radius: 6px; min-width: 20px; } "
+      "QScrollBar::handle:horizontal:hover { background: #468c96; } "
+    );
 
     try {
       m_directory = new Directory(this);
@@ -206,6 +230,10 @@ namespace Isis {
 
       connect(m_directory->project(), SIGNAL(imagesAdded(ImageList *)),
               this, SLOT(onImagesAdded(ImageList *)));
+
+      QTimer::singleShot(1000, this, SLOT(applyCustomIcons()));
+      QTimer::singleShot(2000, this, SLOT(applyCustomIcons()));
+
       connect(m_directory, SIGNAL( newWarning() ),
               this, SLOT( raiseWarningTab() ) );
     }
@@ -219,6 +247,10 @@ namespace Isis {
     m_projectDock->setFeatures(QDockWidget::DockWidgetMovable |
                               QDockWidget::DockWidgetFloatable);
     m_projectDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    m_projectDock->setStyleSheet(
+      "QDockWidget { background: #1c2630; border: none; }"
+      "QDockWidget::title { background: #28363f; color: #90b0c0; padding: 8px; font-weight: 600; }"
+    );
 
     ProjectItemTreeView *projectTreeView = m_directory->addProjectItemTreeView();
     projectTreeView->setInternalModel( m_directory->model() );
@@ -226,39 +258,44 @@ namespace Isis {
     projectTreeView->installEventFilter(this);
     projectTreeView->setAutoFillBackground(true);
     QPalette projectPalette = projectTreeView->palette();
-    projectPalette.setColor(QPalette::Window, QColor(18, 18, 35));
-    projectPalette.setColor(QPalette::Base, QColor(18, 18, 35));
-    projectPalette.setColor(QPalette::Text, QColor(232, 238, 247));
-    projectPalette.setColor(QPalette::WindowText, QColor(232, 238, 247));
+    projectPalette.setColor(QPalette::Window, QColor(28, 38, 48));
+    projectPalette.setColor(QPalette::Base, QColor(28, 38, 48));
+    projectPalette.setColor(QPalette::Text, QColor(180, 200, 210));
+    projectPalette.setColor(QPalette::WindowText, QColor(180, 200, 210));
     projectTreeView->setPalette(projectPalette);
 
     QTreeView *treeView = projectTreeView->treeView();
     if (treeView) {
       treeView->setAutoFillBackground(true);
       QPalette treePalette = treeView->palette();
-      treePalette.setColor(QPalette::Base, QColor(18, 18, 35));
-      treePalette.setColor(QPalette::Text, QColor(232, 238, 247));
-      treePalette.setColor(QPalette::Window, QColor(18, 18, 35));
-      treePalette.setColor(QPalette::WindowText, QColor(232, 238, 247));
+      treePalette.setColor(QPalette::Base, QColor(28, 38, 48));
+      treePalette.setColor(QPalette::Text, QColor(180, 200, 210));
+      treePalette.setColor(QPalette::Window, QColor(28, 38, 48));
+      treePalette.setColor(QPalette::WindowText, QColor(180, 200, 210));
       treePalette.setColor(QPalette::HighlightedText, QColor(255, 255, 255));
       treePalette.setColor(QPalette::BrightText, QColor(255, 255, 255));
       treeView->setPalette(treePalette);
       treeView->setStyleSheet(
         "QTreeView { "
-        "  background: rgb(18, 18, 35); "
-        "  color: rgb(232, 238, 247); "
+        "  background: #1c2630; "
+        "  color: #b4c8d2; "
+        "  border: none; "
         "}"
         "QTreeView::item { "
-        "  color: rgb(232, 238, 247); "
+        "  color: #b4c8d2; "
         "  background: transparent; "
+        "  padding: 4px; "
         "}"
         "QTreeView::item:selected { "
-        "  background: rgba(80, 60, 160, 0.6); "
-        "  color: rgb(255, 255, 255); "
+        "  background: #468c96; "
+        "  color: #ffffff; "
         "}"
         "QTreeView::item:hover { "
-        "  background: rgba(60, 50, 120, 0.4); "
-        "  color: rgb(255, 255, 255); "
+        "  background: rgba(70, 140, 150, 0.3); "
+        "  color: #ffffff; "
+        "}"
+        "QTreeView::branch { "
+        "  background: #1c2630; "
         "}"
       );
     }
@@ -276,12 +313,13 @@ namespace Isis {
     m_warningsDock->setAllowedAreas(Qt::BottomDockWidgetArea);
 
     m_warningsDock->setStyleSheet(
-      "QDockWidget { background: rgba(18, 18, 35, 0.9); border: 1px solid rgba(100, 80, 180, 0.3); }"
-      "QDockWidget::title { background: rgba(25, 20, 45, 0.9); color: #e8eef7; padding: 10px; }"
+      "QDockWidget { background: rgba(28, 38, 48, 0.95); border: 1px solid rgba(70, 140, 150, 0.4); }"
+      "QDockWidget::title { background: rgba(40, 55, 65, 0.95); color: #90b0c0; padding: 10px; font-weight: 600; }"
     );
 
     m_directory->setWarningContainer(m_warningsDock);
     addDockWidget(Qt::BottomDockWidgetArea, m_warningsDock);
+    m_warningsDock->setMaximumHeight(150);
 
     QDockWidget *historyDock = new QDockWidget("History", this, Qt::SubWindow);
     historyDock->setObjectName("historyDock");
@@ -292,8 +330,8 @@ namespace Isis {
     historyDock->setAllowedAreas(Qt::BottomDockWidgetArea);
 
     historyDock->setStyleSheet(
-      "QDockWidget { background: rgba(18, 18, 35, 0.9); border: 1px solid rgba(100, 80, 180, 0.3); }"
-      "QDockWidget::title { background: rgba(25, 20, 45, 0.9); color: #e8eef7; padding: 10px; }"
+      "QDockWidget { background: rgba(28, 38, 48, 0.95); border: 1px solid rgba(70, 140, 150, 0.4); }"
+      "QDockWidget::title { background: rgba(40, 55, 65, 0.95); color: #90b0c0; padding: 10px; font-weight: 600; }"
     );
 
     m_directory->setHistoryContainer(historyDock);
@@ -310,20 +348,21 @@ namespace Isis {
     if (tabBar) {
       tabBar->setStyleSheet(
         "QTabBar::tab { "
-        "  background: rgba(25, 20, 45, 0.9); "
-        "  color: #8090b0; "
+        "  background: rgba(40, 55, 65, 0.9); "
+        "  color: #8099aa; "
         "  padding: 8px 16px; "
         "  border: none; "
         "  margin-right: 2px; "
+        "  border-radius: 0; "
         "}"
         "QTabBar::tab:selected { "
-        "  background: rgba(80, 60, 160, 0.6); "
+        "  background: rgba(70, 140, 150, 0.7); "
         "  color: #ffffff; "
-        "  border-bottom: 2px solid #00ff88; "
+        "  border-bottom: 2px solid #60d8dc; "
         "}"
         "QTabBar::tab:hover { "
-        "  background: rgba(50, 40, 90, 0.5); "
-        "  color: #c0cce0; "
+        "  background: rgba(60, 100, 110, 0.6); "
+        "  color: #c8dce6; "
         "}"
       );
     }
@@ -487,14 +526,7 @@ namespace Isis {
       "}"
     );
 
-    if ( qobject_cast<SensorInfoWidget *>(newWidget) ||
-         qobject_cast<TargetInfoWidget *>(newWidget)) {
-      // Show Target Body and Spacecraft info in the sidebar
-      dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-      splitDockWidget(m_projectDock, dock, Qt::Vertical);
-      m_specialDocks.append(dock);
-    }
-    else if ( qobject_cast<ControlHealthMonitorView *>(newWidget) ||
+    if ( qobject_cast<ControlHealthMonitorView *>(newWidget) ||
               qobject_cast<TemplateEditorWidget *>(newWidget)) {
       dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
       splitDockWidget(m_projectDock, dock, Qt::Vertical);
@@ -856,11 +888,11 @@ namespace Isis {
     m_permToolBar->setIconSize(iconSize);
     m_permToolBar->setObjectName("PermanentToolBar");
 
-    // Style the toolbar with dark theme
+    // Style the toolbar with teal theme
     m_permToolBar->setStyleSheet(
       "QToolBar { "
-      "  background: rgba(20, 18, 38, 0.85); "
-      "  border-bottom: 1px solid rgba(100, 80, 180, 0.3); "
+      "  background: #1e2a35; "
+      "  border-bottom: 1px solid rgba(70, 140, 150, 0.4); "
       "  spacing: 6px; "
       "  padding: 10px; "
       "}"
@@ -869,21 +901,42 @@ namespace Isis {
       "  border: 1px solid transparent; "
       "  border-radius: 8px; "
       "  padding: 8px; "
-      "  color: #e8eef7; "
+      "  color: #60d8dc; "
       "}"
       "QToolButton:hover { "
-      "  background: rgba(60, 50, 120, 0.4); "
-      "  border: 1px solid rgba(120, 100, 220, 0.5); "
+      "  background: rgba(70, 140, 150, 0.5); "
+      "  border: 1px solid rgba(96, 216, 220, 0.5); "
       "}"
       "QToolButton:pressed { "
-      "  background: rgba(80, 60, 140, 0.6); "
-      "  border: 1px solid rgba(0, 255, 136, 0.6); "
+      "  background: rgba(70, 140, 150, 0.7); "
+      "  border: 1px solid rgba(96, 216, 220, 0.8); "
       "}"
     );
 
     addToolBar(m_permToolBar);
 
     foreach ( QAction *action, m_directory->permToolBarActions() ) {
+      QString actionText = action->text().toLower();
+      QString iconPath;
+
+      if (actionText.contains("open")) {
+        iconPath = "$ISISROOT/../isis/src/qisis/apps/astroset/icons/open.svg";
+      }
+      else if (actionText.contains("save as")) {
+        iconPath = "$ISISROOT/../isis/src/qisis/apps/astroset/icons/save-as.svg";
+      }
+      else if (actionText.contains("save")) {
+        iconPath = "$ISISROOT/../isis/src/qisis/apps/astroset/icons/save.svg";
+      }
+
+      if (!iconPath.isEmpty()) {
+        FileName iconFile(iconPath);
+        QIcon icon(iconFile.expanded());
+        if (!icon.isNull()) {
+          action->setIcon(icon);
+        }
+      }
+
       m_permToolBar->addAction(action);
     }
 
@@ -906,16 +959,38 @@ namespace Isis {
       m_dashboard->addImageToCard(imageName, imagePath);
     }
 
+    // Apply icons multiple times to ensure they stick
+    QTimer::singleShot(200, this, SLOT(applyCustomIcons()));
+    QTimer::singleShot(500, this, SLOT(applyCustomIcons()));
+    QTimer::singleShot(1000, this, SLOT(applyCustomIcons()));
+
     // Update target body info from the first image if available
     if (!images->isEmpty()) {
       Image *firstImage = images->first();
       try {
-        // Get target name from cube label
         Cube *cube = firstImage->cube();
         if (cube && cube->label()) {
           PvlGroup &instGroup = cube->label()->findGroup("Instrument", Pvl::Traverse);
+
+          // Extract system name
+          QString systemName = "";
           if (instGroup.hasKeyword("TargetName")) {
             QString targetName = QString::fromStdString(instGroup["TargetName"][0].toStdString());
+
+            // Determine system name from target name
+            if (targetName.compare("MOON", Qt::CaseInsensitive) == 0) {
+              systemName = "EARTH";
+            }
+            else if (targetName.compare("Titan", Qt::CaseInsensitive) == 0 ||
+                     targetName.compare("Enceladus", Qt::CaseInsensitive) == 0) {
+              systemName = "SATURN";
+            }
+            else if (targetName.compare("Europa", Qt::CaseInsensitive) == 0) {
+              systemName = "JUPITER";
+            }
+            else if (targetName.compare("Mars", Qt::CaseInsensitive) == 0) {
+              systemName = "MARS";
+            }
 
             // Load target image based on target name
             QPixmap targetImage;
@@ -935,7 +1010,54 @@ namespace Isis {
               targetImage.load(FileName("$ISISROOT/appdata/images/targets/nasa_titan_large.png").expanded());
             }
 
-            m_dashboard->setTargetBodyInfo(targetName, targetImage);
+            // Get coordinate info if available
+            QString centerLon = "";
+            QString centerLat = "";
+            try {
+              if (cube->label()->hasGroup("Mapping")) {
+                PvlGroup &mappingGroup = cube->label()->findGroup("Mapping", Pvl::Traverse);
+                if (mappingGroup.hasKeyword("CenterLongitude")) {
+                  double lon = mappingGroup["CenterLongitude"];
+                  centerLon = QString::number(lon, 'f', 2) + "°";
+                }
+                if (mappingGroup.hasKeyword("CenterLatitude")) {
+                  double lat = mappingGroup["CenterLatitude"];
+                  centerLat = QString::number(lat, 'f', 2) + "°";
+                }
+              }
+            } catch (...) {}
+
+            m_dashboard->setTargetBodyInfo(targetName, targetImage, systemName, centerLon, centerLat);
+          }
+
+          QString spacecraftName = "";
+          QString instrumentName = "";
+          QString startTime = "";
+          QString exposureDuration = "";
+          QString filter = "";
+
+          if (instGroup.hasKeyword("SpacecraftName")) {
+            spacecraftName = QString::fromStdString(instGroup["SpacecraftName"][0].toStdString());
+          }
+
+          if (instGroup.hasKeyword("InstrumentId")) {
+            instrumentName = QString::fromStdString(instGroup["InstrumentId"][0].toStdString());
+          }
+
+          if (instGroup.hasKeyword("StartTime")) {
+            startTime = QString::fromStdString(instGroup["StartTime"][0].toStdString());
+          }
+
+          if (instGroup.hasKeyword("ExposureDuration")) {
+            exposureDuration = QString::fromStdString(instGroup["ExposureDuration"][0].toStdString());
+          }
+
+          if (instGroup.hasKeyword("FilterName")) {
+            filter = QString::fromStdString(instGroup["FilterName"][0].toStdString());
+          }
+
+          if (!spacecraftName.isEmpty()) {
+            m_dashboard->setSpacecraftInfo(spacecraftName, instrumentName, startTime, exposureDuration, filter);
           }
         }
       }
@@ -1369,5 +1491,92 @@ namespace Isis {
  */
   void AstrosetMainWindow::raiseWarningTab() {
     m_warningsDock->raise();
+  }
+
+  /**
+   * Apply custom astroset-themed icons to the project tree
+   */
+  void AstrosetMainWindow::applyCustomIcons() {
+    if (!m_directory || !m_directory->model()) {
+      return;
+    }
+
+    // Get the invisible root item (which is a QStandardItem, not ProjectItem)
+    QStandardItem *rootItem = m_directory->model()->invisibleRootItem();
+    if (!rootItem) {
+      return;
+    }
+
+    // Iterate through the root's children, which ARE ProjectItems
+    for (int i = 0; i < rootItem->rowCount(); i++) {
+      QStandardItem *child = rootItem->child(i);
+      ProjectItem *projectChild = dynamic_cast<ProjectItem*>(child);
+      if (projectChild) {
+        updateItemIcons(projectChild);
+      }
+    }
+  }
+
+  /**
+   * Recursively update icons for project items
+   */
+  void AstrosetMainWindow::updateItemIcons(ProjectItem *item) {
+    if (!item) return;
+
+    QString iconPath;
+    QString text = item->text().toLower();
+
+    if (text.contains("image") || text.endsWith(".cub")) {
+      iconPath = "$ISISROOT/../isis/src/qisis/apps/astroset/icons/image.svg";
+    }
+    else if (text.contains("control")) {
+      iconPath = "$ISISROOT/../isis/src/qisis/apps/astroset/icons/control.svg";
+    }
+    else if (text.contains("map")) {
+      iconPath = "$ISISROOT/../isis/src/qisis/apps/astroset/icons/map.svg";
+    }
+    else if (text.contains("registration")) {
+      iconPath = "$ISISROOT/../isis/src/qisis/apps/astroset/icons/registration.svg";
+    }
+    else if (text.contains("shape")) {
+      iconPath = "$ISISROOT/../isis/src/qisis/apps/astroset/icons/shape.svg";
+    }
+    else if (text.contains("target")) {
+      iconPath = "$ISISROOT/../isis/src/qisis/apps/astroset/icons/target.svg";
+    }
+    else if (text.contains("sensor")) {
+      iconPath = "$ISISROOT/../isis/src/qisis/apps/astroset/icons/sensor.svg";
+    }
+    else if (text.contains("spacecraft") || text.contains("space")) {
+      iconPath = "$ISISROOT/../isis/src/qisis/apps/astroset/icons/spacecraft.svg";
+    }
+    else if (text.contains("result")) {
+      iconPath = "$ISISROOT/../isis/src/qisis/apps/astroset/icons/results.svg";
+    }
+    else if (text == "project") {
+      iconPath = "$ISISROOT/../isis/src/qisis/apps/astroset/icons/project.svg";
+    }
+    else if (item->hasChildren()) {
+      iconPath = "$ISISROOT/../isis/src/qisis/apps/astroset/icons/folder.svg";
+    }
+
+    if (!iconPath.isEmpty()) {
+      FileName iconFile(iconPath);
+      QIcon icon(iconFile.expanded());
+      if (!icon.isNull()) {
+        item->setIcon(icon);
+      }
+    }
+
+    // Set text color to light for dark theme
+    item->setForeground(QBrush(QColor(232, 238, 247)));
+
+    // Recursively update children
+    for (int i = 0; i < item->rowCount(); i++) {
+      ProjectItem *child = static_cast<ProjectItem*>(item->child(i));
+      if (child) {
+        updateItemIcons(child);
+      }
+    }
   }
 }

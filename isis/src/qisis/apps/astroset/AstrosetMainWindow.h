@@ -23,6 +23,7 @@ namespace Isis {
   class Project;
   class ImageList;
   class SlidingPanelManager;
+  class ProjectItem;
 
   /**
    * The main window for the ipce appication. This handles most of the top-level GUI aspects of the program.
@@ -234,6 +235,8 @@ namespace Isis {
 
       void cleanupViewDockList(QObject *obj);
 
+      void applyCustomIcons();
+
     private:
       Q_DISABLE_COPY(AstrosetMainWindow);
 
@@ -242,6 +245,7 @@ namespace Isis {
       void initializeActions();
       void createMenus();
       void createToolBars();
+      void updateItemIcons(ProjectItem *item);
 
     private:
       /**

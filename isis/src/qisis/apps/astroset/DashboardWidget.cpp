@@ -10,6 +10,9 @@ namespace Isis {
   DashboardWidget::DashboardWidget(QWidget *parent) : QWidget(parent) {
     m_activeViewWidget = nullptr;
     m_viewContainer = nullptr;
+    m_targetBodyCard = nullptr;
+    m_spacecraftCard = nullptr;
+    m_imageCount = 0;
     setupUI();
   }
 
@@ -60,25 +63,22 @@ namespace Isis {
     m_imagesCard = createImagesCard();
     m_mainLayout->addWidget(m_imagesCard, 2, 0);
 
+    QFrame *shapesCard = createStatusCard("Shapes", "0", "Items", "status-card");
+    m_mainLayout->addWidget(shapesCard, 2, 1);
+
+    QFrame *registrationsCard = createStatusCard("Registrations", "0", "Items", "status-card");
+    m_mainLayout->addWidget(registrationsCard, 2, 2);
+
     m_targetBodyCard = createTargetBodyCard();
     m_mainLayout->addWidget(m_targetBodyCard, 3, 0);
 
-    QStringList cardTitles;
-    cardTitles << "Shapes" << "Registrations" << "Sensors" << "Results";
+    m_spacecraftCard = createSpacecraftCard();
+    m_mainLayout->addWidget(m_spacecraftCard, 3, 1);
 
-    int col = 1;
-    int row = 2;
-    for (int i = 0; i < cardTitles.size(); i++) {
-      QFrame *card = createStatusCard(cardTitles[i], "0", "Items", "status-card");
-      m_mainLayout->addWidget(card, row, col);
+    QFrame *resultsCard = createStatusCard("Results", "0", "Items", "status-card");
+    m_mainLayout->addWidget(resultsCard, 3, 2);
 
-      col++;
-      if (col > 2) {
-        col = 0;
-        row++;
-      }
-    }
-
+    int row = 4;
     m_viewContainer = new QFrame();
     m_viewContainer->setProperty("class", "view-container");
     m_viewContainer->setMinimumHeight(400);
@@ -109,8 +109,8 @@ namespace Isis {
     card->setStyleSheet(
       "QFrame { "
       "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, "
-      "              stop:0 rgba(20, 20, 40, 0.6), stop:1 rgba(15, 15, 30, 0.6)); "
-      "  border: 1px solid rgba(100, 80, 180, 0.4); "
+      "              stop:0 rgba(30, 50, 60, 0.7), stop:1 rgba(25, 40, 48, 0.7)); "
+      "  border: 1px solid rgba(60, 120, 140, 0.5); "
       "  border-radius: 18px; "
       "}"
     );
@@ -122,7 +122,7 @@ namespace Isis {
     QLabel *titleLabel = new QLabel(title);
     titleLabel->setStyleSheet(
       "font-size: 11px; "
-      "color: #8090b0; "
+      "color: #90b0c0; "
       "font-weight: 700; "
       "text-transform: uppercase; "
       "letter-spacing: 1px; "
@@ -141,7 +141,7 @@ namespace Isis {
 
     QLabel *emptyLabel = new QLabel("No " + title.toLower());
     emptyLabel->setStyleSheet(
-      "color: #505870; "
+      "color: #607080;"
       "font-size: 12px; "
       "font-style: italic; "
       "background: transparent;"
@@ -239,8 +239,8 @@ namespace Isis {
     card->setStyleSheet(
       "QFrame { "
       "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, "
-      "              stop:0 rgba(20, 20, 40, 0.6), stop:1 rgba(15, 15, 30, 0.6)); "
-      "  border: 1px solid rgba(100, 80, 180, 0.4); "
+      "              stop:0 rgba(30, 50, 60, 0.7), stop:1 rgba(25, 40, 48, 0.7)); "
+      "  border: 1px solid rgba(60, 120, 140, 0.5); "
       "  border-radius: 18px; "
       "}"
     );
@@ -272,22 +272,27 @@ namespace Isis {
 
     QWidget *contentWidget = new QWidget();
     contentWidget->setStyleSheet("background: transparent;");
-    m_imagesContentLayout = new QVBoxLayout(contentWidget);
-    m_imagesContentLayout->setContentsMargins(0, 0, 0, 0);
-    m_imagesContentLayout->setSpacing(4);
+
+    // Use grid layout for thumbnails
+    m_imagesGridLayout = new QGridLayout(contentWidget);
+    m_imagesGridLayout->setContentsMargins(0, 0, 0, 0);
+    m_imagesGridLayout->setSpacing(8);
+
+    // Dummy layout for compatibility
+    m_imagesContentLayout = new QVBoxLayout();
 
     QLabel *emptyLabel = new QLabel("No images imported");
+    emptyLabel->setObjectName("emptyImagesLabel");
     emptyLabel->setStyleSheet(
-      "color: #505870; "
+      "color: #607080;"
       "font-size: 11px; "
       "font-style: italic; "
       "background: transparent; "
       "padding: 20px;"
     );
     emptyLabel->setAlignment(Qt::AlignCenter);
-    m_imagesContentLayout->addWidget(emptyLabel);
+    m_imagesGridLayout->addWidget(emptyLabel, 0, 0, 1, 4);
 
-    m_imagesContentLayout->addStretch();
     scrollArea->setWidget(contentWidget);
     layout->addWidget(scrollArea, 1);
 
@@ -356,42 +361,83 @@ namespace Isis {
   }
 
   void DashboardWidget::addImageToCard(const QString &imageName, const QString &imagePath) {
-    if (!m_imagesContentLayout) return;
+    if (!m_imagesGridLayout) return;
 
-    if (m_imagesContentLayout->count() > 0) {
-      QLayoutItem *item = m_imagesContentLayout->itemAt(0);
-      if (item && item->widget()) {
-        QLabel *label = qobject_cast<QLabel*>(item->widget());
-        if (label && label->text().contains("No images")) {
-          delete label;
-        }
-      }
+    // Check if this image was already added (prevent duplicates)
+    if (m_addedImages.contains(imagePath)) {
+      return;
+    }
+    m_addedImages.insert(imagePath);
+    m_imageCount++;
+
+    // Remove empty label if it exists
+    QWidget *emptyLabel = m_imagesGridLayout->parentWidget()->findChild<QWidget*>("emptyImagesLabel");
+    if (emptyLabel) {
+      delete emptyLabel;
     }
 
-    QPushButton *imageButton = new QPushButton(imageName);
-    imageButton->setStyleSheet(
-      "QPushButton { "
-      "  background: rgba(30, 30, 50, 0.4); "
-      "  color: #c0cce0; "
-      "  border: 1px solid rgba(100, 80, 180, 0.3); "
-      "  border-radius: 6px; "
-      "  padding: 8px; "
-      "  text-align: left; "
-      "  font-size: 10px; "
-      "}"
-      "QPushButton:hover { "
-      "  background: rgba(60, 50, 120, 0.5); "
-      "  border: 1px solid rgba(0, 255, 136, 0.5); "
-      "  color: #ffffff; "
-      "}"
-    );
-    imageButton->setProperty("imagePath", imagePath);
+    // Remove any existing "more" label
+    QWidget *moreLabel = m_imagesGridLayout->parentWidget()->findChild<QWidget*>("moreImagesLabel");
+    if (moreLabel) {
+      m_imagesGridLayout->removeWidget(moreLabel);
+      delete moreLabel;
+    }
 
-    connect(imageButton, &QPushButton::clicked, this, [this, imagePath]() {
-      emit imageClicked(imagePath);
-    });
+    // Only show first 8 images as visual previews
+    if (m_imageCount <= 8) {
+      // Calculate grid position (4 columns)
+      int row = (m_imageCount - 1) / 4;
+      int col = (m_imageCount - 1) % 4;
 
-    m_imagesContentLayout->insertWidget(m_imagesContentLayout->count() - 1, imageButton);
+      // Create simple file label (no thumbnail)
+      QPushButton *fileButton = new QPushButton();
+      fileButton->setFixedSize(80, 90);
+      fileButton->setStyleSheet(
+        "QPushButton { "
+        "  background: rgba(40, 55, 65, 0.6); "
+        "  border: 1px solid rgba(70, 140, 150, 0.4); "
+        "  border-radius: 6px; "
+        "  padding: 6px; "
+        "  color: #8099aa; "
+        "  font-size: 8px; "
+        "  text-align: center; "
+        "}"
+        "QPushButton:hover { "
+        "  background: rgba(70, 140, 150, 0.5); "
+        "  border: 1px solid rgba(96, 216, 220, 0.6); "
+        "  color: #ffffff; "
+        "}"
+      );
+
+      // Shortened filename
+      QString shortName = imageName;
+      if (shortName.length() > 20) {
+        shortName = shortName.left(17) + "...";
+      }
+      fileButton->setText(shortName);
+      fileButton->setProperty("imagePath", imagePath);
+
+      connect(fileButton, &QPushButton::clicked, this, [this, imagePath]() {
+        emit imageClicked(imagePath);
+      });
+
+      m_imagesGridLayout->addWidget(fileButton, row, col);
+    }
+
+    // Add count label if more than 8 images
+    if (m_imageCount > 8) {
+      QLabel *moreLabel = new QLabel(QString("+%1 more").arg(m_imageCount - 8));
+      moreLabel->setObjectName("moreImagesLabel");
+      moreLabel->setAlignment(Qt::AlignCenter);
+      moreLabel->setStyleSheet(
+        "color: #60d8dc; "
+        "font-size: 11px; "
+        "font-weight: 600; "
+        "background: transparent; "
+        "padding: 10px;"
+      );
+      m_imagesGridLayout->addWidget(moreLabel, 2, 0, 1, 4);
+    }
   }
 
   QFrame* DashboardWidget::createTargetBodyCard() {
@@ -403,8 +449,8 @@ namespace Isis {
     card->setStyleSheet(
       "QFrame { "
       "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, "
-      "              stop:0 rgba(20, 20, 40, 0.6), stop:1 rgba(15, 15, 30, 0.6)); "
-      "  border: 1px solid rgba(100, 80, 180, 0.4); "
+      "              stop:0 rgba(30, 50, 60, 0.7), stop:1 rgba(25, 40, 48, 0.7)); "
+      "  border: 1px solid rgba(60, 120, 140, 0.5); "
       "  border-radius: 18px; "
       "}"
     );
@@ -433,7 +479,7 @@ namespace Isis {
 
     QLabel *emptyLabel = new QLabel("No target body");
     emptyLabel->setStyleSheet(
-      "color: #505870; "
+      "color: #607080;"
       "font-size: 11px; "
       "font-style: italic; "
       "background: transparent; "
@@ -447,7 +493,8 @@ namespace Isis {
     return card;
   }
 
-  void DashboardWidget::setTargetBodyInfo(const QString &targetName, const QPixmap &targetImage) {
+  void DashboardWidget::setTargetBodyInfo(const QString &targetName, const QPixmap &targetImage,
+                                          const QString &systemName, const QString &centerLon, const QString &centerLat) {
     if (!m_targetBodyContentLayout) return;
 
     QLayoutItem *item;
@@ -456,29 +503,226 @@ namespace Isis {
       delete item;
     }
 
+    // Horizontal layout for image and info
+    QHBoxLayout *contentLayout = new QHBoxLayout();
+    contentLayout->setSpacing(16);
+
+    // Target image with border
+    if (!targetImage.isNull()) {
+      QLabel *imageLabel = new QLabel();
+      imageLabel->setPixmap(targetImage.scaled(100, 100, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+      imageLabel->setStyleSheet(
+        "border: 2px solid rgba(96, 216, 220, 0.4); "
+        "border-radius: 50px; "
+        "background: transparent;"
+      );
+      contentLayout->addWidget(imageLabel);
+    }
+
+    // Info section
+    QVBoxLayout *infoLayout = new QVBoxLayout();
+    infoLayout->setSpacing(2);
+
     QLabel *nameLabel = new QLabel(targetName);
     nameLabel->setStyleSheet(
-      "color: #00ff88; "
-      "font-size: 14px; "
+      "color: #60d8dc; "
+      "font-size: 20px; "
       "font-weight: 700; "
       "background: transparent;"
     );
-    m_targetBodyContentLayout->addWidget(nameLabel);
+    infoLayout->addWidget(nameLabel);
 
-    m_targetBodyContentLayout->addSpacing(8);
-
-    if (!targetImage.isNull()) {
-      QLabel *imageLabel = new QLabel();
-      imageLabel->setPixmap(targetImage.scaled(150, 150, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-      imageLabel->setAlignment(Qt::AlignCenter);
-      imageLabel->setStyleSheet("background: transparent;");
-      m_targetBodyContentLayout->addWidget(imageLabel);
+    // System name as subtitle
+    if (!systemName.isEmpty()) {
+      QLabel *systemLabel = new QLabel(systemName);
+      systemLabel->setStyleSheet(
+        "color: #8099aa; "
+        "font-size: 13px; "
+        "background: transparent;"
+      );
+      infoLayout->addWidget(systemLabel);
     }
 
+    infoLayout->addSpacing(8);
+
+    // Coordinates - show as separate lines for readability
+    if (!centerLat.isEmpty()) {
+      QLabel *latLabel = new QLabel("Lat: " + centerLat);
+      latLabel->setStyleSheet(
+        "color: #7080a0; "
+        "font-size: 11px; "
+        "background: transparent;"
+      );
+      infoLayout->addWidget(latLabel);
+    }
+
+    if (!centerLon.isEmpty()) {
+      QLabel *lonLabel = new QLabel("Lon: " + centerLon);
+      lonLabel->setStyleSheet(
+        "color: #7080a0; "
+        "font-size: 11px; "
+        "background: transparent;"
+      );
+      infoLayout->addWidget(lonLabel);
+    }
+
+    infoLayout->addStretch();
+    contentLayout->addLayout(infoLayout, 1);
+
+    m_targetBodyContentLayout->addLayout(contentLayout);
     m_targetBodyContentLayout->addStretch();
   }
 
-  void DashboardWidget::setSpacecraftInfo(const QString &spacecraftName, const QString &instrumentName) {
-    // TODO: Implement when we do Spacecraft card
+  QFrame* DashboardWidget::createSpacecraftCard() {
+    QFrame *card = new QFrame();
+    card->setProperty("class", "status-card");
+    card->setMinimumSize(200, 180);
+    card->setMaximumHeight(220);
+
+    card->setStyleSheet(
+      "QFrame { "
+      "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+      "              stop:0 rgba(30, 50, 60, 0.7), stop:1 rgba(25, 40, 48, 0.7)); "
+      "  border: 1px solid rgba(60, 120, 140, 0.5); "
+      "  border-radius: 18px; "
+      "}"
+    );
+
+    QVBoxLayout *layout = new QVBoxLayout(card);
+    layout->setContentsMargins(16, 16, 16, 16);
+    layout->setSpacing(4);
+
+    QLabel *titleLabel = new QLabel("SPACECRAFT");
+    titleLabel->setStyleSheet(
+      "font-size: 11px; "
+      "color: #8090b0; "
+      "font-weight: 700; "
+      "text-transform: uppercase; "
+      "letter-spacing: 1px; "
+      "background: transparent;"
+    );
+    layout->addWidget(titleLabel);
+
+    layout->addSpacing(8);
+
+    m_spacecraftContentLayout = new QVBoxLayout();
+    m_spacecraftContentLayout->setContentsMargins(0, 0, 0, 0);
+    m_spacecraftContentLayout->setSpacing(8);
+
+    QLabel *emptyLabel = new QLabel("No spacecraft");
+    emptyLabel->setStyleSheet(
+      "color: #607080;"
+      "font-size: 11px; "
+      "font-style: italic; "
+      "background: transparent; "
+      "padding: 20px;"
+    );
+    emptyLabel->setAlignment(Qt::AlignCenter);
+    m_spacecraftContentLayout->addWidget(emptyLabel);
+
+    layout->addLayout(m_spacecraftContentLayout, 1);
+
+    return card;
+  }
+
+  void DashboardWidget::setSpacecraftInfo(const QString &spacecraftName, const QString &instrumentName,
+                                          const QString &startTime, const QString &exposureDuration, const QString &filter) {
+    if (!m_spacecraftContentLayout) return;
+
+    QLayoutItem *item;
+    while ((item = m_spacecraftContentLayout->takeAt(0)) != nullptr) {
+      delete item->widget();
+      delete item;
+    }
+
+    // Create horizontal layout for icon and info
+    QHBoxLayout *mainLayout = new QHBoxLayout();
+    mainLayout->setSpacing(16);
+
+    // Add spacecraft icon/visual on the right
+    QLabel *iconLabel = new QLabel();
+    iconLabel->setFixedSize(100, 100);
+    iconLabel->setStyleSheet(
+      "QLabel {"
+      "  background: qradialgradient(cx:0.5, cy:0.5, radius:0.5, "
+      "              fx:0.5, fy:0.5, stop:0 rgba(255, 102, 68, 0.3), "
+      "              stop:0.5 rgba(255, 102, 68, 0.1), stop:1 transparent); "
+      "  border: 2px solid rgba(255, 102, 68, 0.4); "
+      "  border-radius: 50px;"
+      "}"
+    );
+
+    // Info section on the left
+    QVBoxLayout *infoLayout = new QVBoxLayout();
+    infoLayout->setSpacing(2);
+
+    // Spacecraft name
+    QLabel *nameLabel = new QLabel(spacecraftName);
+    nameLabel->setStyleSheet(
+      "color: #ff6644; "
+      "font-size: 18px; "
+      "font-weight: 700; "
+      "background: transparent;"
+    );
+    nameLabel->setWordWrap(true);
+    infoLayout->addWidget(nameLabel);
+
+    // Instrument
+    if (!instrumentName.isEmpty()) {
+      QLabel *instrumentValue = new QLabel(instrumentName);
+      instrumentValue->setStyleSheet(
+        "color: #9099aa; "
+        "font-size: 13px; "
+        "background: transparent;"
+      );
+      infoLayout->addWidget(instrumentValue);
+    }
+
+    infoLayout->addSpacing(8);
+
+    // Start Time
+    if (!startTime.isEmpty()) {
+      QString formattedTime = startTime;
+      if (startTime.length() > 19) {
+        formattedTime = startTime.left(19).replace("T", " ");
+      }
+
+      QLabel *timeValue = new QLabel(formattedTime);
+      timeValue->setStyleSheet(
+        "color: #7080a0; "
+        "font-size: 11px; "
+        "background: transparent;"
+      );
+      timeValue->setWordWrap(true);
+      infoLayout->addWidget(timeValue);
+    }
+
+    // Compact details line
+    QStringList details;
+    if (!exposureDuration.isEmpty()) {
+      details << "Exp: " + exposureDuration + "ms";
+    }
+    if (!filter.isEmpty()) {
+      details << "Filter: " + filter;
+    }
+
+    if (!details.isEmpty()) {
+      QLabel *detailsLabel = new QLabel(details.join(" • "));
+      detailsLabel->setStyleSheet(
+        "color: #7080a0; "
+        "font-size: 11px; "
+        "background: transparent;"
+      );
+      detailsLabel->setWordWrap(true);
+      infoLayout->addWidget(detailsLabel);
+    }
+
+    infoLayout->addStretch();
+
+    mainLayout->addLayout(infoLayout, 1);
+    mainLayout->addWidget(iconLabel);
+
+    m_spacecraftContentLayout->addLayout(mainLayout);
+    m_spacecraftContentLayout->addStretch();
   }
 }

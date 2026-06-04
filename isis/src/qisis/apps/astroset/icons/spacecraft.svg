@@ -1,0 +1,19 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Spacecraft body -->
+  <rect x="10" y="8" width="4" height="8" rx="0.5" fill="none" stroke="#ff6644" stroke-width="1.5"/>
+
+  <!-- Solar panels -->
+  <rect x="4" y="10" width="5" height="4" fill="none" stroke="#ff6644" stroke-width="1.5" opacity="0.7"/>
+  <rect x="15" y="10" width="5" height="4" fill="none" stroke="#ff6644" stroke-width="1.5" opacity="0.7"/>
+
+  <!-- Panel lines -->
+  <line x1="6.5" y1="10" x2="6.5" y2="14" stroke="#ff6644" stroke-width="0.8" opacity="0.5"/>
+  <line x1="17.5" y1="10" x2="17.5" y2="14" stroke="#ff6644" stroke-width="0.8" opacity="0.5"/>
+
+  <!-- Antenna -->
+  <line x1="12" y1="8" x2="12" y2="5" stroke="#ff6644" stroke-width="1.2"/>
+  <circle cx="12" cy="5" r="1" fill="#ff6644"/>
+
+  <!-- Thruster -->
+  <path d="M10 16 L10 19 L12 18 L14 19 L14 16" fill="none" stroke="#ff6644" stroke-width="1.2" opacity="0.6"/>
+</svg>

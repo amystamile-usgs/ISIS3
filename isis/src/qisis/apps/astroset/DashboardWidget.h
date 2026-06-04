@@ -33,8 +33,10 @@ namespace Isis {
 
     // Populate cards with actual data
     void addImageToCard(const QString &imageName, const QString &imagePath);
-    void setTargetBodyInfo(const QString &targetName, const QPixmap &targetImage);
-    void setSpacecraftInfo(const QString &spacecraftName, const QString &instrumentName);
+    void setTargetBodyInfo(const QString &targetName, const QPixmap &targetImage,
+                           const QString &systemName, const QString &centerLon, const QString &centerLat);
+    void setSpacecraftInfo(const QString &spacecraftName, const QString &instrumentName,
+                           const QString &startTime, const QString &exposureDuration, const QString &filter);
 
   signals:
     void imageClicked(const QString &imagePath);
@@ -48,6 +50,7 @@ namespace Isis {
     QFrame* createChartCard();
     QFrame* createImagesCard();
     QFrame* createTargetBodyCard();
+    QFrame* createSpacecraftCard();
 
     QGridLayout *m_mainLayout;
     QLabel *m_systemStatusLabel;
@@ -60,8 +63,13 @@ namespace Isis {
 
     QFrame *m_imagesCard;
     QVBoxLayout *m_imagesContentLayout;
+    QGridLayout *m_imagesGridLayout;
+    QSet<QString> m_addedImages;
+    int m_imageCount;
     QFrame *m_targetBodyCard;
     QVBoxLayout *m_targetBodyContentLayout;
+    QFrame *m_spacecraftCard;
+    QVBoxLayout *m_spacecraftContentLayout;
   };
 }
 

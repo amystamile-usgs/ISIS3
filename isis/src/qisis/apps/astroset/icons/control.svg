@@ -1,0 +1,14 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Network nodes -->
+  <circle cx="6" cy="6" r="2" fill="#00ccff"/>
+  <circle cx="18" cy="6" r="2" fill="#00ccff"/>
+  <circle cx="6" cy="18" r="2" fill="#00ccff"/>
+  <circle cx="18" cy="18" r="2" fill="#00ccff"/>
+  <circle cx="12" cy="12" r="2.5" fill="#00ccff"/>
+
+  <!-- Connection lines -->
+  <line x1="6" y1="6" x2="12" y2="12" stroke="#00ccff" stroke-width="1.5" opacity="0.6"/>
+  <line x1="18" y1="6" x2="12" y2="12" stroke="#00ccff" stroke-width="1.5" opacity="0.6"/>
+  <line x1="6" y1="18" x2="12" y2="12" stroke="#00ccff" stroke-width="1.5" opacity="0.6"/>
+  <line x1="18" y1="18" x2="12" y2="12" stroke="#00ccff" stroke-width="1.5" opacity="0.6"/>
+</svg>
