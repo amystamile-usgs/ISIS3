@@ -4,6 +4,9 @@
 #include <QScrollArea>
 #include <QPushButton>
 #include <QPixmap>
+#include <QFileInfo>
+#include <QEvent>
+#include <QMouseEvent>
 
 namespace Isis {
 
@@ -13,10 +16,26 @@ namespace Isis {
     m_targetBodyCard = nullptr;
     m_spacecraftCard = nullptr;
     m_imageCount = 0;
+    m_controlNetworkCount = 0;
     setupUI();
   }
 
   DashboardWidget::~DashboardWidget() {
+  }
+
+  bool DashboardWidget::eventFilter(QObject *obj, QEvent *event) {
+    // Handle clicks on image labels
+    if (event->type() == QEvent::MouseButtonPress) {
+      QLabel *label = qobject_cast<QLabel*>(obj);
+      if (label && label->property("isImageLabel").toBool()) {
+        QString imagePath = label->property("imagePath").toString();
+        if (!imagePath.isEmpty()) {
+          emit imageClicked(imagePath);
+          return true;
+        }
+      }
+    }
+    return QWidget::eventFilter(obj, event);
   }
 
   void DashboardWidget::setupUI() {
@@ -66,8 +85,8 @@ namespace Isis {
     QFrame *shapesCard = createStatusCard("Shapes", "0", "Items", "status-card");
     m_mainLayout->addWidget(shapesCard, 2, 1);
 
-    QFrame *registrationsCard = createStatusCard("Registrations", "0", "Items", "status-card");
-    m_mainLayout->addWidget(registrationsCard, 2, 2);
+    m_controlNetworksCard = createControlNetworksCard();
+    m_mainLayout->addWidget(m_controlNetworksCard, 2, 2);
 
     m_targetBodyCard = createTargetBodyCard();
     m_mainLayout->addWidget(m_targetBodyCard, 3, 0);
@@ -273,13 +292,11 @@ namespace Isis {
     QWidget *contentWidget = new QWidget();
     contentWidget->setStyleSheet("background: transparent;");
 
-    // Use grid layout for thumbnails
-    m_imagesGridLayout = new QGridLayout(contentWidget);
-    m_imagesGridLayout->setContentsMargins(0, 0, 0, 0);
-    m_imagesGridLayout->setSpacing(8);
-
-    // Dummy layout for compatibility
-    m_imagesContentLayout = new QVBoxLayout();
+    // Use vertical layout for simple list of filenames
+    m_imagesContentLayout = new QVBoxLayout(contentWidget);
+    m_imagesContentLayout->setContentsMargins(8, 8, 8, 8);
+    m_imagesContentLayout->setSpacing(4);
+    m_imagesContentLayout->setAlignment(Qt::AlignTop);
 
     QLabel *emptyLabel = new QLabel("No images imported");
     emptyLabel->setObjectName("emptyImagesLabel");
@@ -291,7 +308,7 @@ namespace Isis {
       "padding: 20px;"
     );
     emptyLabel->setAlignment(Qt::AlignCenter);
-    m_imagesGridLayout->addWidget(emptyLabel, 0, 0, 1, 4);
+    m_imagesContentLayout->addWidget(emptyLabel);
 
     scrollArea->setWidget(contentWidget);
     layout->addWidget(scrollArea, 1);
@@ -337,8 +354,163 @@ namespace Isis {
   }
 
   void DashboardWidget::updateControlNetworkCount(int count) {
-    if (m_networkCountLabel) {
-      m_networkCountLabel->setText(QString::number(count));
+    m_controlNetworkCount = count;
+  }
+
+  QFrame* DashboardWidget::createControlNetworksCard() {
+    QFrame *card = new QFrame();
+    card->setProperty("class", "status-card");
+    card->setMinimumSize(200, 180);
+    card->setMaximumHeight(220);
+
+    card->setStyleSheet(
+      "QFrame { "
+      "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+      "              stop:0 rgba(30, 50, 60, 0.7), stop:1 rgba(25, 40, 48, 0.7)); "
+      "  border: 1px solid rgba(60, 120, 140, 0.5); "
+      "  border-radius: 18px; "
+      "}"
+    );
+
+    QVBoxLayout *layout = new QVBoxLayout(card);
+    layout->setContentsMargins(16, 16, 16, 16);
+    layout->setSpacing(4);
+
+    // Title row with add button
+    QHBoxLayout *titleLayout = new QHBoxLayout();
+
+    QLabel *titleLabel = new QLabel("CONTROL NETWORKS");
+    titleLabel->setStyleSheet(
+      "font-size: 11px; "
+      "color: #8090b0; "
+      "font-weight: 700; "
+      "text-transform: uppercase; "
+      "letter-spacing: 1px; "
+      "background: transparent;"
+    );
+    titleLayout->addWidget(titleLabel);
+
+    titleLayout->addStretch();
+
+    // Add button
+    QPushButton *addButton = new QPushButton("+");
+    addButton->setStyleSheet(
+      "QPushButton { "
+      "  background: rgba(96, 216, 220, 0.3); "
+      "  color: #60d8dc; "
+      "  border: 1px solid rgba(96, 216, 220, 0.5); "
+      "  border-radius: 10px; "
+      "  font-size: 16px; "
+      "  font-weight: bold; "
+      "  padding: 0px; "
+      "  min-width: 20px; "
+      "  max-width: 20px; "
+      "  min-height: 20px; "
+      "  max-height: 20px; "
+      "}"
+      "QPushButton:hover { "
+      "  background: rgba(96, 216, 220, 0.5); "
+      "  color: white; "
+      "}"
+    );
+    addButton->setCursor(Qt::PointingHandCursor);
+    addButton->setToolTip("Create a new control network");
+    connect(addButton, &QPushButton::clicked, this, &DashboardWidget::createControlNetworkRequested);
+    titleLayout->addWidget(addButton);
+
+    layout->addLayout(titleLayout);
+    layout->addSpacing(8);
+
+    QScrollArea *scrollArea = new QScrollArea();
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setFrameShape(QFrame::NoFrame);
+    scrollArea->setStyleSheet(
+      "QScrollArea { background: transparent; border: none; }"
+      "QScrollBar:vertical { background: rgba(30, 30, 50, 0.5); width: 6px; border-radius: 3px; }"
+      "QScrollBar::handle:vertical { background: rgba(100, 80, 180, 0.6); border-radius: 3px; }"
+    );
+
+    QWidget *contentWidget = new QWidget();
+    contentWidget->setStyleSheet("background: transparent;");
+
+    m_controlNetworksLayout = new QVBoxLayout(contentWidget);
+    m_controlNetworksLayout->setContentsMargins(0, 0, 0, 0);
+    m_controlNetworksLayout->setSpacing(6);
+
+    QLabel *emptyLabel = new QLabel("No control networks");
+    emptyLabel->setObjectName("emptyControlNetworksLabel");
+    emptyLabel->setStyleSheet(
+      "color: #607080;"
+      "font-size: 11px; "
+      "font-style: italic; "
+      "background: transparent; "
+      "padding: 20px;"
+    );
+    emptyLabel->setAlignment(Qt::AlignCenter);
+    m_controlNetworksLayout->addWidget(emptyLabel);
+
+    scrollArea->setWidget(contentWidget);
+    layout->addWidget(scrollArea, 1);
+
+    return card;
+  }
+
+  void DashboardWidget::addControlNetworkToCard(const QString &networkName, int numPoints, int numMeasures) {
+    if (!m_controlNetworksLayout) return;
+
+    try {
+      // Remove empty label if it exists
+      if (m_controlNetworksLayout->parentWidget()) {
+        QWidget *emptyLabel = m_controlNetworksLayout->parentWidget()->findChild<QWidget*>("emptyControlNetworksLabel");
+        if (emptyLabel) {
+          delete emptyLabel;
+        }
+      }
+
+      m_controlNetworkCount++;
+
+      // Create a compact info card for the control network
+      QFrame *cnetFrame = new QFrame();
+      if (!cnetFrame) return;
+
+      cnetFrame->setStyleSheet(
+        "QFrame { "
+        "  background: rgba(60, 80, 100, 0.4); "
+        "  border: 1px solid rgba(80, 140, 160, 0.5); "
+        "  border-radius: 8px; "
+        "  padding: 8px; "
+        "}"
+      );
+
+      QVBoxLayout *cnetLayout = new QVBoxLayout(cnetFrame);
+      cnetLayout->setContentsMargins(8, 8, 8, 8);
+      cnetLayout->setSpacing(4);
+
+      // Network name
+      QLabel *nameLabel = new QLabel(networkName);
+      nameLabel->setStyleSheet(
+        "color: #60d8dc; "
+        "font-size: 13px; "
+        "font-weight: 700; "
+        "background: transparent;"
+      );
+      nameLabel->setWordWrap(true);
+      cnetLayout->addWidget(nameLabel);
+
+      // Stats
+      QLabel *statsLabel = new QLabel(QString("%1 points • %2 measures").arg(numPoints).arg(numMeasures));
+      statsLabel->setStyleSheet(
+        "color: #8099aa; "
+        "font-size: 10px; "
+        "background: transparent;"
+      );
+      cnetLayout->addWidget(statsLabel);
+
+      m_controlNetworksLayout->addWidget(cnetFrame);
+    }
+    catch (...) {
+      // Silently fail to avoid crashing
+      qDebug() << "Error adding control network card for:" << networkName;
     }
   }
 
@@ -361,7 +533,7 @@ namespace Isis {
   }
 
   void DashboardWidget::addImageToCard(const QString &imageName, const QString &imagePath) {
-    if (!m_imagesGridLayout) return;
+    if (!m_imagesContentLayout) return;
 
     // Check if this image was already added (prevent duplicates)
     if (m_addedImages.contains(imagePath)) {
@@ -370,74 +542,44 @@ namespace Isis {
     m_addedImages.insert(imagePath);
     m_imageCount++;
 
-    // Remove empty label if it exists
-    QWidget *emptyLabel = m_imagesGridLayout->parentWidget()->findChild<QWidget*>("emptyImagesLabel");
-    if (emptyLabel) {
-      delete emptyLabel;
-    }
-
-    // Remove any existing "more" label
-    QWidget *moreLabel = m_imagesGridLayout->parentWidget()->findChild<QWidget*>("moreImagesLabel");
-    if (moreLabel) {
-      m_imagesGridLayout->removeWidget(moreLabel);
-      delete moreLabel;
-    }
-
-    // Only show first 8 images as visual previews
-    if (m_imageCount <= 8) {
-      // Calculate grid position (4 columns)
-      int row = (m_imageCount - 1) / 4;
-      int col = (m_imageCount - 1) % 4;
-
-      // Create simple file label (no thumbnail)
-      QPushButton *fileButton = new QPushButton();
-      fileButton->setFixedSize(80, 90);
-      fileButton->setStyleSheet(
-        "QPushButton { "
-        "  background: rgba(40, 55, 65, 0.6); "
-        "  border: 1px solid rgba(70, 140, 150, 0.4); "
-        "  border-radius: 6px; "
-        "  padding: 6px; "
-        "  color: #8099aa; "
-        "  font-size: 8px; "
-        "  text-align: center; "
-        "}"
-        "QPushButton:hover { "
-        "  background: rgba(70, 140, 150, 0.5); "
-        "  border: 1px solid rgba(96, 216, 220, 0.6); "
-        "  color: #ffffff; "
-        "}"
-      );
-
-      // Shortened filename
-      QString shortName = imageName;
-      if (shortName.length() > 20) {
-        shortName = shortName.left(17) + "...";
+    // Remove empty label if it exists (only on first image)
+    if (m_imageCount == 1) {
+      QWidget *emptyLabel = m_imagesContentLayout->parentWidget()->findChild<QWidget*>("emptyImagesLabel");
+      if (emptyLabel) {
+        m_imagesContentLayout->removeWidget(emptyLabel);
+        delete emptyLabel;
       }
-      fileButton->setText(shortName);
-      fileButton->setProperty("imagePath", imagePath);
-
-      connect(fileButton, &QPushButton::clicked, this, [this, imagePath]() {
-        emit imageClicked(imagePath);
-      });
-
-      m_imagesGridLayout->addWidget(fileButton, row, col);
     }
 
-    // Add count label if more than 8 images
-    if (m_imageCount > 8) {
-      QLabel *moreLabel = new QLabel(QString("+%1 more").arg(m_imageCount - 8));
-      moreLabel->setObjectName("moreImagesLabel");
-      moreLabel->setAlignment(Qt::AlignCenter);
-      moreLabel->setStyleSheet(
-        "color: #60d8dc; "
-        "font-size: 11px; "
-        "font-weight: 600; "
-        "background: transparent; "
-        "padding: 10px;"
-      );
-      m_imagesGridLayout->addWidget(moreLabel, 2, 0, 1, 4);
-    }
+    // Extract just the filename from the full path
+    QString fileName = QFileInfo(imagePath).fileName();
+
+    // Create a clickable label for the image
+    QLabel *imageLabel = new QLabel(fileName);
+    imageLabel->setStyleSheet(
+      "QLabel { "
+      "  color: #60d8dc; "
+      "  font-size: 11px; "
+      "  background: transparent; "
+      "  padding: 4px 8px; "
+      "  border-radius: 4px; "
+      "}"
+      "QLabel:hover { "
+      "  background: rgba(96, 216, 220, 0.2); "
+      "  text-decoration: underline; "
+      "}"
+    );
+    imageLabel->setCursor(Qt::PointingHandCursor);
+    imageLabel->setToolTip(imagePath);  // Show full path on hover
+    imageLabel->setProperty("imagePath", imagePath);
+
+    // Make it clickable
+    imageLabel->installEventFilter(this);
+
+    // Store the label so we can handle clicks
+    imageLabel->setProperty("isImageLabel", true);
+
+    m_imagesContentLayout->addWidget(imageLabel);
   }
 
   QFrame* DashboardWidget::createTargetBodyCard() {

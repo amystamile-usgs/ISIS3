@@ -38,6 +38,8 @@ find files of those names at the top level of this repository. **/
 
 
 #include "AbstractProjectItemView.h"
+#include "Control.h"
+#include "ControlNet.h"
 #include "ControlHealthMonitorView.h"
 #include "Cube.h"
 #include "CubeDnView.h"
@@ -127,6 +129,8 @@ namespace Isis {
 
     connect(m_dashboard, SIGNAL(imageClicked(QString)),
             this, SLOT(onImageClicked(QString)));
+    connect(m_dashboard, SIGNAL(createControlNetworkRequested()),
+            this, SLOT(onCreateControlNetworkRequested()));
 
     // Create panel manager
     m_panelManager = new SlidingPanelManager(this);
@@ -230,6 +234,8 @@ namespace Isis {
 
       connect(m_directory->project(), SIGNAL(imagesAdded(ImageList *)),
               this, SLOT(onImagesAdded(ImageList *)));
+      connect(m_directory->project(), SIGNAL(controlAdded(Control *)),
+              this, SLOT(onControlAdded(Control *)));
 
       QTimer::singleShot(1000, this, SLOT(applyCustomIcons()));
       QTimer::singleShot(2000, this, SLOT(applyCustomIcons()));
@@ -773,10 +779,10 @@ namespace Isis {
     tileViewsAction->setDisabled(true); // Disabled on default, until a view is added
 
     QAction *undoAction = m_directory->undoAction();
-    undoAction->setShortcut(Qt::Key_Z | Qt::CTRL);
+    undoAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Z));
 
     QAction *redoAction = m_directory->redoAction();
-    redoAction->setShortcut(Qt::Key_Z | Qt::CTRL | Qt::SHIFT);
+    redoAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Z));
 
     m_editMenuActions.append(undoAction);
     m_editMenuActions.append(redoAction);
@@ -947,6 +953,43 @@ namespace Isis {
 
 
   /**
+   * Handles when a control network is added to the project - updates dashboard
+   */
+  void AstrosetMainWindow::onControlAdded(Control *control) {
+    if (!m_dashboard || !control) return;
+
+    try {
+      QString networkName;
+      if (control->displayProperties()) {
+        networkName = control->displayProperties()->displayName();
+      }
+      else {
+        networkName = "Unknown";
+      }
+
+      // Don't try to open the control network here - it can cause issues
+      // Just show 0/0 for new networks
+      int numPoints = 0;
+      int numMeasures = 0;
+
+      m_dashboard->addControlNetworkToCard(networkName, numPoints, numMeasures);
+    }
+    catch (...) {
+      // Don't crash - just skip
+    }
+  }
+
+  /**
+   * Handles request to create a new control network from the dashboard
+   */
+  void AstrosetMainWindow::onCreateControlNetworkRequested() {
+    if (!m_directory) return;
+
+    // Trigger the create control network work order
+    m_directory->createControlNetwork();
+  }
+
+  /**
    * Handles when images are added to the project - updates dashboard
    */
   void AstrosetMainWindow::onImagesAdded(ImageList *images) {
@@ -1056,9 +1099,7 @@ namespace Isis {
             filter = QString::fromStdString(instGroup["FilterName"][0].toStdString());
           }
 
-          if (!spacecraftName.isEmpty()) {
-            m_dashboard->setSpacecraftInfo(spacecraftName, instrumentName, startTime, exposureDuration, filter);
-          }
+          m_dashboard->setSpacecraftInfo(spacecraftName, instrumentName, startTime, exposureDuration, filter);
         }
       }
       catch (...) {

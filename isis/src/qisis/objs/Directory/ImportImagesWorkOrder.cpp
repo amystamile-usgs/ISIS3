@@ -182,6 +182,10 @@ namespace Isis {
           }
         }
 
+        // Remove duplicates - convert to QSet and back to preserve only unique paths
+        QSet<QString> uniqueFiles(stateToSave->begin(), stateToSave->end());
+        *stateToSave = uniqueFiles.values();
+
         qDebug() << "ImportImages: Total images to import:" << stateToSave->count();
 
         // Show modern options dialog first to know if user wants workspace mode

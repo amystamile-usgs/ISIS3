@@ -33,6 +33,7 @@ namespace Isis {
 
     // Populate cards with actual data
     void addImageToCard(const QString &imageName, const QString &imagePath);
+    void addControlNetworkToCard(const QString &networkName, int numPoints, int numMeasures);
     void setTargetBodyInfo(const QString &targetName, const QPixmap &targetImage,
                            const QString &systemName, const QString &centerLon, const QString &centerLat);
     void setSpacecraftInfo(const QString &spacecraftName, const QString &instrumentName,
@@ -40,6 +41,10 @@ namespace Isis {
 
   signals:
     void imageClicked(const QString &imagePath);
+    void createControlNetworkRequested();
+
+  protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
   private:
     void setupUI();
@@ -49,6 +54,7 @@ namespace Isis {
     QFrame* createDiagramCard();
     QFrame* createChartCard();
     QFrame* createImagesCard();
+    QFrame* createControlNetworksCard();
     QFrame* createTargetBodyCard();
     QFrame* createSpacecraftCard();
 
@@ -63,9 +69,11 @@ namespace Isis {
 
     QFrame *m_imagesCard;
     QVBoxLayout *m_imagesContentLayout;
-    QGridLayout *m_imagesGridLayout;
     QSet<QString> m_addedImages;
     int m_imageCount;
+    QFrame *m_controlNetworksCard;
+    QVBoxLayout *m_controlNetworksLayout;
+    int m_controlNetworkCount;
     QFrame *m_targetBodyCard;
     QVBoxLayout *m_targetBodyContentLayout;
     QFrame *m_spacecraftCard;

@@ -36,6 +36,7 @@ find files of those names at the top level of this repository. **/
 #include "CnetEditorViewWorkOrder.h"
 #include "ControlHealthMonitorView.h"
 #include "ControlHealthMonitorWorkOrder.h"
+#include "CreateControlNetWorkOrder.h"
 #include "CnetEditorWidget.h"
 #include "Control.h"
 #include "ControlDisplayProperties.h"
@@ -157,6 +158,7 @@ namespace Isis {
       createWorkOrder<ControlHealthMonitorWorkOrder>();
 
       //  Main menu actions
+      m_createControlNetWorkOrder = createWorkOrder<CreateControlNetWorkOrder>();
       m_exportControlNetWorkOrder = createWorkOrder<ExportControlNetWorkOrder>();
       m_exportImagesWorkOrder = createWorkOrder<ExportImagesWorkOrder>();
       m_importControlNetWorkOrder = createWorkOrder<ImportControlNetWorkOrder>();
@@ -437,6 +439,7 @@ namespace Isis {
 
     QMenu *importMenu = fileMenu->addMenu("&Import");
     importMenu->addAction(m_importControlNetWorkOrder->clone() );
+    importMenu->addAction(m_createControlNetWorkOrder->clone() );
     importMenu->addAction(m_importImagesWorkOrder->clone() );
     importMenu->addAction(m_importShapesWorkOrder->clone() );
 
@@ -1063,6 +1066,20 @@ namespace Isis {
             m_project, SLOT(setClean(bool)));
 
     return result;
+  }
+
+
+  /**
+   * @brief Initiates the creation of a new control network
+   *
+   * This creates a CreateControlNetWorkOrder and adds it to the project for execution.
+   */
+  void Directory::createControlNetwork() {
+    if (!m_createControlNetWorkOrder) return;
+
+    // Clone the work order and add it to the project
+    WorkOrder *workOrder = m_createControlNetWorkOrder->clone();
+    project()->addToProject(workOrder);
   }
 
 

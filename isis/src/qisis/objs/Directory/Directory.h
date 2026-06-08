@@ -304,6 +304,8 @@ namespace Isis {
 
       Project *project() const;
 
+      void createControlNetwork();
+
       QList<QAction *> fileMenuActions();
       QList<QAction *> projectMenuActions();
       QList<QAction *> editMenuActions();
@@ -490,6 +492,7 @@ namespace Isis {
 
       // We only need to store the work orders that go into menus uniquely... all work orders
       //   (including these) should be stored in m_workOrders
+      QPointer<WorkOrder> m_createControlNetWorkOrder; //!< The create new ControlNetwork WorkOrder.
       QPointer<WorkOrder> m_exportControlNetWorkOrder;  //!< The export ControlNetwork WorkOrder.
       QPointer<WorkOrder> m_exportImagesWorkOrder; //!< The export images WorkOrder.
       QPointer<WorkOrder> m_importControlNetWorkOrder; //!< The import ControlNetwork WorkOrder.

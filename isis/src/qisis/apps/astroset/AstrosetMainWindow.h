@@ -19,6 +19,7 @@ find files of those names at the top level of this repository. **/
 
 namespace Isis {
   class AbstractProjectItemView;
+  class Control;
   class Directory;
   class Project;
   class ImageList;
@@ -216,7 +217,9 @@ namespace Isis {
       void writeGlobalSettings(Project *project);
 
       void onImagesAdded(ImageList *images);
+      void onControlAdded(Control *control);
       void onImageClicked(const QString &imagePath);
+      void onCreateControlNetworkRequested();
       void onAllPanelsClosed();
 
     protected:
