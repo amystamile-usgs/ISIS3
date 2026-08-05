@@ -793,6 +793,13 @@ namespace Isis {
     m_cholmodCommon.nmethods = 1;
     m_cholmodCommon.method[0].ordering = CHOLMOD_AMD;
 
+    // Enable CHOLMOD threading for parallel operations
+    // This affects both bundle iterations AND error propagation
+    // CHOLMOD will automatically use multiple threads if built with threading support
+    m_cholmodCommon.useGPU = 0;  // Disable GPU to ensure CPU threading is used
+    // Note: The actual number of threads is controlled by the CHOLMOD build configuration
+    // and can be set via OMP_NUM_THREADS environment variable if CHOLMOD was built with OpenMP
+
     return true;
   }
 
@@ -2730,6 +2737,11 @@ namespace Isis {
 
       // now loop over all object points to sum contributions into 3x3 point covariance matrix
       int pointIndex = 0;
+
+      // Pre-compute transpose of firstQBlock for this block to reuse across all points
+      // This avoids redundant transpose operations in the inner loop
+      std::map<int, LinearAlgebra::Matrix> transposedFirstQBlocks;
+
       for (j = 0; j < numObjectPoints; j++) {
         emit(pointUpdate(j+1));
         BundleControlPointQsp point = m_bundleControlPoints.at(pointIndex);
@@ -2767,32 +2779,45 @@ namespace Isis {
           continue;
         }
 
-        // iterate over Q
-        // secondQBlock is current map value
+        // Pre-filter Q matrix to only include relevant blocks (key <= i and non-null)
+        // This reduces iteration overhead in the inner loop
+        QList<QPair<int, LinearAlgebra::Matrix*>> relevantQBlocks;
+        relevantQBlocks.reserve(Q.size());  // Pre-allocate to avoid reallocations
+
         QMapIterator< int, LinearAlgebra::Matrix * > it(Q);
         while ( it.hasNext() ) {
           it.next();
-
-          int nKey = it.key();
-
           if (it.key() > i) {
-            break;
+            break;  // Q is sorted, so we can stop early
           }
-
-          LinearAlgebra::Matrix *secondQBlock = it.value();
-
-          if ( !secondQBlock ) {// should never be NULL
-            continue;
+          if (it.value()) {  // Only include non-null blocks
+            relevantQBlocks.append(qMakePair(it.key(), it.value()));
           }
+        }
 
-          LinearAlgebra::Matrix *inverseBlock = inverseMatrix.value(it.key());
+        // Compute transpose of firstQBlock once and cache it
+        LinearAlgebra::Matrix transFirstQBlock;
+        if (transposedFirstQBlocks.find(pointIndex) == transposedFirstQBlocks.end()) {
+          transFirstQBlock = trans(*firstQBlock);
+          transposedFirstQBlocks[pointIndex] = transFirstQBlock;
+        } else {
+          transFirstQBlock = transposedFirstQBlocks[pointIndex];
+        }
+
+        // iterate over pre-filtered Q blocks
+        for (int qIdx = 0; qIdx < relevantQBlocks.size(); qIdx++) {
+          int nKey = relevantQBlocks[qIdx].first;
+          LinearAlgebra::Matrix *secondQBlock = relevantQBlocks[qIdx].second;
+
+          LinearAlgebra::Matrix *inverseBlock = inverseMatrix.value(nKey);
 
           if ( !inverseBlock ) {// should never be NULL
             continue;
           }
 
-          T = prod(*inverseBlock, trans(*firstQBlock));
-          T = prod(*secondQBlock,T);
+          // Use pre-computed transpose to avoid redundant trans() operation
+          T = prod(*inverseBlock, transFirstQBlock);
+          T = prod(*secondQBlock, T);
 
           if (nKey != i) {
             T += trans(T);
@@ -2811,6 +2836,9 @@ namespace Isis {
         }
         pointIndex++;
       }
+
+      // Clear transpose cache after processing all points for this block
+      transposedFirstQBlocks.clear();
     }
 
     if (m_bundleSettings->createInverseMatrix()) {
