@@ -2738,10 +2738,6 @@ namespace Isis {
       // now loop over all object points to sum contributions into 3x3 point covariance matrix
       int pointIndex = 0;
 
-      // Pre-compute transpose of firstQBlock for this block to reuse across all points
-      // This avoids redundant transpose operations in the inner loop
-      std::map<int, LinearAlgebra::Matrix> transposedFirstQBlocks;
-
       for (j = 0; j < numObjectPoints; j++) {
         emit(pointUpdate(j+1));
         BundleControlPointQsp point = m_bundleControlPoints.at(pointIndex);
@@ -2779,43 +2775,35 @@ namespace Isis {
           continue;
         }
 
-        // Pre-filter Q matrix to only include relevant blocks (key <= i and non-null)
-        // This reduces iteration overhead in the inner loop
-        QList<QPair<int, LinearAlgebra::Matrix*>> relevantQBlocks;
-        relevantQBlocks.reserve(Q.size());  // Pre-allocate to avoid reallocations
+        // Compute transpose of firstQBlock once per point (instead of once per inner iteration)
+        // This reduces redundant trans() calls from O(Q.size()) to O(1) per point
+        LinearAlgebra::Matrix transFirstQBlock = trans(*firstQBlock);
 
+        // iterate over Q
+        // secondQBlock is current map value
         QMapIterator< int, LinearAlgebra::Matrix * > it(Q);
         while ( it.hasNext() ) {
           it.next();
+
+          int nKey = it.key();
+
           if (it.key() > i) {
-            break;  // Q is sorted, so we can stop early
+            break;
           }
-          if (it.value()) {  // Only include non-null blocks
-            relevantQBlocks.append(qMakePair(it.key(), it.value()));
+
+          LinearAlgebra::Matrix *secondQBlock = it.value();
+
+          if ( !secondQBlock ) {// should never be NULL
+            continue;
           }
-        }
 
-        // Compute transpose of firstQBlock once and cache it
-        LinearAlgebra::Matrix transFirstQBlock;
-        if (transposedFirstQBlocks.find(pointIndex) == transposedFirstQBlocks.end()) {
-          transFirstQBlock = trans(*firstQBlock);
-          transposedFirstQBlocks[pointIndex] = transFirstQBlock;
-        } else {
-          transFirstQBlock = transposedFirstQBlocks[pointIndex];
-        }
-
-        // iterate over pre-filtered Q blocks
-        for (int qIdx = 0; qIdx < relevantQBlocks.size(); qIdx++) {
-          int nKey = relevantQBlocks[qIdx].first;
-          LinearAlgebra::Matrix *secondQBlock = relevantQBlocks[qIdx].second;
-
-          LinearAlgebra::Matrix *inverseBlock = inverseMatrix.value(nKey);
+          LinearAlgebra::Matrix *inverseBlock = inverseMatrix.value(it.key());
 
           if ( !inverseBlock ) {// should never be NULL
             continue;
           }
 
-          // Use pre-computed transpose to avoid redundant trans() operation
+          // Use pre-computed transpose instead of calling trans(*firstQBlock) here
           T = prod(*inverseBlock, transFirstQBlock);
           T = prod(*secondQBlock, T);
 
@@ -2836,9 +2824,6 @@ namespace Isis {
         }
         pointIndex++;
       }
-
-      // Clear transpose cache after processing all points for this block
-      transposedFirstQBlocks.clear();
     }
 
     if (m_bundleSettings->createInverseMatrix()) {
