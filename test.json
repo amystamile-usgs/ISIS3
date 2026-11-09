@@ -1,0 +1,554 @@
+{
+  "isis_camera_version": 1,
+  "image_lines": 280,
+  "image_samples": 2048,
+  "name_platform": "TRACE GAS ORBITER",
+  "name_sensor": "TRACE GAS ORBITER",
+  "reference_height": {
+    "maxheight": 1000,
+    "minheight": -1000,
+    "unit": "m"
+  },
+  "name_model": "USGS_ASTRO_FRAME_SENSOR_MODEL",
+  "center_ephemeris_time": 594678580.1901956,
+  "radii": {
+    "semimajor": 3396.19,
+    "semiminor": 3376.2,
+    "unit": "km"
+  },
+  "body_rotation": {
+    "time_dependent_frames": [
+      10014,
+      1
+    ],
+    "ck_table_start_time": 594678580.1901956,
+    "ck_table_end_time": 594678580.1901956,
+    "ck_table_original_size": 1,
+    "ephemeris_times": [
+      594678580.1901956
+    ],
+    "quaternions": [
+      [
+        0.45558089822509895,
+        -0.30939305399590106,
+        0.07493654349911763,
+        -0.8313281528734043
+      ]
+    ],
+    "angular_velocities": [
+      [
+        3.162302165496966e-05,
+        -2.881366626092484e-05,
+        5.65158438602328e-05
+      ]
+    ],
+    "reference_frame": 1
+  },
+  "instrument_pointing": {
+    "time_dependent_frames": [
+      -143410,
+      -143400,
+      -143000,
+      1
+    ],
+    "ck_table_start_time": 594678580.1901956,
+    "ck_table_end_time": 594678580.1901956,
+    "ck_table_original_size": 1,
+    "ephemeris_times": [
+      594678580.1901956
+    ],
+    "quaternions": [
+      [
+        -0.3573584270922155,
+        0.21352719655956537,
+        0.8039540183649079,
+        -0.42468697563088526
+      ]
+    ],
+    "angular_velocities": [
+      [
+        0.001054785249540696,
+        -0.00018527003990080067,
+        -0.0008264077940601552
+      ]
+    ],
+    "reference_frame": 1,
+    "constant_frames": [
+      -143420,
+      -143410
+    ],
+    "constant_rotation": [
+      0.0021039880161898283,
+      -0.0005089103275549567,
+      0.9999976571196088,
+      0.9848210365002222,
+      0.17356149021484737,
+      -0.0019837290716918643,
+      -0.17356007404082358,
+      0.9848229029245209,
+      0.0008663568917524067
+    ]
+  },
+  "naif_keywords": {
+    "BODY_FRAME_CODE": 10014,
+    "BODY_CODE": 499,
+    "FRAME_-143400_CENTER": -143400.0,
+    "FRAME_-143400_CLASS": 4.0,
+    "FRAME_-143400_CLASS_ID": -143400.0,
+    "FRAME_-143400_NAME": "TGO_CASSIS_CRU",
+    "INS-143400_BORESIGHT": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "INS-143400_BORESIGHT_LINE": 1024.5,
+    "INS-143400_BORESIGHT_SAMPLE": 1024.5,
+    "INS-143400_FILTER_LINES": 2048.0,
+    "INS-143400_FILTER_SAMPLES": 2048.0,
+    "INS-143400_FOCAL_LENGTH": 874.9,
+    "INS-143400_FOV_ANGLE_UNITS": "DEGREES",
+    "INS-143400_FOV_CLASS_SPEC": "ANGLES",
+    "INS-143400_FOV_CROSS_ANGLE": 0.67057,
+    "INS-143400_FOV_FRAME": "TGO_CASSIS_FSA",
+    "INS-143400_FOV_REF_ANGLE": 0.67057,
+    "INS-143400_FOV_REF_VECTOR": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "INS-143400_FOV_SHAPE": "RECTANGLE",
+    "INS-143400_ITRANSL": [
+      0.0,
+      0.0,
+      100.0
+    ],
+    "INS-143400_ITRANSS": [
+      0.0,
+      100.0,
+      0.0
+    ],
+    "INS-143400_LIGHTTIME_CORRECTION": "LT+S",
+    "INS-143400_LT_SURFACE_CORRECT": true,
+    "INS-143400_NAME": "TGO_CASSIS",
+    "INS-143400_OD_A1_CORR": [
+      0.0037613053094826604,
+      -0.0134154156065812,
+      -1.8674952100723702e-05,
+      1.00021352681836,
+      -0.00043236237170395304,
+      -0.000948065735350123
+    ],
+    "INS-143400_OD_A1_DIST": [
+      0.0021365879556062197,
+      -0.00711785765064197,
+      1.10355974742147e-05,
+      0.573607182625377,
+      0.000250884350194894,
+      0.000550623913037132
+    ],
+    "INS-143400_OD_A2_CORR": [
+      9.9842559363676e-05,
+      0.00373543707958162,
+      -0.0133299918873929,
+      -0.000215311328389359,
+      0.995296015537294,
+      -0.0183542717710778
+    ],
+    "INS-143400_OD_A2_DIST": [
+      -5.6972574101540595e-05,
+      0.00215155905679149,
+      -0.00716392991767185,
+      0.000124152787728634,
+      0.5764595443924261,
+      0.010576940564854
+    ],
+    "INS-143400_OD_A3_CORR": [
+      -3.13320167004204e-05,
+      -7.3565512574980695e-06,
+      -1.57664245066771e-05,
+      0.0037354946543915104,
+      -0.014167194693093499,
+      1.0
+    ],
+    "INS-143400_OD_A3_DIST": [
+      1.7825077148350597e-05,
+      4.24592743471094e-06,
+      9.51220699036653e-06,
+      0.0021515842542073798,
+      -0.0066835595774833,
+      0.573741540971609
+    ],
+    "INS-143400_PIXEL_PITCH": 0.01,
+    "INS-143400_SWAP_OBSERVER_TARGET": true,
+    "INS-143400_TRANSX": [
+      0.0,
+      0.01,
+      0.0
+    ],
+    "INS-143400_TRANSY": [
+      0.0,
+      0.0,
+      0.01
+    ],
+    "TKFRAME_-143400_ANGLES": [
+      0.021,
+      0.12,
+      -179.881
+    ],
+    "TKFRAME_-143400_AXES": [
+      1.0,
+      2.0,
+      3.0
+    ],
+    "TKFRAME_-143400_RELATIVE": "TGO_SPACECRAFT",
+    "TKFRAME_-143400_SPEC": "ANGLES",
+    "TKFRAME_-143400_UNITS": "DEGREES",
+    "BODY499_GM": 42828.314,
+    "BODY499_NUT_PREC_DEC": 0.0,
+    "BODY499_NUT_PREC_PM": 0.0,
+    "BODY499_NUT_PREC_RA": 0.0,
+    "BODY499_PM": [
+      176.63,
+      350.89198226,
+      0.0
+    ],
+    "BODY499_POLE_DEC": [
+      52.8865,
+      -0.0609,
+      0.0
+    ],
+    "BODY499_POLE_RA": [
+      317.68143,
+      -0.1061,
+      0.0
+    ],
+    "BODY499_RADII": [
+      3396.19,
+      3396.19,
+      3376.2
+    ],
+    "FRAME_1500499_CENTER": 499.0,
+    "FRAME_1500499_CLASS": 5.0,
+    "FRAME_1500499_CLASS_ID": 1500499.0,
+    "FRAME_1500499_DEF_STYLE": "PARAMETERIZED",
+    "FRAME_1500499_FAMILY": "TWO-VECTOR",
+    "FRAME_1500499_NAME": "MME",
+    "FRAME_1500499_PRI_AXIS": "Z",
+    "FRAME_1500499_PRI_FRAME": "IAU_MARS",
+    "FRAME_1500499_PRI_SPEC": "RECTANGULAR",
+    "FRAME_1500499_PRI_VECTOR": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "FRAME_1500499_PRI_VECTOR_DEF": "CONSTANT",
+    "FRAME_1500499_RELATIVE": "J2000",
+    "FRAME_1500499_SEC_AXIS": "Y",
+    "FRAME_1500499_SEC_FRAME": "J2000",
+    "FRAME_1500499_SEC_SPEC": "RECTANGULAR",
+    "FRAME_1500499_SEC_VECTOR": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "FRAME_1500499_SEC_VECTOR_DEF": "CONSTANT",
+    "FRAME_1501499_ANGLE_1_COEFFS": [
+      -47.68143,
+      3.362106117068471e-11
+    ],
+    "FRAME_1501499_ANGLE_2_COEFFS": [
+      -37.1135,
+      -1.929804547874363e-11
+    ],
+    "FRAME_1501499_ANGLE_3_COEFFS": 0.0,
+    "FRAME_1501499_AXES": [
+      3.0,
+      1.0,
+      3.0
+    ],
+    "FRAME_1501499_CENTER": 499.0,
+    "FRAME_1501499_CLASS": 5.0,
+    "FRAME_1501499_CLASS_ID": 1501499.0,
+    "FRAME_1501499_DEF_STYLE": "PARAMETERIZED",
+    "FRAME_1501499_EPOCH": 0.0,
+    "FRAME_1501499_FAMILY": "EULER",
+    "FRAME_1501499_NAME": "MME_IAU2000",
+    "FRAME_1501499_RELATIVE": "J2000",
+    "FRAME_1501499_UNITS": "DEGREES",
+    "FRAME_1502499_CENTER": 499.0,
+    "FRAME_1502499_CLASS": 5.0,
+    "FRAME_1502499_CLASS_ID": 1502499.0,
+    "FRAME_1502499_DEF_STYLE": "PARAMETERIZED",
+    "FRAME_1502499_FAMILY": "TWO-VECTOR",
+    "FRAME_1502499_NAME": "MSO",
+    "FRAME_1502499_PRI_ABCORR": "NONE",
+    "FRAME_1502499_PRI_AXIS": "X",
+    "FRAME_1502499_PRI_OBSERVER": "MARS",
+    "FRAME_1502499_PRI_TARGET": "SUN",
+    "FRAME_1502499_PRI_VECTOR_DEF": "OBSERVER_TARGET_POSITION",
+    "FRAME_1502499_RELATIVE": "J2000",
+    "FRAME_1502499_SEC_ABCORR": "NONE",
+    "FRAME_1502499_SEC_AXIS": "Y",
+    "FRAME_1502499_SEC_FRAME": "J2000",
+    "FRAME_1502499_SEC_OBSERVER": "MARS",
+    "FRAME_1502499_SEC_TARGET": "SUN",
+    "FRAME_1502499_SEC_VECTOR_DEF": "OBSERVER_TARGET_VELOCITY",
+    "FRAME_1503499_CENTER": 499.0,
+    "FRAME_1503499_CLASS": 4.0,
+    "FRAME_1503499_CLASS_ID": 1503499.0,
+    "FRAME_1503499_NAME": "MME2000",
+    "TKFRAME_1503499_MATRIX": [
+      0.6732521982472339,
+      0.7394129276360181,
+      0.0,
+      -0.589638760543004,
+      0.536879430789133,
+      0.6033958972853946,
+      0.4461587269353556,
+      -0.4062376142607541,
+      0.7974417791532832
+    ],
+    "TKFRAME_1503499_RELATIVE": "J2000",
+    "TKFRAME_1503499_SPEC": "MATRIX"
+  },
+  "detector_sample_summing": 1,
+  "detector_line_summing": 1,
+  "focal_length_model": {
+    "focal_length": 874.9
+  },
+  "detector_center": {
+    "line": 1024.0,
+    "sample": 1024.0
+  },
+  "focal2pixel_lines": [
+    0.0,
+    0.0,
+    100.0
+  ],
+  "focal2pixel_samples": [
+    0.0,
+    100.0,
+    0.0
+  ],
+  "optical_distortion": {
+    "cassis": {
+      "coefficients": [
+        0.0037613053094826604,
+        -0.0134154156065812,
+        -1.8674952100723702e-05,
+        1.00021352681836,
+        -0.00043236237170395304,
+        -0.000948065735350123,
+        9.9842559363676e-05,
+        0.00373543707958162,
+        -0.0133299918873929,
+        -0.000215311328389359,
+        0.995296015537294,
+        -0.0183542717710778,
+        -3.13320167004204e-05,
+        -7.3565512574980695e-06,
+        -1.57664245066771e-05,
+        0.0037354946543915104,
+        -0.014167194693093499,
+        1.0,
+        0.0021365879556062197,
+        -0.00711785765064197,
+        1.10355974742147e-05,
+        0.573607182625377,
+        0.000250884350194894,
+        0.000550623913037132,
+        -5.6972574101540595e-05,
+        0.00215155905679149,
+        -0.00716392991767185,
+        0.000124152787728634,
+        0.5764595443924261,
+        0.010576940564854,
+        1.7825077148350597e-05,
+        4.24592743471094e-06,
+        9.51220699036653e-06,
+        0.0021515842542073798,
+        -0.0066835595774833,
+        0.573741540971609
+      ]
+    }
+  },
+  "starting_detector_line": 0,
+  "starting_detector_sample": 0,
+  "instrument_position": {
+    "spk_table_start_time": 594678580.1901956,
+    "spk_table_end_time": 594678580.1901956,
+    "spk_table_original_size": 1,
+    "ephemeris_times": [
+      594678580.1901956
+    ],
+    "positions": [
+      [
+        -2460.6688924431805,
+        -2075.8263767622407,
+        2006.9465394206345
+      ]
+    ],
+    "velocities": [
+      [
+        -2.0633875771329366,
+        -0.07603413794424801,
+        -2.6471776708444423
+      ]
+    ],
+    "reference_frame": 1
+  },
+  "sun_position": {
+    "spk_table_start_time": 594678580.1901956,
+    "spk_table_end_time": 594678580.1901956,
+    "spk_table_original_size": 1,
+    "ephemeris_times": [
+      594678580.1901956
+    ],
+    "positions": [
+      [
+        -207406978.23360398,
+        -27012207.91351212,
+        -6791901.641247894
+      ]
+    ],
+    "velocities": [
+      [
+        2.2568504196139982,
+        -23.69747357222065,
+        -10.930330825630575
+      ]
+    ],
+    "reference_frame": 1
+  },
+  "kernels": {
+    "ck": [
+      "/tgo/kernels/ck/em16_edm_sop_axis_20161016_20161019_f20160921_v02.bc",
+      "/tgo/kernels/ck/em16_edm_sop_spin_20161016_20161019_f20160921_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_acs_sop_default_20160314_21000101_s20160719_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_cassis_tel_20160407_20271231_s20260914_v04.bc",
+      "/tgo/kernels/ck/em16_tgo_nomad_sop_default_20160404_21000101_s20160719_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_nomad_scp_20160404_20161019_s20160414_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_hga_scm_20160315_20161101_s20191109_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_hga_spm_20161101_20170301_s20191109_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_hga_sam_20170301_20180311_s20191109_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_hga_ssm_20180311_20190101_s20191109_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_hga_ssm_20190101_20200101_s20191109_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_hga_ssm_20200101_20210101_s20210113_v03.bc",
+      "/tgo/kernels/ck/em16_tgo_hga_ssm_20210101_20220101_s20220214_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_hga_ssm_20220101_20230101_s20221220_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_hga_ssm_20230101_20240101_s20240104_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_hga_ssm_20240101_20250101_s20250126_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sa_scm_20160315_20161101_s20191109_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sa_spm_20161101_20170301_s20191109_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sa_sam_20170301_20180311_s20191109_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sa_ssm_20180311_20190101_s20191109_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sa_ssm_20190101_20200101_s20191109_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_sa_ssm_20200101_20210101_s20210113_v03.bc",
+      "/tgo/kernels/ck/em16_tgo_sa_ssm_20210101_20220101_s20220214_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_sa_ssm_20220101_20230101_s20221220_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_sa_ssm_20230101_20240101_s20240104_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_sa_ssm_20240101_20250101_s20250126_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_fpp_015_01_20160314_20170315_s20200821_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_fsp_276_01_20180222_20230422_s20230330_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_fsp_454_01_20220101_20260919_s20260825_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_fsp_459_01_20260531_20261024_s20261001_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_scm_20160315_20161101_s20191109_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_spm_20161101_20170301_s20191109_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_sam_20170301_20180311_s20191109_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_ssm_20180311_20190101_s20191109_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_ssm_20190101_20200101_s20191109_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_ssm_20200101_20210101_s20210113_v03.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_ssm_20210101_20220101_s20220214_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_ssm_20220101_20230101_s20221220_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_ssm_20230101_20240101_s20240104_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_ssm_20240101_20250101_s20241207_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_ssm_20250101_20260101_s20260205_v01.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_isr_cassis_20180404_20190101_s20230330_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_isr_cassis_20190101_20200101_s20230330_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_isr_cassis_20200101_20210101_s20230330_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_isr_cassis_20210101_20220101_s20230330_v02.bc",
+      "/tgo/kernels/ck/em16_tgo_sc_isr_cassis_20220101_20221126_s20230330_v02.bc"
+    ],
+    "fk": [
+      "/tgo/kernels/fk/em16_tgo_v27.tf",
+      "/tgo/kernels/fk/em16_edm_v02.tf",
+      "/tgo/kernels/fk/em16_tgo_ops_v03.tf",
+      "/tgo/kernels/fk/em16_tgo_sci_v01.tf",
+      "/tgo/kernels/fk/em16_dsk_surfaces_v04.tf",
+      "/tgo/kernels/fk/rssd0002.tf",
+      "/tgo/kernels/fk/earth_topo_201023.tf",
+      "/tgo/kernels/fk/estrack_v07.tf",
+      "/tgo/kernels/fk/earthstns_ru_20210706.tf",
+      "/tgo/kernels/fk/em16_tgo_relay_locations_v02.tf"
+    ],
+    "ik": [
+      "/tgo/kernels/ik/em16_tgo_acs_v09.ti",
+      "/tgo/kernels/ik/em16_tgo_cassis_v09.ti",
+      "/tgo/kernels/ik/em16_tgo_frend_v06.ti",
+      "/tgo/kernels/ik/em16_tgo_nomad_v05.ti",
+      "/tgo/kernels/ik/em16_tgo_str_v03.ti",
+      "/tgo/kernels/ik/em16_edm_deca_v00.ti"
+    ],
+    "lsk": [
+      "/tgo/kernels/lsk/naif0012.tls"
+    ],
+    "pck": [
+      "/tgo/kernels/pck/pck00010.tpc",
+      "/tgo/kernels/pck/pck00011_n0066_mars_moons_v01.tpc",
+      "/tgo/kernels/pck/de-403-masses.tpc",
+      "/tgo/kernels/pck/earth_070425_370426_predict.bpc",
+      "/tgo/kernels/pck/earth_000101_270113_261017.bpc"
+    ],
+    "sclk": [
+      "/tgo/kernels/sclk/em16_tgo_fict_20180215.tsc",
+      "/tgo/kernels/sclk/em16_tgo_step_20261011.tsc",
+      "/tgo/kernels/sclk/em16_edm_fict_20160921.tsc"
+    ],
+    "spk": [
+      "/tgo/kernels/spk/em16_tgo_struct_v05.bsp",
+      "/tgo/kernels/spk/em16_tgo_cog_000_20160314_20300101_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_cog_276_01_20180220_20230422_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_cog_454_01_20220101_20260919_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_cog_459_01_20260531_20261024_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_048_01_20160314_20181231_v03.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_065_01_20181120_20190429_v03.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_082_01_20190318_20190903_v03.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_099_01_20190716_20191228_v02.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_116_01_20191111_20200425_v02.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_133_01_20200309_20200822_v02.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_150_01_20200706_20201219_v02.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_167_01_20201102_20210417_v02.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_184_01_20210301_20211002_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_201_01_20210628_20211211_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_218_01_20211025_20220409_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_235_01_20220221_20220806_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_252_01_20220620_20221203_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_267_01_20221004_20230318_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_284_01_20230124_20230805_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_301_01_20230527_20231111_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_318_01_20230925_20240309_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_335_01_20240113_20240706_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_352_01_20240520_20241102_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_369_01_20240916_20250301_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_386_01_20250113_20250628_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_403_01_20250512_20251025_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_420_01_20250811_20260221_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_437_01_20251229_20260620_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_454_01_20260504_20261017_v01.bsp",
+      "/tgo/kernels/spk/em16_tgo_fsp_459_01_20260608_20261121_v01.bsp",
+      "/tgo/kernels/spk/em16_edm_sot_landing_site_20161020_21000101_v01.bsp",
+      "/tgo/kernels/spk/em16_edm_fpd_028_01_20161016_20161020_v01.bsp",
+      "/tgo/kernels/spk/de432s.bsp",
+      "/tgo/kernels/spk/mar097_20160314_20500101.bsp",
+      "/tgo/kernels/spk/outerplanets_v0004.bsp",
+      "/tgo/kernels/spk/c2025_n1_atlas_hor_20250921_v01.bsp",
+      "/tgo/kernels/spk/earthstns_itrf93_201023.bsp",
+      "/tgo/kernels/spk/estrack_v07.bsp",
+      "/tgo/kernels/spk/earthstns_ru_20210706.bsp",
+      "/tgo/kernels/spk/em16_tgo_relay_locations_v02.bsp"
+    ],
+    "iak": [
+      "/tgo/kernels/iak/tgoCassisAddendum007.ti"
+    ]
+  }
+}
