@@ -658,6 +658,12 @@ namespace Isis {
 
       QString datafile = m_dataFileName->expanded();
       QString format = "GTiff";
+
+      QString maskFile = datafile + ".msk";
+      if (QFile::exists(maskFile)) {
+        QFile::remove(maskFile);
+      }
+
       createGdal(datafile, format, papszOptions);
 
       m_geodataSet = GDALDataset::FromHandle(GDALOpen(datafile.toStdString().c_str(), GA_Update));
@@ -2236,7 +2242,7 @@ namespace Isis {
           if (gdalDataset()) {
             CPLStringList metadata = CPLStringList(gdalDataset()->GetMetadata("json:ISIS3"), false);
             const char *metadataJsonString = metadata[0];
-            nlohmann::ordered_json jsonblob = nlohmann::ordered_json::parse(metadataJsonString);
+            nlohmann::json jsonblob = nlohmann::json::parse(metadataJsonString);
 
             bool keyErased = jsonblob.erase(key.toStdString());
             string jsonblobstr = jsonblob.dump();
@@ -2949,18 +2955,18 @@ namespace Isis {
     
     if (m_format == Format::GTiff) {
 
-      nlohmann::ordered_json jsonOut;
+      nlohmann::json jsonOut;
 
       // Check for existing data, if there is data update it
       CPLStringList metadata = CPLStringList(gdalDataset()->GetMetadata("json:ISIS3"), false);
 
       if (metadata[0] != nullptr) {
         const char *metadataJsonString = metadata[0];
-        jsonOut = nlohmann::ordered_json::parse(metadataJsonString);
+        jsonOut = nlohmann::json::parse(metadataJsonString);
       }
 
       // update metadata
-      nlohmann::ordered_json jsonblob = this->label()->toJson()["Root"];
+      nlohmann::json jsonblob = this->label()->toJson()["Root"];
       for (auto& [key, val] : jsonblob.items()) {
         if (!val.contains("Bytes") || key == "Label") {
           jsonOut[key] = val;
@@ -2972,7 +2978,7 @@ namespace Isis {
 
         std::string blobJsonStr = "{}";
         blob.WriteGdal(blobJsonStr);
-        nlohmann::ordered_json blobJson = nlohmann::ordered_json::parse(blobJsonStr);
+        nlohmann::json blobJson = nlohmann::json::parse(blobJsonStr);
         jsonOut.update(blobJson);
       }
       m_blobMap.clear();
